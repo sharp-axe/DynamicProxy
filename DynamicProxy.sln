@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28803.352
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sharpaxe.DynamicProxy", "Sharpaxe.DynamicProxy\Sharpaxe.DynamicProxy.csproj", "{540C466A-CC54-4FBF-9EEE-970EA0D97FE7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{540C466A-CC54-4FBF-9EEE-970EA0D97FE7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{540C466A-CC54-4FBF-9EEE-970EA0D97FE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{540C466A-CC54-4FBF-9EEE-970EA0D97FE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{540C466A-CC54-4FBF-9EEE-970EA0D97FE7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DE8CA47D-6998-4499-ACE7-4CBC069EAA3C}
+	EndGlobalSection
+EndGlobal
