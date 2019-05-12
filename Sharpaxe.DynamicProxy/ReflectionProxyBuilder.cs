@@ -497,9 +497,9 @@ namespace Sharpaxe.DynamicProxy
 
         private MethodInfo ResolveMethodPattern(Func<T, object> pattern)
         {
-            (object instance, IMethodSelector selector) = typeRepository.CreateMethodSelector(type);
+            (object instance, IMethodDetector detector) = typeRepository.CreateMethodDetector(type);
             var token = pattern.Invoke((T)instance);
-            return selector.GetSelectedMethod(token);
+            return detector.GetDetectedMethod(token);
         }
 
         private void AddBeforePropertyGetterDecorator(PropertyInfo propertyInfo, object decorator)

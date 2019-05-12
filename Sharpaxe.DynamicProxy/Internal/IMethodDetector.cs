@@ -3,8 +3,8 @@
 namespace Sharpaxe.DynamicProxy.Internal
 {
 #warning Should be an internal interface - change it after skip clr visibility check has been done
-    public interface IEventDetector
+    public interface IMethodDetector
     {
-        EventInfo GetDetectedEvent();
+        MethodInfo GetDetectedMethod(object methodToken);
     }
 }

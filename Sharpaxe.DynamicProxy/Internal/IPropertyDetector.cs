@@ -2,7 +2,8 @@
 
 namespace Sharpaxe.DynamicProxy.Internal
 {
-    internal interface IPropertyDetector
+#warning Should be an internal interface - change it after skip clr visibility check has been done
+    public interface IPropertyDetector
     {
         PropertyInfo GetDetectedProperty();
     }
