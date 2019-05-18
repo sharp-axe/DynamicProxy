@@ -8,9 +8,8 @@ namespace Sharpaxe.DynamicProxy.Internal.DetectorBuilder
 {
     internal abstract class CommonDetectorBuilder
     {
-        protected abstract string GetTypeName();
-        protected abstract string GetNotSupportedMemberExceptionMessage();
-        protected abstract IEnumerable<Type> GetCustomInterfacesToBeImplemented();
+        protected abstract Type DetectorInterfaceType { get; }
+        protected abstract string NotSupportedMemberExceptionMessage { get; }
 
         protected abstract void DefineCustomStaticFields();
         protected abstract void DefineCustomInstanceFields();
@@ -61,29 +60,17 @@ namespace Sharpaxe.DynamicProxy.Internal.DetectorBuilder
 
         private void InitializeTypeBuilder()
         {
-            var baseTypes = GetInterfacesToBeImplemented().ToArray();
-
             TypeBuilder =
                 ModuleBuilder.DefineType(
                 GetTypeName(),
                 TypeAttributes.Class | TypeAttributes.Public,
                 typeof(object),
-                baseTypes);
-
-            foreach (var bt in baseTypes)
-            {
-                TypeBuilder.AddInterfaceImplementation(bt);
-            }
+                new[] { TargetType, DetectorInterfaceType });
         }
 
-        private IEnumerable<Type> GetInterfacesToBeImplemented()
+        private string GetTypeName()
         {
-            yield return TargetType;
-
-            foreach (var abt in GetCustomInterfacesToBeImplemented())
-            {
-                yield return abt;
-            }
+            return $"{TargetType.Name}''_{DetectorInterfaceType.Name}";
         }
 
         private void DefineConstructor()
@@ -168,7 +155,7 @@ namespace Sharpaxe.DynamicProxy.Internal.DetectorBuilder
                     methodInfo.ReturnType,
                     methodInfo.GetParameters().Select(p => p.ParameterType).ToArray());
 
-            methodBuilder.GetILGenerator().EmitThrowNotSupportedException(GetNotSupportedMemberExceptionMessage());
+            methodBuilder.GetILGenerator().EmitThrowNotSupportedException(NotSupportedMemberExceptionMessage);
 
             TypeBuilder.DefineMethodOverride(methodBuilder, methodInfo);
         }

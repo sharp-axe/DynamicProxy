@@ -17,24 +17,17 @@ namespace Sharpaxe.DynamicProxy.Internal.DetectorBuilder
         {
         }
 
-        protected override string GetTypeName()
-        {
-            return $"{TargetType.Name}''_{nameof(IPropertyGetterDetector)}";
-        }
-
-        protected override string GetNotSupportedMemberExceptionMessage()
-        {
-            return "Only a property getter can be invoked on this instance";
-        }
-
-        protected override IEnumerable<Type> GetCustomInterfacesToBeImplemented()
-        {
-            yield return typeof(IPropertyGetterDetector);
-        }
+        protected override Type DetectorInterfaceType => typeof(IPropertyGetterDetector);
+        protected override string NotSupportedMemberExceptionMessage => "Only a property getter can be invoked on this instance";
 
         protected override void DefineCustomStaticFields()
         {
             typePropertiesStaticField = TypeBuilder.DefineField("typeProperties", typeof(PropertyInfo[]), FieldAttributes.Private | FieldAttributes.Static);
+        }
+
+        protected override void SetCustomStaticFields(Type detectorType)
+        {
+            detectorType.GetField(typePropertiesStaticField.Name, BindingFlags.Static | BindingFlags.NonPublic).SetValue(null, PropertiesInfo);
         }
 
         protected override void DefineCustomInstanceFields()
@@ -44,7 +37,7 @@ namespace Sharpaxe.DynamicProxy.Internal.DetectorBuilder
 
         protected override void DefineCustomPublicMethods()
         {
-            var methodInfo = typeof(IPropertyGetterDetector).GetMethods(BindingFlags.Public | BindingFlags.Instance).First();
+            var methodInfo = DetectorInterfaceType.GetMethods(BindingFlags.Public | BindingFlags.Instance).First();
 
             var methodBuilder =
                 TypeBuilder.DefineMethod(
@@ -118,11 +111,6 @@ namespace Sharpaxe.DynamicProxy.Internal.DetectorBuilder
             ILGenerator.Emit(OpCodes.Ret);
 
             TypeBuilder.DefineMethodOverride(methodBuilder, getMethod);
-        }
-
-        protected override void SetCustomStaticFields(Type detectorType)
-        {
-            detectorType.GetField(typePropertiesStaticField.Name, BindingFlags.Static | BindingFlags.NonPublic).SetValue(null, PropertiesInfo);
         }
     }
 }
