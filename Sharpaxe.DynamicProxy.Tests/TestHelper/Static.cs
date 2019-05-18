@@ -3,7 +3,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Threading;
 
-namespace Sharpaxe.DynamicProxy.Tests.Helpers
+namespace Sharpaxe.DynamicProxy.Tests.TestHelper
 {
     public static class Static
     {
@@ -11,7 +11,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Helpers
 
         private static ModuleBuilder CreateModuleBuilder()
         {
-            var dynamicAssemblyName = String.Format(DynamicAssemblyFormat, Assembly.GetExecutingAssembly().GetName().Name);
+            var dynamicAssemblyName = string.Format(DynamicAssemblyFormat, Assembly.GetExecutingAssembly().GetName().Name);
             var dynamicAssembly = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(dynamicAssemblyName), AssemblyBuilderAccess.Run);
             return dynamicAssembly.DefineDynamicModule(DynamicModuleName);
         }

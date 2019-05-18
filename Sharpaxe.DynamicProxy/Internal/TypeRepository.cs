@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Sharpaxe.DynamicProxy.Internal.Detector;
+using System;
 using System.Collections.Concurrent;
 using System.Reflection.Emit;
 
@@ -35,11 +36,18 @@ namespace Sharpaxe.DynamicProxy.Internal
             typeToConfiguratorTypeMap = new ConcurrentDictionary<Type, Type>();
         }
 
-        public (object, IPropertyDetector) CreatePropertyDetector(Type type)
+        public (object, IPropertyGetterDetector) CreatePropertyGetterDetector(Type type)
         {
             var detectorType = typeToDetectorTypeMap.GetOrAdd(type, CreateDetectorType);
             var detectorInstance = Activator.CreateInstance(detectorType);
-            return (detectorInstance, (IPropertyDetector)type);
+            return (detectorInstance, (IPropertyGetterDetector)type);
+        }
+
+        public (object, IPropertySetterDetector) CreatePropertySetterDetector(Type type)
+        {
+            var detectorType = typeToDetectorTypeMap.GetOrAdd(type, CreateDetectorType);
+            var detectorInstance = Activator.CreateInstance(detectorType);
+            return (detectorInstance, (IPropertySetterDetector)type);
         }
 
         public (object, IEventDetector, Action<object, EventArgs>) CreateEventDetector(Type type)

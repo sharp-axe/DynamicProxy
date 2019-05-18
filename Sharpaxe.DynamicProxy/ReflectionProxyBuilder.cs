@@ -1,4 +1,5 @@
 ﻿using Sharpaxe.DynamicProxy.Internal;
+using Sharpaxe.DynamicProxy.Internal.Detector;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -117,62 +118,62 @@ namespace Sharpaxe.DynamicProxy
 
         public void AddBeforePropertyGetterDecorator<TValue>(Func<T, TValue> pattern, Action decorator)
         {
-            AddBeforePropertyGetterDecorator(ResolvePropertyPattern(pattern), decorator);
+            AddBeforePropertyGetterDecorator(ResolvePropertyGetterPattern(pattern), decorator);
         }
 
         public void AddAfterPropertyGetterDecorator<TValue>(Func<T, TValue> pattern, Action<TValue> decorator)
         {
-            AddAfterPropertyGetterDecorator(ResolvePropertyPattern(pattern), decorator);
+            AddAfterPropertyGetterDecorator(ResolvePropertyGetterPattern(pattern), decorator);
         }
 
         public void SetPropertyGetterProxy<TValue>(Func<T, TValue> pattern, Func<T, TValue> proxy)
         {
-            SetPropertyGetterProxy(ResolvePropertyPattern(pattern), proxy);
+            SetPropertyGetterProxy(ResolvePropertyGetterPattern(pattern), proxy);
         }
 
         public void AddBeforePropertySetterDecorator<TValue>(Action<T, TValue> pattern, Action<TValue> decorator)
         {
-            AddBeforePropertySetterDecorator(ResolvePropertyPattern(pattern), decorator);
+            AddBeforePropertySetterDecorator(ResolvePropertySetterPattern(pattern), decorator);
         }
 
         public void AddAfterPropertySetterDecorator<TValue>(Action<T, TValue> pattern, Action decorator)
         {
-            AddAfterPropertySetterDecorator(ResolvePropertyPattern(pattern), decorator);
+            AddAfterPropertySetterDecorator(ResolvePropertySetterPattern(pattern), decorator);
         }
 
         public void SetPropertySetterProxy<TValue>(Action<T, TValue> pattern, Action<T, TValue> proxy)
         {
-            SetPropertySetterProxy(ResolvePropertyPattern(pattern), proxy);
+            SetPropertySetterProxy(ResolvePropertySetterPattern(pattern), proxy);
         }
 
         public void AddBeforeIndexerGetterDecorator<TIndex, TValue>(Func<T, TIndex, TValue> pattern, Action<TIndex> decorator)
         {
-            AddBeforePropertyGetterDecorator(ResolvePropertyPattern(pattern), decorator);
+            AddBeforePropertyGetterDecorator(ResolveIndexerGetterPattern(pattern), decorator);
         }
 
         public void AddAfterIndexerGetterDecorator<TIndex, TValue>(Func<T, TIndex, TValue> pattern, Action<TIndex, TValue> decorator)
         {
-            AddAfterPropertyGetterDecorator(ResolvePropertyPattern(pattern), decorator);
+            AddAfterPropertyGetterDecorator(ResolveIndexerGetterPattern(pattern), decorator);
         }
 
         public void SetIndexerGetterProxy<TIndex, TValue>(Func<T, TIndex, TValue> pattern, Func<T, TIndex, TValue> proxy)
         {
-            SetPropertyGetterProxy(ResolvePropertyPattern(pattern), proxy);
+            SetPropertyGetterProxy(ResolveIndexerGetterPattern(pattern), proxy);
         }
 
         public void AddBeforeIndexerSetterDecorator<TIndex, TValue>(Action<T, TIndex, TValue> pattern, Action<TIndex, TValue> decorator)
         {
-            AddBeforePropertySetterDecorator(ResolvePropertyPattern(pattern), decorator);
+            AddBeforePropertySetterDecorator(ResolveIndexerSetterPattern(pattern), decorator);
         }
 
         public void AddAfterIndexerSetterDecorator<TIndex, TValue>(Action<T, TIndex, TValue> pattern, Action<TIndex> decorator)
         {
-            AddAfterPropertySetterDecorator(ResolvePropertyPattern(pattern), decorator);
+            AddAfterPropertySetterDecorator(ResolveIndexerSetterPattern(pattern), decorator);
         }
 
         public void SetIndexerSetterProxy<TIndex, TValue>(Action<T, TIndex, TValue> pattern, Action<T, TIndex, TValue> proxy)
         {
-            SetPropertySetterProxy(ResolvePropertyPattern(pattern), proxy);
+            SetPropertySetterProxy(ResolveIndexerSetterPattern(pattern), proxy);
         }
 
         public void AddBeforeEventDecorator<TArgs>(Action<T, Action<object, TArgs>> pattern, Action<object, TArgs> decorator) where TArgs : EventArgs
@@ -459,31 +460,31 @@ namespace Sharpaxe.DynamicProxy
         {
             SetMethodProxy(ResolveMethodPattern(pattern), proxy);
         }
-
-        private PropertyInfo ResolvePropertyPattern<TValue>(Func<T, TValue> pattern)
+        
+        private PropertyInfo ResolvePropertyGetterPattern<TValue>(Func<T, TValue> pattern)
         {
-            (object instance, IPropertyDetector detector) = typeRepository.CreatePropertyDetector(type);
+            (object instance, IPropertyGetterDetector detector) = typeRepository.CreatePropertyGetterDetector(type);
             pattern.Invoke((T)instance);
             return detector.GetDetectedProperty();
         }
 
-        private PropertyInfo ResolvePropertyPattern<TValue>(Action<T, TValue> pattern)
+        private PropertyInfo ResolvePropertySetterPattern<TValue>(Action<T, TValue> pattern)
         {
-            (object instance, IPropertyDetector detector) = typeRepository.CreatePropertyDetector(type);
+            (object instance, IPropertySetterDetector detector) = typeRepository.CreatePropertySetterDetector(type);
             pattern.Invoke((T)instance, default);
             return detector.GetDetectedProperty();
         }
 
-        private PropertyInfo ResolvePropertyPattern<TIndex, TValue>(Func<T, TIndex, TValue> pattern)
+        private PropertyInfo ResolveIndexerGetterPattern<TIndex, TValue>(Func<T, TIndex, TValue> pattern)
         {
-            (object instance, IPropertyDetector detector) = typeRepository.CreatePropertyDetector(type);
+            (object instance, IPropertyGetterDetector detector) = typeRepository.CreatePropertyGetterDetector(type);
             pattern.Invoke((T)instance, default);
             return detector.GetDetectedProperty();
         }
 
-        private PropertyInfo ResolvePropertyPattern<TIndex, TValue>(Action<T, TIndex, TValue> pattern)
+        private PropertyInfo ResolveIndexerSetterPattern<TIndex, TValue>(Action<T, TIndex, TValue> pattern)
         {
-            (object instance, IPropertyDetector detector) = typeRepository.CreatePropertyDetector(type);
+            (object instance, IPropertySetterDetector detector) = typeRepository.CreatePropertySetterDetector(type);
             pattern.Invoke((T)instance, default, default);
             return detector.GetDetectedProperty();
         }
