@@ -10,6 +10,8 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal
     [TestClass]
     public class PropertyGetterDetectorFactoryTests
     {
+        #region IPropertyGetterInterface
+
         [TestMethod]
         public void Create_IPropertyGetterInterface_ReturnsNotNull()
         {
@@ -28,7 +30,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal
         {
             var detectorType = GetPropertyGetterDetectorType(typeof(IPropertyGetter));
             var propertyGetter = (IPropertyGetter)Activator.CreateInstance(detectorType);
-            Assert.AreEqual(default(bool), propertyGetter.BoleanPropertyWithGetter);
+            Assert.AreEqual(default(bool), propertyGetter.Boolean);
         }
 
         [TestMethod]
@@ -36,7 +38,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal
         {
             var detectorType = GetPropertyGetterDetectorType(typeof(IPropertyGetter));
             var propertyGetter = (IPropertyGetter)Activator.CreateInstance(detectorType);
-            Assert.AreEqual(default(byte), propertyGetter.BytePropertyWithGetter);
+            Assert.AreEqual(default(byte), propertyGetter.Byte);
         }
 
         [TestMethod]
@@ -44,7 +46,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal
         {
             var detectorType = GetPropertyGetterDetectorType(typeof(IPropertyGetter));
             var propertyGetter = (IPropertyGetter)Activator.CreateInstance(detectorType);
-            Assert.AreEqual(default(sbyte), propertyGetter.SBytePropertyWithGetter);
+            Assert.AreEqual(default(sbyte), propertyGetter.SByte);
         }
 
         [TestMethod]
@@ -52,7 +54,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal
         {
             var detectorType = GetPropertyGetterDetectorType(typeof(IPropertyGetter));
             var propertyGetter = (IPropertyGetter)Activator.CreateInstance(detectorType);
-            Assert.AreEqual(default(char), propertyGetter.CharPropertyWithGetter);
+            Assert.AreEqual(default(char), propertyGetter.Char);
         }
 
         [TestMethod]
@@ -60,7 +62,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal
         {
             var detectorType = GetPropertyGetterDetectorType(typeof(IPropertyGetter));
             var propertyGetter = (IPropertyGetter)Activator.CreateInstance(detectorType);
-            Assert.AreEqual(default(decimal), propertyGetter.DecimalPropertyWithGetter);
+            Assert.AreEqual(default(decimal), propertyGetter.Decimal);
         }
 
         [TestMethod]
@@ -68,7 +70,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal
         {
             var detectorType = GetPropertyGetterDetectorType(typeof(IPropertyGetter));
             var propertyGetter = (IPropertyGetter)Activator.CreateInstance(detectorType);
-            Assert.AreEqual(default(double), propertyGetter.DoublePropertyWithGetter);
+            Assert.AreEqual(default(double), propertyGetter.Double);
         }
 
         [TestMethod]
@@ -76,7 +78,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal
         {
             var detectorType = GetPropertyGetterDetectorType(typeof(IPropertyGetter));
             var propertyGetter = (IPropertyGetter)Activator.CreateInstance(detectorType);
-            Assert.AreEqual(default(float), propertyGetter.FloatPropertyWithGetter);
+            Assert.AreEqual(default(float), propertyGetter.Float);
         }
 
         [TestMethod]
@@ -84,7 +86,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal
         {
             var detectorType = GetPropertyGetterDetectorType(typeof(IPropertyGetter));
             var propertyGetter = (IPropertyGetter)Activator.CreateInstance(detectorType);
-            Assert.AreEqual(default(int), propertyGetter.IntPropertyWithGetter);
+            Assert.AreEqual(default(int), propertyGetter.Int);
         }
 
         [TestMethod]
@@ -92,7 +94,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal
         {
             var detectorType = GetPropertyGetterDetectorType(typeof(IPropertyGetter));
             var propertyGetter = (IPropertyGetter)Activator.CreateInstance(detectorType);
-            Assert.AreEqual(default(uint), propertyGetter.UIntPropertyWithGetter);
+            Assert.AreEqual(default(uint), propertyGetter.UInt);
         }
 
         [TestMethod]
@@ -100,7 +102,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal
         {
             var detectorType = GetPropertyGetterDetectorType(typeof(IPropertyGetter));
             var propertyGetter = (IPropertyGetter)Activator.CreateInstance(detectorType);
-            Assert.AreEqual(default(long), propertyGetter.LongPropertyWithGetter);
+            Assert.AreEqual(default(long), propertyGetter.Long);
         }
 
         [TestMethod]
@@ -108,7 +110,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal
         {
             var detectorType = GetPropertyGetterDetectorType(typeof(IPropertyGetter));
             var propertyGetter = (IPropertyGetter)Activator.CreateInstance(detectorType);
-            Assert.AreEqual(default(ulong), propertyGetter.ULongPropertyWithGetter);
+            Assert.AreEqual(default(ulong), propertyGetter.ULong);
         }
 
         [TestMethod]
@@ -116,7 +118,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal
         {
             var detectorType = GetPropertyGetterDetectorType(typeof(IPropertyGetter));
             var propertyGetter = (IPropertyGetter)Activator.CreateInstance(detectorType);
-            Assert.AreEqual(default(short), propertyGetter.ShortPropertyWithGetter);
+            Assert.AreEqual(default(short), propertyGetter.Short);
         }
 
         [TestMethod]
@@ -124,7 +126,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal
         {
             var detectorType = GetPropertyGetterDetectorType(typeof(IPropertyGetter));
             var propertyGetter = (IPropertyGetter)Activator.CreateInstance(detectorType);
-            Assert.AreEqual(default(ushort), propertyGetter.UShortPropertyWithGetter);
+            Assert.AreEqual(default(ushort), propertyGetter.UShort);
         }
 
         [TestMethod]
@@ -132,7 +134,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal
         {
             var detectorType = GetPropertyGetterDetectorType(typeof(IPropertyGetter));
             var propertyGetter = (IPropertyGetter)Activator.CreateInstance(detectorType);
-            Assert.AreEqual(default(TestStruct), propertyGetter.StructPropertyWithGetter);
+            Assert.AreEqual(default(TestStruct), propertyGetter.Struct);
         }
 
         [TestMethod]
@@ -140,23 +142,24 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal
         {
             var detectorType = GetPropertyGetterDetectorType(typeof(IPropertyGetter));
             var propertyGetter = (IPropertyGetter)Activator.CreateInstance(detectorType);
-            Assert.AreEqual(default(string), propertyGetter.ReferencePropertyWithGetter);
+            Assert.AreEqual(default(string), propertyGetter.Class);
         }
 
         [TestMethod]
         [ExpectedException(typeof(InvalidOperationException))]
         public void GetPropertyTwice_IPropertyGetterInterface_ThrowsAnExpectedException()
         {
+            IPropertyGetter propertyGetter;
             try
             {
                 var detectorType = GetPropertyGetterDetectorType(typeof(IPropertyGetter));
-                var propertyGetter = (IPropertyGetter)Activator.CreateInstance(detectorType);
-                var _ = propertyGetter.IntPropertyWithGetter;
-                _ = propertyGetter.IntPropertyWithGetter;
+                propertyGetter = (IPropertyGetter)Activator.CreateInstance(detectorType);
+                var _ = propertyGetter.Int;
+                _ = propertyGetter.Int;
             }
             catch (Exception ex)
             {
-                Assert.IsTrue(ex.Message.Contains("IntPropertyWithGetter"));
+                Assert.IsTrue(ex.Message.Contains(nameof(propertyGetter.Int)));
                 throw;
             }
         }
@@ -165,16 +168,17 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal
         [ExpectedException(typeof(InvalidOperationException))]
         public void GetPropertyOneByOne_IPropertyGetterInterface_ThrowsAnExpectedException()
         {
+            IPropertyGetter propertyGetter;
             try
             {
                 var detectorType = GetPropertyGetterDetectorType(typeof(IPropertyGetter));
-                var propertyGetter = (IPropertyGetter)Activator.CreateInstance(detectorType);
-                var _b = propertyGetter.BoleanPropertyWithGetter;
-                var _i = propertyGetter.IntPropertyWithGetter;
+                propertyGetter = (IPropertyGetter)Activator.CreateInstance(detectorType);
+                var _b = propertyGetter.Boolean;
+                var _i = propertyGetter.Int;
             }
             catch (Exception ex)
             {
-                Assert.IsTrue(ex.Message.Contains("BoleanPropertyWithGetter"));
+                Assert.IsTrue(ex.Message.Contains(nameof(propertyGetter.Boolean)));
                 throw;
             }
         }
@@ -195,8 +199,8 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal
             var instance = Activator.CreateInstance(detectorType);
             var propertyGetter = (IPropertyGetter)instance;
             var propertyDetector = (IPropertyGetterDetector)instance;
-            var _ = propertyGetter.BoleanPropertyWithGetter;
-            Assert.AreEqual(typeof(IPropertyGetter).GetProperty(nameof(propertyGetter.BoleanPropertyWithGetter)), propertyDetector.GetDetectedProperty());
+            var _ = propertyGetter.Boolean;
+            Assert.AreEqual(typeof(IPropertyGetter).GetProperty(nameof(propertyGetter.Boolean)), propertyDetector.GetDetectedProperty());
         }
 
         [TestMethod]
@@ -206,8 +210,8 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal
             var instance = Activator.CreateInstance(detectorType);
             var propertyGetter = (IPropertyGetter)instance;
             var propertyDetector = (IPropertyGetterDetector)instance;
-            var _ = propertyGetter.BytePropertyWithGetter;
-            Assert.AreEqual(typeof(IPropertyGetter).GetProperty(nameof(propertyGetter.BytePropertyWithGetter)), propertyDetector.GetDetectedProperty());
+            var _ = propertyGetter.Byte;
+            Assert.AreEqual(typeof(IPropertyGetter).GetProperty(nameof(propertyGetter.Byte)), propertyDetector.GetDetectedProperty());
         }
 
         [TestMethod]
@@ -217,8 +221,8 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal
             var instance = Activator.CreateInstance(detectorType);
             var propertyGetter = (IPropertyGetter)instance;
             var propertyDetector = (IPropertyGetterDetector)instance;
-            var _ = propertyGetter.SBytePropertyWithGetter;
-            Assert.AreEqual(typeof(IPropertyGetter).GetProperty(nameof(propertyGetter.SBytePropertyWithGetter)), propertyDetector.GetDetectedProperty());
+            var _ = propertyGetter.SByte;
+            Assert.AreEqual(typeof(IPropertyGetter).GetProperty(nameof(propertyGetter.SByte)), propertyDetector.GetDetectedProperty());
         }
 
         [TestMethod]
@@ -228,8 +232,8 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal
             var instance = Activator.CreateInstance(detectorType);
             var propertyGetter = (IPropertyGetter)instance;
             var propertyDetector = (IPropertyGetterDetector)instance;
-            var _ = propertyGetter.CharPropertyWithGetter;
-            Assert.AreEqual(typeof(IPropertyGetter).GetProperty(nameof(propertyGetter.CharPropertyWithGetter)), propertyDetector.GetDetectedProperty());
+            var _ = propertyGetter.Char;
+            Assert.AreEqual(typeof(IPropertyGetter).GetProperty(nameof(propertyGetter.Char)), propertyDetector.GetDetectedProperty());
         }
 
         [TestMethod]
@@ -239,8 +243,8 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal
             var instance = Activator.CreateInstance(detectorType);
             var propertyGetter = (IPropertyGetter)instance;
             var propertyDetector = (IPropertyGetterDetector)instance;
-            var _ = propertyGetter.DecimalPropertyWithGetter;
-            Assert.AreEqual(typeof(IPropertyGetter).GetProperty(nameof(propertyGetter.DecimalPropertyWithGetter)), propertyDetector.GetDetectedProperty());
+            var _ = propertyGetter.Decimal;
+            Assert.AreEqual(typeof(IPropertyGetter).GetProperty(nameof(propertyGetter.Decimal)), propertyDetector.GetDetectedProperty());
         }
 
         [TestMethod]
@@ -250,8 +254,8 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal
             var instance = Activator.CreateInstance(detectorType);
             var propertyGetter = (IPropertyGetter)instance;
             var propertyDetector = (IPropertyGetterDetector)instance;
-            var _ = propertyGetter.DoublePropertyWithGetter;
-            Assert.AreEqual(typeof(IPropertyGetter).GetProperty(nameof(propertyGetter.DoublePropertyWithGetter)), propertyDetector.GetDetectedProperty());
+            var _ = propertyGetter.Double;
+            Assert.AreEqual(typeof(IPropertyGetter).GetProperty(nameof(propertyGetter.Double)), propertyDetector.GetDetectedProperty());
         }
 
         [TestMethod]
@@ -261,8 +265,8 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal
             var instance = Activator.CreateInstance(detectorType);
             var propertyGetter = (IPropertyGetter)instance;
             var propertyDetector = (IPropertyGetterDetector)instance;
-            var _ = propertyGetter.FloatPropertyWithGetter;
-            Assert.AreEqual(typeof(IPropertyGetter).GetProperty(nameof(propertyGetter.FloatPropertyWithGetter)), propertyDetector.GetDetectedProperty());
+            var _ = propertyGetter.Float;
+            Assert.AreEqual(typeof(IPropertyGetter).GetProperty(nameof(propertyGetter.Float)), propertyDetector.GetDetectedProperty());
         }
 
         [TestMethod]
@@ -272,8 +276,8 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal
             var instance = Activator.CreateInstance(detectorType);
             var propertyGetter = (IPropertyGetter)instance;
             var propertyDetector = (IPropertyGetterDetector)instance;
-            var _ = propertyGetter.IntPropertyWithGetter;
-            Assert.AreEqual(typeof(IPropertyGetter).GetProperty(nameof(propertyGetter.IntPropertyWithGetter)), propertyDetector.GetDetectedProperty());
+            var _ = propertyGetter.Int;
+            Assert.AreEqual(typeof(IPropertyGetter).GetProperty(nameof(propertyGetter.Int)), propertyDetector.GetDetectedProperty());
         }
 
         [TestMethod]
@@ -283,8 +287,8 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal
             var instance = Activator.CreateInstance(detectorType);
             var propertyGetter = (IPropertyGetter)instance;
             var propertyDetector = (IPropertyGetterDetector)instance;
-            var _ = propertyGetter.UIntPropertyWithGetter;
-            Assert.AreEqual(typeof(IPropertyGetter).GetProperty(nameof(propertyGetter.UIntPropertyWithGetter)), propertyDetector.GetDetectedProperty());
+            var _ = propertyGetter.UInt;
+            Assert.AreEqual(typeof(IPropertyGetter).GetProperty(nameof(propertyGetter.UInt)), propertyDetector.GetDetectedProperty());
         }
 
         [TestMethod]
@@ -294,8 +298,8 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal
             var instance = Activator.CreateInstance(detectorType);
             var propertyGetter = (IPropertyGetter)instance;
             var propertyDetector = (IPropertyGetterDetector)instance;
-            var _ = propertyGetter.LongPropertyWithGetter;
-            Assert.AreEqual(typeof(IPropertyGetter).GetProperty(nameof(propertyGetter.LongPropertyWithGetter)), propertyDetector.GetDetectedProperty());
+            var _ = propertyGetter.Long;
+            Assert.AreEqual(typeof(IPropertyGetter).GetProperty(nameof(propertyGetter.Long)), propertyDetector.GetDetectedProperty());
         }
 
         [TestMethod]
@@ -305,8 +309,8 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal
             var instance = Activator.CreateInstance(detectorType);
             var propertyGetter = (IPropertyGetter)instance;
             var propertyDetector = (IPropertyGetterDetector)instance;
-            var _ = propertyGetter.ULongPropertyWithGetter;
-            Assert.AreEqual(typeof(IPropertyGetter).GetProperty(nameof(propertyGetter.ULongPropertyWithGetter)), propertyDetector.GetDetectedProperty());
+            var _ = propertyGetter.ULong;
+            Assert.AreEqual(typeof(IPropertyGetter).GetProperty(nameof(propertyGetter.ULong)), propertyDetector.GetDetectedProperty());
         }
 
         [TestMethod]
@@ -316,8 +320,8 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal
             var instance = Activator.CreateInstance(detectorType);
             var propertyGetter = (IPropertyGetter)instance;
             var propertyDetector = (IPropertyGetterDetector)instance;
-            var _ = propertyGetter.ShortPropertyWithGetter;
-            Assert.AreEqual(typeof(IPropertyGetter).GetProperty(nameof(propertyGetter.ShortPropertyWithGetter)), propertyDetector.GetDetectedProperty());
+            var _ = propertyGetter.Short;
+            Assert.AreEqual(typeof(IPropertyGetter).GetProperty(nameof(propertyGetter.Short)), propertyDetector.GetDetectedProperty());
         }
 
         [TestMethod]
@@ -327,8 +331,8 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal
             var instance = Activator.CreateInstance(detectorType);
             var propertyGetter = (IPropertyGetter)instance;
             var propertyDetector = (IPropertyGetterDetector)instance;
-            var _ = propertyGetter.UShortPropertyWithGetter;
-            Assert.AreEqual(typeof(IPropertyGetter).GetProperty(nameof(propertyGetter.UShortPropertyWithGetter)), propertyDetector.GetDetectedProperty());
+            var _ = propertyGetter.UShort;
+            Assert.AreEqual(typeof(IPropertyGetter).GetProperty(nameof(propertyGetter.UShort)), propertyDetector.GetDetectedProperty());
         }
 
         [TestMethod]
@@ -338,8 +342,8 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal
             var instance = Activator.CreateInstance(detectorType);
             var propertyGetter = (IPropertyGetter)instance;
             var propertyDetector = (IPropertyGetterDetector)instance;
-            var _ = propertyGetter.StructPropertyWithGetter;
-            Assert.AreEqual(typeof(IPropertyGetter).GetProperty(nameof(propertyGetter.StructPropertyWithGetter)), propertyDetector.GetDetectedProperty());
+            var _ = propertyGetter.Struct;
+            Assert.AreEqual(typeof(IPropertyGetter).GetProperty(nameof(propertyGetter.Struct)), propertyDetector.GetDetectedProperty());
         }
 
         [TestMethod]
@@ -349,9 +353,122 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal
             var instance = Activator.CreateInstance(detectorType);
             var propertyGetter = (IPropertyGetter)instance;
             var propertyDetector = (IPropertyGetterDetector)instance;
-            var _ = propertyGetter.ReferencePropertyWithGetter;
-            Assert.AreEqual(typeof(IPropertyGetter).GetProperty(nameof(propertyGetter.ReferencePropertyWithGetter)), propertyDetector.GetDetectedProperty());
+            var _ = propertyGetter.Class;
+            Assert.AreEqual(typeof(IPropertyGetter).GetProperty(nameof(propertyGetter.Class)), propertyDetector.GetDetectedProperty());
         }
+
+        #endregion IPropertyGetterInterface
+
+        #region Other interfaces
+
+        [TestMethod]
+        public void Create_IMethodInterface_ReturnsNotNull()
+        {
+            Assert.IsNotNull(GetPropertyGetterDetectorType(typeof(IMethod)));
+        }
+
+        [TestMethod]
+        public void Create_IEventInterface_ReturnsNotNull()
+        {
+            Assert.IsNotNull(GetPropertyGetterDetectorType(typeof(IEvent)));
+        }
+
+        [TestMethod]
+        public void Create_IPropertySetterInterface_ReturnsNotNull()
+        {
+            Assert.IsNotNull(GetPropertyGetterDetectorType(typeof(IPropertySetter)));
+        }
+
+        [TestMethod]
+        public void CreateInstance_IMethodInterface_ThrowsNoException()
+        {
+            var detectorType = GetPropertyGetterDetectorType(typeof(IMethod));
+            Activator.CreateInstance(detectorType);
+        }
+
+        [TestMethod]
+        public void CreateInstance_IEventInterface_ThrowsNoException()
+        {
+            var detectorType = GetPropertyGetterDetectorType(typeof(IEvent));
+            Activator.CreateInstance(detectorType);
+        }
+
+        [TestMethod]
+        public void CreateInstance_IPropertySetterInterface_ThrowsNoException()
+        {
+            var detectorType = GetPropertyGetterDetectorType(typeof(IPropertySetter));
+            Activator.CreateInstance(detectorType);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(NotSupportedException))]
+        public void InvokeMethod_IMethodDetector_ThrowsAnExpectedException()
+        {
+            try
+            {
+                var detectorType = GetPropertyGetterDetectorType(typeof(IMethod));
+                var instance = (IMethod)Activator.CreateInstance(detectorType);
+                instance.Method();
+            }
+            catch (Exception ex)
+            {
+                Assert.IsTrue(ex.Message.Contains("property getter"));
+                throw;
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(NotSupportedException))]
+        public void AddHandler_IEventDetector_ThrowsAnExpectedException()
+        {
+            try
+            {
+                var detectorType = GetPropertyGetterDetectorType(typeof(IEvent));
+                var instance = (IEvent)Activator.CreateInstance(detectorType);
+                instance.Event += (o, a) => { };
+            }
+            catch (Exception ex)
+            {
+                Assert.IsTrue(ex.Message.Contains("property getter"));
+                throw;
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(NotSupportedException))]
+        public void RemoveHandler_IEventDetector_ThrowsAnExpectedException()
+        {
+            try
+            {
+                var detectorType = GetPropertyGetterDetectorType(typeof(IEvent));
+                var instance = (IEvent)Activator.CreateInstance(detectorType);
+                instance.Event -= (o, a) => { };
+            }
+            catch (Exception ex)
+            {
+                Assert.IsTrue(ex.Message.Contains("property getter"));
+                throw;
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(NotSupportedException))]
+        public void SetProperty_IPropertySetterDetector_ThrowsAnExpectedException()
+        {
+            try
+            {
+                var detectorType = GetPropertyGetterDetectorType(typeof(IPropertySetter));
+                var instance = (IPropertySetter)Activator.CreateInstance(detectorType);
+                instance.Boolean = default(bool);
+            }
+            catch (Exception ex)
+            {
+                Assert.IsTrue(ex.Message.Contains("property getter"));
+                throw;
+            }
+        }
+
+        #endregion
 
         public Type GetPropertyGetterDetectorType(Type targetType)
         {

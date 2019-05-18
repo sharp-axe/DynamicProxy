@@ -54,5 +54,12 @@ namespace Sharpaxe.DynamicProxy.Internal
                     ILGenerator.Emit(OpCodes.Ldnull); break;
             }
         }
+
+        public static void EmitThrowNotSupportedException(this ILGenerator ILGenerator, string message)
+        {
+            ILGenerator.Emit(OpCodes.Ldstr, message);
+            ILGenerator.Emit(OpCodes.Newobj, typeof(NotSupportedException).GetConstructor(new Type[] { typeof(string) }));
+            ILGenerator.Emit(OpCodes.Throw);
+        }
     }
 }

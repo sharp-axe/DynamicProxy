@@ -9,7 +9,9 @@ namespace Sharpaxe.DynamicProxy.Internal.DetectorBuilder
     internal abstract class CommonDetectorBuilder
     {
         protected abstract string GetTypeName();
+        protected abstract string GetNotSupportedMemberExceptionMessage();
         protected abstract IEnumerable<Type> GetCustomInterfacesToBeImplemented();
+
         protected abstract void DefineCustomStaticFields();
         protected abstract void DefineCustomInstanceFields();
         protected abstract void DefineCustomPublicMethods();
@@ -97,19 +99,20 @@ namespace Sharpaxe.DynamicProxy.Internal.DetectorBuilder
             ILGenerator.Emit(OpCodes.Ret);
         }
 
-        private void DefineTargetTypeEvents()
-        {
-            for (int i = 0; i < EventsInfo.Length; i++)
-            {
-                DefineTargetTypeEvent(EventsInfo[i], i);
-            }
-        }
-
         private void DefineTargetTypeMethods()
         {
             for (int i = 0; i < MethodsInfo.Length; i++)
             {
                 DefineTargetTypeMethod(MethodsInfo[i], i);
+            }
+        }
+
+        private void DefineTargetTypeEvents()
+        {
+            for (int i = 0; i < EventsInfo.Length; i++)
+            {
+                DefineTargetTypeEventAddMethod(EventsInfo[i].GetAddMethod(), i);
+                DefineTargetTypeEventRemoveMethod(EventsInfo[i].GetRemoveMethod(), i);
             }
         }
 
@@ -126,55 +129,48 @@ namespace Sharpaxe.DynamicProxy.Internal.DetectorBuilder
                 var setMethod = PropertiesInfo[i].GetSetMethod();
                 if (setMethod != null && setMethod.IsPublic)
                 {
-                    DefineTargetTypePropertySetMethod(getMethod, i);
+                    DefineTargetTypePropertySetMethod(setMethod, i);
                 }
             }
         }
 
-        protected virtual void DefineTargetTypeEvent(EventInfo eventInfo, int indexInTypeDefinition)
-        {
-            throw new NotImplementedException();
-        }
-
         protected virtual void DefineTargetTypeMethod(MethodInfo methodInfo, int indexInTypeDefinition)
         {
-            throw new NotImplementedException();
+            DefineMethodThrowingNotSupportedException(methodInfo);
+        }
+
+        protected virtual void DefineTargetTypeEventAddMethod(MethodInfo addMethod, int indexInTypeDefenition)
+        {
+            DefineMethodThrowingNotSupportedException(addMethod);
+        }
+
+        protected virtual void DefineTargetTypeEventRemoveMethod(MethodInfo removeMethod, int indexInTypeDefenition)
+        {
+            DefineMethodThrowingNotSupportedException(removeMethod);
         }
 
         protected virtual void DefineTargetTypePropertyGetMethod(MethodInfo getMethod, int indexInTypeDefinition)
         {
-            var methodBuilder =
-                TypeBuilder.DefineMethod(
-                    getMethod.Name,
-                    MethodAttributes.Public | MethodAttributes.Virtual,
-                    getMethod.ReturnType,
-                    getMethod.GetParameters().Select(p => p.ParameterType).ToArray());
-
-            var ILGenerator = methodBuilder.GetILGenerator();
-
-            // Throw a not supported exception
-            ILGenerator.Emit(OpCodes.Newobj, typeof(NotSupportedException).GetConstructor(new Type[0]));
-            ILGenerator.Emit(OpCodes.Throw);
-
-            TypeBuilder.DefineMethodOverride(methodBuilder, getMethod);
+            DefineMethodThrowingNotSupportedException(getMethod);
         }
 
         protected virtual void DefineTargetTypePropertySetMethod(MethodInfo setMethod, int indexInTypeDefinition)
         {
+            DefineMethodThrowingNotSupportedException(setMethod);
+        }
+
+        private void DefineMethodThrowingNotSupportedException(MethodInfo methodInfo)
+        {
             var methodBuilder =
                 TypeBuilder.DefineMethod(
-                    setMethod.Name,
+                    methodInfo.Name,
                     MethodAttributes.Public | MethodAttributes.Virtual,
-                    setMethod.ReturnType,
-                    setMethod.GetParameters().Select(p => p.ParameterType).ToArray());
+                    methodInfo.ReturnType,
+                    methodInfo.GetParameters().Select(p => p.ParameterType).ToArray());
 
-            var ILGenerator = methodBuilder.GetILGenerator();
+            methodBuilder.GetILGenerator().EmitThrowNotSupportedException(GetNotSupportedMemberExceptionMessage());
 
-            // Throw a not supported exception
-            ILGenerator.Emit(OpCodes.Newobj, typeof(NotSupportedException).GetConstructor(new Type[0]));
-            ILGenerator.Emit(OpCodes.Throw);
-
-            TypeBuilder.DefineMethodOverride(methodBuilder, setMethod);
+            TypeBuilder.DefineMethodOverride(methodBuilder, methodInfo);
         }
     }
 }

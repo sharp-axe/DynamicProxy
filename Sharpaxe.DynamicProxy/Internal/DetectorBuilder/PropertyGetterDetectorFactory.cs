@@ -7,7 +7,7 @@ using System.Reflection.Emit;
 
 namespace Sharpaxe.DynamicProxy.Internal.DetectorBuilder
 {
-    internal class PropertyGetterDetectorBuilder : CommonDetectorBuilder
+    internal sealed class PropertyGetterDetectorBuilder : CommonDetectorBuilder
     {
         private FieldInfo typePropertiesStaticField;
         private FieldInfo detectedPropertyGetterInstanceField;
@@ -20,6 +20,11 @@ namespace Sharpaxe.DynamicProxy.Internal.DetectorBuilder
         protected override string GetTypeName()
         {
             return $"{TargetType.Name}''_{nameof(IPropertyGetterDetector)}";
+        }
+
+        protected override string GetNotSupportedMemberExceptionMessage()
+        {
+            return "Only a property getter can be invoked on this instance";
         }
 
         protected override IEnumerable<Type> GetCustomInterfacesToBeImplemented()

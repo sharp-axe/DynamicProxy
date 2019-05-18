@@ -2,7 +2,7 @@
 
 namespace Sharpaxe.DynamicProxy.Tests.TestHelper
 {
-#warning Should be an internal interface - change it after skip clr visibility check has been done
+#warning Should be an internal struct - change it after skip clr visibility check has been done
     public struct TestStruct
     {
         public bool     BoolenField;
