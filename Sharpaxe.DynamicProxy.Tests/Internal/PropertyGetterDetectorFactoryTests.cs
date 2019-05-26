@@ -425,7 +425,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal
             {
                 var detectorType = GetPropertyGetterDetectorType(typeof(IEvent));
                 var instance = (IEvent)Activator.CreateInstance(detectorType);
-                instance.Event += (o, a) => { };
+                instance.EventEmptyArgs += (o, a) => { };
             }
             catch (Exception ex)
             {
@@ -442,7 +442,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal
             {
                 var detectorType = GetPropertyGetterDetectorType(typeof(IEvent));
                 var instance = (IEvent)Activator.CreateInstance(detectorType);
-                instance.Event -= (o, a) => { };
+                instance.EventEmptyArgs -= (o, a) => { };
             }
             catch (Exception ex)
             {

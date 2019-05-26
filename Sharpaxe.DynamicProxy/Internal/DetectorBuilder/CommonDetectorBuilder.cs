@@ -121,7 +121,7 @@ namespace Sharpaxe.DynamicProxy.Internal.DetectorBuilder
             }
         }
 
-        protected virtual void DefineTargetTypeMethod(MethodInfo methodInfo, int indexInTypeDefinition)
+        protected virtual void DefineTargetTypeMethod(MethodInfo methodInfo, int indexInTypeDefenition)
         {
             DefineMethodThrowingNotSupportedException(methodInfo);
         }
@@ -136,7 +136,7 @@ namespace Sharpaxe.DynamicProxy.Internal.DetectorBuilder
             DefineMethodThrowingNotSupportedException(removeMethod);
         }
 
-        protected virtual void DefineTargetTypePropertyGetMethod(MethodInfo getMethod, int indexInTypeDefinition)
+        protected virtual void DefineTargetTypePropertyGetMethod(MethodInfo getMethod, int indexInTypeDefenition)
         {
             DefineMethodThrowingNotSupportedException(getMethod);
         }
