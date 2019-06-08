@@ -491,8 +491,8 @@ namespace Sharpaxe.DynamicProxy
 
         private EventInfo ResolveEventPattern<TArgs>(Action<T, Action<object, TArgs>> pattern) where TArgs : EventArgs
         {
-            (object instance, IEventDetector detector, Action<object, EventArgs> signal) = typeRepository.CreateEventDetector(type);
-            pattern.Invoke((T)instance, signal);
+            (object instance, IEventDetector detector) = typeRepository.CreateEventDetector(type);
+            pattern.Invoke((T)instance, (o, a) => { });
             return detector.GetDetectedEvent();
         }
 
