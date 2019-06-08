@@ -36,14 +36,9 @@ namespace Sharpaxe.DynamicProxy
         {
             foreach (var pgc in configuration.Value.PropertyToGetterConfigurationMap)
             {
-                if (!pgc.Value.BeforeDecorators.IsEmpty())
+                if (!pgc.Value.Decorators.IsEmpty())
                 {
-                    proxyConfigurator.AddBeforePropertyGetterDecorator(pgc.Key, pgc.Value.BeforeDecorators);
-                }
-
-                if (!pgc.Value.AfterDecorators.IsEmpty())
-                {
-                    proxyConfigurator.AddAfterPropertyGetterDecorator(pgc.Key, pgc.Value.AfterDecorators);
+                    proxyConfigurator.AddPropertyGetterDecorators(pgc.Key, pgc.Value.Decorators);
                 }
 
                 if (pgc.Value.Proxy != null)
@@ -57,14 +52,9 @@ namespace Sharpaxe.DynamicProxy
         {
             foreach (var psc in configuration.Value.PropertyToSetterConfigurationMap)
             {
-                if (!psc.Value.BeforeDecorators.IsEmpty())
+                if (!psc.Value.Decorators.IsEmpty())
                 {
-                    proxyConfigurator.AddBeforePropertySetterDecorator(psc.Key, psc.Value.BeforeDecorators);
-                }
-
-                if (!psc.Value.AfterDecorators.IsEmpty())
-                {
-                    proxyConfigurator.AddAfterPropertySetterDecorator(psc.Key, psc.Value.AfterDecorators);
+                    proxyConfigurator.AddPropertySetterDecorators(psc.Key, psc.Value.Decorators);
                 }
 
                 if (psc.Value.Proxy != null)
@@ -78,14 +68,9 @@ namespace Sharpaxe.DynamicProxy
         {
             foreach (var es in configuration.Value.EventToConfigurationMap)
             {
-                if (!es.Value.BeforeDecorators.IsEmpty())
+                if (!es.Value.Decorators.IsEmpty())
                 {
-                    proxyConfigurator.AddBeforeEventDecorator(es.Key, es.Value.BeforeDecorators);
-                }
-
-                if (!es.Value.AfterDecorators.IsEmpty())
-                {
-                    proxyConfigurator.AddAfterEventDecorator(es.Key, es.Value.AfterDecorators);
+                    proxyConfigurator.AddEventDecorators(es.Key, es.Value.Decorators);
                 }
 
                 if (es.Value.Proxy != null)
@@ -99,14 +84,9 @@ namespace Sharpaxe.DynamicProxy
         {
             foreach (var mc in configuration.Value.MethodToConfigurationMap)
             {
-                if (!mc.Value.BeforeDecorators.IsEmpty())
+                if (!mc.Value.Decorators.IsEmpty())
                 {
-                    proxyConfigurator.AddBeforeMethodDecorator(mc.Key, mc.Value.BeforeDecorators);
-                }
-
-                if (!mc.Value.AfterDecorators.IsEmpty())
-                {
-                    proxyConfigurator.AddAfterMethodDecorator(mc.Key, mc.Value.AfterDecorators);
+                    proxyConfigurator.AddMethodDecorators(mc.Key, mc.Value.Decorators);
                 }
 
                 if (mc.Value.Proxy != null)
@@ -116,6 +96,7 @@ namespace Sharpaxe.DynamicProxy
             }
         }
 
+
         public void AddBeforePropertyGetterDecorator<TValue>(Func<T, TValue> pattern, Action decorator)
         {
             AddBeforePropertyGetterDecorator(ResolvePropertyGetterPattern(pattern), decorator);
@@ -124,6 +105,11 @@ namespace Sharpaxe.DynamicProxy
         public void AddAfterPropertyGetterDecorator<TValue>(Func<T, TValue> pattern, Action<TValue> decorator)
         {
             AddAfterPropertyGetterDecorator(ResolvePropertyGetterPattern(pattern), decorator);
+        }
+
+        public void AddPairPropertyGetterDecorators<TValue>(Func<T, TValue> pattern, Action beforeDecorator, Action<TValue> afterDecorator)
+        {
+            AddPairPropertyGetterDecorators(ResolvePropertyGetterPattern(pattern), beforeDecorator, afterDecorator);
         }
 
         public void SetPropertyGetterProxy<TValue>(Func<T, TValue> pattern, Func<T, TValue> proxy)
@@ -136,9 +122,14 @@ namespace Sharpaxe.DynamicProxy
             AddBeforePropertySetterDecorator(ResolvePropertySetterPattern(pattern), decorator);
         }
 
-        public void AddAfterPropertySetterDecorator<TValue>(Action<T, TValue> pattern, Action decorator)
+        public void AddAfterPropertySetterDecorator<TValue>(Action<T, TValue> pattern, Action<TValue> decorator)
         {
             AddAfterPropertySetterDecorator(ResolvePropertySetterPattern(pattern), decorator);
+        }
+
+        public void AddPairPropertySetterDecorators<TValue>(Action<T, TValue> pattern, Action<TValue> beforeDecorator, Action<TValue> afterDecorator)
+        {
+            AddPairPropertySetterDecorator(ResolvePropertySetterPattern(pattern), beforeDecorator, afterDecorator);
         }
 
         public void SetPropertySetterProxy<TValue>(Action<T, TValue> pattern, Action<T, TValue> proxy)
@@ -156,6 +147,11 @@ namespace Sharpaxe.DynamicProxy
             AddAfterPropertyGetterDecorator(ResolveIndexerGetterPattern(pattern), decorator);
         }
 
+        public void AddPairIndexerGetterDecorators<TIndex, TValue>(Func<T, TIndex, TValue> pattern, Action<TIndex> beforeDecorator, Action<TIndex, TValue> afterDecorator)
+        {
+            AddPairPropertyGetterDecorators(ResolveIndexerGetterPattern(pattern), beforeDecorator, afterDecorator);
+        }
+
         public void SetIndexerGetterProxy<TIndex, TValue>(Func<T, TIndex, TValue> pattern, Func<T, TIndex, TValue> proxy)
         {
             SetPropertyGetterProxy(ResolveIndexerGetterPattern(pattern), proxy);
@@ -166,9 +162,14 @@ namespace Sharpaxe.DynamicProxy
             AddBeforePropertySetterDecorator(ResolveIndexerSetterPattern(pattern), decorator);
         }
 
-        public void AddAfterIndexerSetterDecorator<TIndex, TValue>(Action<T, TIndex, TValue> pattern, Action<TIndex> decorator)
+        public void AddAfterIndexerSetterDecorator<TIndex, TValue>(Action<T, TIndex, TValue> pattern, Action<TIndex, TValue> decorator)
         {
             AddAfterPropertySetterDecorator(ResolveIndexerSetterPattern(pattern), decorator);
+        }
+
+        public void AddPairIndexerSetterDecorators<TIndex, TValue>(Action<T, TIndex, TValue> pattern, Action<TIndex, TValue> beforeDecorator, Action<TIndex, TValue> afterDecorator)
+        {
+            AddPairPropertySetterDecorator(ResolveIndexerSetterPattern(pattern), beforeDecorator, afterDecorator);
         }
 
         public void SetIndexerSetterProxy<TIndex, TValue>(Action<T, TIndex, TValue> pattern, Action<T, TIndex, TValue> proxy)
@@ -184,6 +185,11 @@ namespace Sharpaxe.DynamicProxy
         public void AddAfterEventDecorator<TArgs>(Action<T, Action<object, TArgs>> pattern, Action<object, TArgs> decorator) where TArgs : EventArgs
         {
             AddAfterEventDecorator(ResolveEventPattern(pattern), decorator);
+        }
+
+        public void AddPairEventDecorators<TArgs>(Action<T, Action<object, TArgs>> pattern, Action<object, TArgs> beforeDecorator, Action<object, TArgs> afterDecorator) where TArgs : EventArgs
+        {
+            AddPairEventDecorators(ResolveEventPattern(pattern), beforeDecorator, afterDecorator);
         }
 
         public void SetEventProxy<TArgs>(Action<T, Action<object, TArgs>> pattern, Action<Action<object, TArgs>, object, TArgs> decorator) where TArgs : EventArgs
@@ -371,6 +377,96 @@ namespace Sharpaxe.DynamicProxy
             AddBeforeMethodDecorator(ResolveMethodPattern(pattern), decorator);
         }
 
+        public void AddPairMethodDecorators(Func<T, Action> pattern, Action beforeDecorator, Action afterDecorator)
+        {
+            AddPairMethodDecorators(ResolveMethodPattern(pattern), beforeDecorator, afterDecorator);
+        }
+
+        public void AddPairMethodDecorators<TArg1>(Func<T, Action<TArg1>> pattern, Action<TArg1> beforeDecorator, Action<TArg1> afterDecorator)
+        {
+            AddPairMethodDecorators(ResolveMethodPattern(pattern), beforeDecorator, afterDecorator);
+        }
+
+        public void AddPairMethodDecorators<TArg1, TArg2>(Func<T, Action<TArg1, TArg2>> pattern, Action<TArg1, TArg2> beforeDecorator, Action<TArg1, TArg2> afterDecorator)
+        {
+            AddPairMethodDecorators(ResolveMethodPattern(pattern), beforeDecorator, afterDecorator);
+        }
+
+        public void AddPairMethodDecorators<TArg1, TArg2, TArg3>(Func<T, Action<TArg1, TArg2, TArg3>> pattern, Action<TArg1, TArg2, TArg3> beforeDecorator, Action<TArg1, TArg2, TArg3> afterDecorator)
+        {
+            AddPairMethodDecorators(ResolveMethodPattern(pattern), beforeDecorator, afterDecorator);
+        }
+
+        public void AddPairMethodDecorators<TArg1, TArg2, TArg3, TArg4>(Func<T, Action<TArg1, TArg2, TArg3, TArg4>> pattern, Action<TArg1, TArg2, TArg3, TArg4> beforeDecorator, Action<TArg1, TArg2, TArg3, TArg4> afterDecorator)
+        {
+            AddPairMethodDecorators(ResolveMethodPattern(pattern), beforeDecorator, afterDecorator);
+        }
+
+        public void AddPairMethodDecorators<TArg1, TArg2, TArg3, TArg4, TArg5>(Func<T, Action<TArg1, TArg2, TArg3, TArg4, TArg5>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5> beforeDecorator, Action<TArg1, TArg2, TArg3, TArg4, TArg5> afterDecorator)
+        {
+            AddPairMethodDecorators(ResolveMethodPattern(pattern), beforeDecorator, afterDecorator);
+        }
+
+        public void AddPairMethodDecorators<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6>(Func<T, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6> beforeDecorator, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6> afterDecorator)
+        {
+            AddPairMethodDecorators(ResolveMethodPattern(pattern), beforeDecorator, afterDecorator);
+        }
+
+        public void AddPairMethodDecorators<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7>(Func<T, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7> beforeDecorator, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7> afterDecorator)
+        {
+            AddPairMethodDecorators(ResolveMethodPattern(pattern), beforeDecorator, afterDecorator);
+        }
+
+        public void AddPairMethodDecorators<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8>(Func<T, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8> beforeDecorator, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8> afterDecorator)
+        {
+            AddPairMethodDecorators(ResolveMethodPattern(pattern), beforeDecorator, afterDecorator);
+        }
+
+        public void AddPairMethodDecorators<TReturn>(Func<T, Func<TReturn>> pattern, Action beforeDecorator, Action<TReturn> afterDecorator)
+        {
+            AddPairMethodDecorators(ResolveMethodPattern(pattern), beforeDecorator, afterDecorator);
+        }
+
+        public void AddPairMethodDecorators<TArg1, TReturn>(Func<T, Func<TArg1, TReturn>> pattern, Action<TArg1> beforeDecorator, Action<TArg1, TReturn> afterDecorator)
+        {
+            AddPairMethodDecorators(ResolveMethodPattern(pattern), beforeDecorator, afterDecorator);
+        }
+
+        public void AddPairMethodDecorators<TArg1, TArg2, TReturn>(Func<T, Func<TArg1, TArg2, TReturn>> pattern, Action<TArg1, TArg2> beforeDecorator, Action<TArg1, TArg2, TReturn> afterDecorator)
+        {
+            AddPairMethodDecorators(ResolveMethodPattern(pattern), beforeDecorator, afterDecorator);
+        }
+
+        public void AddPairMethodDecorators<TArg1, TArg2, TArg3, TReturn>(Func<T, Func<TArg1, TArg2, TArg3, TReturn>> pattern, Action<TArg1, TArg2, TArg3> beforeDecorator, Action<TArg1, TArg2, TArg3, TReturn> afterDecorator)
+        {
+            AddPairMethodDecorators(ResolveMethodPattern(pattern), beforeDecorator, afterDecorator);
+        }
+
+        public void AddPairMethodDecorators<TArg1, TArg2, TArg3, TArg4, TReturn>(Func<T, Func<TArg1, TArg2, TArg3, TArg4, TReturn>> pattern, Action<TArg1, TArg2, TArg3, TArg4> beforeDecorator, Action<TArg1, TArg2, TArg3, TArg4, TReturn> afterDecorator)
+        {
+            AddPairMethodDecorators(ResolveMethodPattern(pattern), beforeDecorator, afterDecorator);
+        }
+
+        public void AddPairMethodDecorators<TArg1, TArg2, TArg3, TArg4, TArg5, TReturn>(Func<T, Func<TArg1, TArg2, TArg3, TArg4, TArg5, TReturn>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5> beforeDecorator, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TReturn> afterDecorator)
+        {
+            AddPairMethodDecorators(ResolveMethodPattern(pattern), beforeDecorator, afterDecorator);
+        }
+
+        public void AddPairMethodDecorators<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TReturn>(Func<T, Func<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TReturn>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6> beforeDecorator, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TReturn> afterDecorator)
+        {
+            AddPairMethodDecorators(ResolveMethodPattern(pattern), beforeDecorator, afterDecorator);
+        }
+
+        public void AddPairMethodDecorators<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TReturn>(Func<T, Func<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TReturn>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7> beforeDecorator, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TReturn> afterDecorator)
+        {
+            AddPairMethodDecorators(ResolveMethodPattern(pattern), beforeDecorator, afterDecorator);
+        }
+
+        public void AddPairMethodDecorators<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8, TReturn>(Func<T, Func<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8, TReturn>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8> beforeDecorator, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8, TReturn> afterDecorator)
+        {
+            AddPairMethodDecorators(ResolveMethodPattern(pattern), beforeDecorator, afterDecorator);
+        }
+
         public void SetMethodProxy(Func<T, Action> pattern, Action<T> proxy)
         {
             SetMethodProxy(ResolveMethodPattern(pattern), proxy);
@@ -505,12 +601,17 @@ namespace Sharpaxe.DynamicProxy
 
         private void AddBeforePropertyGetterDecorator(PropertyInfo propertyInfo, object decorator)
         {
-            configuration.Value.PropertyToGetterConfigurationMap[propertyInfo].BeforeDecorators.Add(decorator);
+            configuration.Value.PropertyToGetterConfigurationMap[propertyInfo].Decorators.Add(new ValueTuple<object, object>(decorator, null));
         }
 
         private void AddAfterPropertyGetterDecorator(PropertyInfo propertyInfo, object decorator)
         {
-            configuration.Value.PropertyToGetterConfigurationMap[propertyInfo].AfterDecorators.Add(decorator);
+            configuration.Value.PropertyToGetterConfigurationMap[propertyInfo].Decorators.Add(new ValueTuple<object, object>(null, decorator));
+        }
+
+        private void AddPairPropertyGetterDecorators(PropertyInfo propertyInfo, object beforeDecorator, object afterDecorator)
+        {
+            configuration.Value.PropertyToGetterConfigurationMap[propertyInfo].Decorators.Add(new ValueTuple<object, object>(beforeDecorator, afterDecorator));
         }
 
         private void SetPropertyGetterProxy(PropertyInfo propertyInfo, object proxy)
@@ -520,12 +621,17 @@ namespace Sharpaxe.DynamicProxy
 
         private void AddBeforePropertySetterDecorator(PropertyInfo propertyInfo, object decorator)
         {
-            configuration.Value.PropertyToSetterConfigurationMap[propertyInfo].BeforeDecorators.Add(decorator);
+            configuration.Value.PropertyToSetterConfigurationMap[propertyInfo].Decorators.Add(new ValueTuple<object, object>(decorator, null));
         }
 
         private void AddAfterPropertySetterDecorator(PropertyInfo propertyInfo, object decorator)
         {
-            configuration.Value.PropertyToSetterConfigurationMap[propertyInfo].AfterDecorators.Add(decorator);
+            configuration.Value.PropertyToSetterConfigurationMap[propertyInfo].Decorators.Add(new ValueTuple<object, object>(null, decorator));
+        }
+
+        private void AddPairPropertySetterDecorator(PropertyInfo propertyInfo, object beforeDecorator, object afterDecorator)
+        {
+            configuration.Value.PropertyToSetterConfigurationMap[propertyInfo].Decorators.Add(new ValueTuple<object, object>(beforeDecorator, afterDecorator));
         }
 
         private void SetPropertySetterProxy(PropertyInfo propertyInfo, object proxy)
@@ -535,12 +641,17 @@ namespace Sharpaxe.DynamicProxy
 
         private void AddBeforeEventDecorator(EventInfo eventInfo, object decorator)
         {
-            configuration.Value.EventToConfigurationMap[eventInfo].BeforeDecorators.Add(decorator);
+            configuration.Value.EventToConfigurationMap[eventInfo].Decorators.Add(new ValueTuple<object, object>(decorator, null));
         }
 
         private void AddAfterEventDecorator(EventInfo eventInfo, object decorator)
         {
-            configuration.Value.EventToConfigurationMap[eventInfo].AfterDecorators.Add(decorator);
+            configuration.Value.EventToConfigurationMap[eventInfo].Decorators.Add(new ValueTuple<object, object>(null, decorator));
+        }
+
+        private void AddPairEventDecorators(EventInfo eventInfo, object beforeDecorator, object afterDecorator)
+        {
+            configuration.Value.EventToConfigurationMap[eventInfo].Decorators.Add(new ValueTuple<object, object>(beforeDecorator, afterDecorator));
         }
 
         private void SetEventProxy(EventInfo eventInfo, object proxy)
@@ -550,12 +661,17 @@ namespace Sharpaxe.DynamicProxy
 
         private void AddBeforeMethodDecorator(MethodInfo methodInfo, object decorator)
         {
-            configuration.Value.MethodToConfigurationMap[methodInfo].BeforeDecorators.Add(decorator);
+            configuration.Value.MethodToConfigurationMap[methodInfo].Decorators.Add(new ValueTuple<object, object>(decorator, null));
         }
 
         private void AddAfterMethodDecorator(MethodInfo methodInfo, object decorator)
         {
-            configuration.Value.MethodToConfigurationMap[methodInfo].AfterDecorators.Add(decorator);
+            configuration.Value.MethodToConfigurationMap[methodInfo].Decorators.Add(new ValueTuple<object, object>(null, decorator));
+        }
+
+        private void AddPairMethodDecorators(MethodInfo methodInfo, object beforeDecorator, object afterDecorator)
+        {
+            configuration.Value.MethodToConfigurationMap[methodInfo].Decorators.Add(new ValueTuple<object, object>(beforeDecorator, afterDecorator));
         }
 
         private void SetMethodProxy(MethodInfo methodInfo, object proxy)
@@ -605,13 +721,11 @@ namespace Sharpaxe.DynamicProxy
         {
             public MemberConfiguration()
             {
-                BeforeDecorators = new List<object>();
-                AfterDecorators = new List<object>();
+                Decorators = new List<(object, object)>();
             }
 
             public object Proxy { get; set; }
-            public List<object> BeforeDecorators { get; set; }
-            public List<object> AfterDecorators { get; set; }
+            public List<ValueTuple<object, object>> Decorators { get; set; }
         }
     }
 }

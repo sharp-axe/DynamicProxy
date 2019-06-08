@@ -6,7 +6,7 @@ using System.Reflection.Emit;
 
 namespace Sharpaxe.DynamicProxy.Internal.DetectorBuilder
 {
-    internal class MethodDetectorBuilder : CommonDetectorBuilder
+    internal sealed class MethodDetectorBuilder : CommonDetectorBuilder
     {
         private FieldInfo interfaceMappingStaticField;
 

@@ -9,22 +9,27 @@ namespace Sharpaxe.DynamicProxy
 
         void AddBeforePropertyGetterDecorator<TValue>(Func<T, TValue> pattern, Action decorator);
         void AddAfterPropertyGetterDecorator<TValue>(Func<T, TValue> pattern, Action<TValue> decorator);
+        void AddPairPropertyGetterDecorators<TValue>(Func<T, TValue> pattern, Action beforeDecorator, Action<TValue> afterDecorator);
         void SetPropertyGetterProxy<TValue>(Func<T, TValue> pattern, Func<T, TValue> proxy);
 
         void AddBeforePropertySetterDecorator<TValue>(Action<T, TValue> pattern, Action<TValue> decorator);
-        void AddAfterPropertySetterDecorator<TValue>(Action<T, TValue> pattern, Action decorator);
+        void AddAfterPropertySetterDecorator<TValue>(Action<T, TValue> pattern, Action<TValue> decorator);
+        void AddPairPropertySetterDecorators<TValue>(Action<T, TValue> pattern, Action<TValue> beforeDecorator, Action<TValue> afterDecorator);
         void SetPropertySetterProxy<TValue>(Action<T, TValue> pattern, Action<T, TValue> proxy);
 
         void AddBeforeIndexerGetterDecorator<TIndex, TValue>(Func<T, TIndex, TValue> pattern, Action<TIndex> decorator);
         void AddAfterIndexerGetterDecorator<TIndex, TValue>(Func<T, TIndex, TValue> pattern, Action<TIndex, TValue> decorator);
+        void AddPairIndexerGetterDecorators<TIndex, TValue>(Func<T, TIndex, TValue> pattern, Action<TIndex> beforeDecorator, Action<TIndex, TValue> afterDecorator);
         void SetIndexerGetterProxy<TIndex, TValue>(Func<T, TIndex, TValue> pattern, Func<T, TIndex, TValue> proxy);
 
         void AddBeforeIndexerSetterDecorator<TIndex, TValue>(Action<T, TIndex, TValue> pattern, Action<TIndex, TValue> decorator);
-        void AddAfterIndexerSetterDecorator<TIndex, TValue>(Action<T, TIndex, TValue> pattern, Action<TIndex> decorator);
+        void AddAfterIndexerSetterDecorator<TIndex, TValue>(Action<T, TIndex, TValue> pattern, Action<TIndex, TValue> decorator);
+        void AddPairIndexerSetterDecorators<TIndex, TValue>(Action<T, TIndex, TValue> pattern, Action<TIndex, TValue> beforeDecorator, Action<TIndex, TValue> afterDecorator);
         void SetIndexerSetterProxy<TIndex, TValue>(Action<T, TIndex, TValue> pattern, Action<T, TIndex, TValue> proxy);
 
         void AddBeforeEventDecorator<TArgs>(Action<T, Action<object, TArgs>> pattern, Action<object, TArgs> decorator) where TArgs : EventArgs;
         void AddAfterEventDecorator<TArgs>(Action<T, Action<object, TArgs>> pattern, Action<object, TArgs> decorator) where TArgs : EventArgs;
+        void AddPairEventDecorators<TArgs>(Action<T, Action<object, TArgs>> pattern, Action<object, TArgs> beforeDecorator, Action<object, TArgs> afterDecorator) where TArgs : EventArgs;
         void SetEventProxy<TArgs>(Action<T, Action<object, TArgs>> pattern, Action<Action<object, TArgs>, object, TArgs> decorator) where TArgs : EventArgs;
 
         void AddBeforeMethodDecorator(Func<T, Action> pattern, Action decorator);
@@ -66,6 +71,26 @@ namespace Sharpaxe.DynamicProxy
         void AddAfterMethodDecorator<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TReturn>(Func<T, Func<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TReturn>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TReturn> decorator);
         void AddAfterMethodDecorator<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TReturn>(Func<T, Func<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TReturn>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TReturn> decorator);
         void AddAfterMethodDecorator<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8, TReturn>(Func<T, Func<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8, TReturn>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8, TReturn> decorator);
+
+        void AddPairMethodDecorators(Func<T, Action> pattern, Action beforeDecorator, Action afterDecorator);
+        void AddPairMethodDecorators<TArg1>(Func<T, Action<TArg1>> pattern, Action<TArg1> beforeDecorator, Action<TArg1> afterDecorator);
+        void AddPairMethodDecorators<TArg1, TArg2>(Func<T, Action<TArg1, TArg2>> pattern, Action<TArg1, TArg2> beforeDecorator, Action<TArg1, TArg2> afterDecorator);
+        void AddPairMethodDecorators<TArg1, TArg2, TArg3>(Func<T, Action<TArg1, TArg2, TArg3>> pattern, Action<TArg1, TArg2, TArg3> beforeDecorator, Action<TArg1, TArg2, TArg3> afterDecorator);
+        void AddPairMethodDecorators<TArg1, TArg2, TArg3, TArg4>(Func<T, Action<TArg1, TArg2, TArg3, TArg4>> pattern, Action<TArg1, TArg2, TArg3, TArg4> beforeDecorator, Action<TArg1, TArg2, TArg3, TArg4> afterDecorator);
+        void AddPairMethodDecorators<TArg1, TArg2, TArg3, TArg4, TArg5>(Func<T, Action<TArg1, TArg2, TArg3, TArg4, TArg5>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5> beforeDecorator, Action<TArg1, TArg2, TArg3, TArg4, TArg5> afterDecorator);
+        void AddPairMethodDecorators<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6>(Func<T, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6> beforeDecorator, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6> afterDecorator);
+        void AddPairMethodDecorators<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7>(Func<T, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7> beforeDecorator, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7> afterDecorator);
+        void AddPairMethodDecorators<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8>(Func<T, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8> beforeDecorator, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8> afterDecorator);
+
+        void AddPairMethodDecorators<TReturn>(Func<T, Func<TReturn>> pattern, Action beforeDecorator, Action<TReturn> afterDecorator);
+        void AddPairMethodDecorators<TArg1, TReturn>(Func<T, Func<TArg1, TReturn>> pattern, Action<TArg1> beforeDecorator, Action<TArg1, TReturn> afterDecorator);
+        void AddPairMethodDecorators<TArg1, TArg2, TReturn>(Func<T, Func<TArg1, TArg2, TReturn>> pattern, Action<TArg1, TArg2> beforeDecorator, Action<TArg1, TArg2, TReturn> afterDecorator);
+        void AddPairMethodDecorators<TArg1, TArg2, TArg3, TReturn>(Func<T, Func<TArg1, TArg2, TArg3, TReturn>> pattern, Action<TArg1, TArg2, TArg3> beforeDecorator, Action<TArg1, TArg2, TArg3, TReturn> afterDecorator);
+        void AddPairMethodDecorators<TArg1, TArg2, TArg3, TArg4, TReturn>(Func<T, Func<TArg1, TArg2, TArg3, TArg4, TReturn>> pattern, Action<TArg1, TArg2, TArg3, TArg4> beforeDecorator, Action<TArg1, TArg2, TArg3, TArg4, TReturn> afterDecorator);
+        void AddPairMethodDecorators<TArg1, TArg2, TArg3, TArg4, TArg5, TReturn>(Func<T, Func<TArg1, TArg2, TArg3, TArg4, TArg5, TReturn>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5> beforeDecorator, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TReturn> afterDecorator);
+        void AddPairMethodDecorators<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TReturn>(Func<T, Func<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TReturn>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6> beforeDecorator, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TReturn> afterDecorator);
+        void AddPairMethodDecorators<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TReturn>(Func<T, Func<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TReturn>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7> beforeDecorator, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TReturn> afterDecorator);
+        void AddPairMethodDecorators<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8, TReturn>(Func<T, Func<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8, TReturn>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8> beforeDecorator, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8, TReturn> afterDecorator);
 
         void SetMethodProxy(Func<T, Action> pattern, Action<T> proxy);
         void SetMethodProxy<Arg1>(Func<T, Action<Arg1>> pattern, Action<T, Arg1> proxy);

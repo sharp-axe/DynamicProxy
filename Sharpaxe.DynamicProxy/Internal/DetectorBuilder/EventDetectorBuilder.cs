@@ -6,7 +6,7 @@ using System.Reflection.Emit;
 
 namespace Sharpaxe.DynamicProxy.Internal.DetectorBuilder
 {
-    internal class EventDetectorBuilder : CommonDetectorBuilder
+    internal sealed class EventDetectorBuilder : CommonDetectorBuilder
     {
         private FieldInfo typeEventsStaticField;
         private FieldInfo detectedEventInstanceField;
