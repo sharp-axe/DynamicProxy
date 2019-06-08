@@ -496,7 +496,7 @@ namespace Sharpaxe.DynamicProxy
             return detector.GetDetectedEvent();
         }
 
-        private MethodInfo ResolveMethodPattern(Func<T, object> pattern)
+        private MethodInfo ResolveMethodPattern(Func<T, Delegate> pattern)
         {
             (object instance, IMethodDetector detector) = typeRepository.CreateMethodDetector(type);
             var token = pattern.Invoke((T)instance);

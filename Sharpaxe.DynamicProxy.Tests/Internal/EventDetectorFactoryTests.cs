@@ -130,6 +130,12 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal
         }
 
         [TestMethod]
+        public void Create_IInterface_ReturnsNotNull()
+        {
+            Assert.IsNotNull(GetEventDetectorType(typeof(IInteface)));
+        }
+
+        [TestMethod]
         public void CreateInstance_IPropertyGetterInterface_ThrowsNoException()
         {
             var detectorType = GetEventDetectorType(typeof(IPropertyGetter));
@@ -147,6 +153,13 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal
         public void CreateInstance_IMethodInterface_ThrowsNoException()
         {
             var detectorType = GetEventDetectorType(typeof(IMethod));
+            Activator.CreateInstance(detectorType);
+        }
+
+        [TestMethod]
+        public void CreateInstance_IInterface_ThrowsNoException()
+        {
+            var detectorType = GetEventDetectorType(typeof(IInteface));
             Activator.CreateInstance(detectorType);
         }
 
@@ -192,7 +205,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal
             {
                 var detectorType = GetEventDetectorType(typeof(IMethod));
                 var instance = (IMethod)Activator.CreateInstance(detectorType);
-                instance.Method();
+                instance.Action();
             }
             catch (Exception ex)
             {
