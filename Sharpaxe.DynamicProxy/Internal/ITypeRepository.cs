@@ -1,4 +1,5 @@
 ﻿using Sharpaxe.DynamicProxy.Internal.Detector;
+using Sharpaxe.DynamicProxy.Internal.Proxy;
 using System;
 
 namespace Sharpaxe.DynamicProxy.Internal

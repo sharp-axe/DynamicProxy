@@ -53,31 +53,7 @@ namespace Sharpaxe.DynamicProxy.Internal.DetectorBuilder
 
         private void InitializeInfo()
         {
-            var eventsInfo = new List<EventInfo>();
-            var methodsInfo = new List<MethodInfo>();
-            var propertyInfo = new List<PropertyInfo>();
-            var typesToProcessMap = new Dictionary<Type, bool>() { { TargetType, false } };
-
-            while (typesToProcessMap.Any(kvp => kvp.Value == false))
-            {
-                foreach (var type in typesToProcessMap.Where(kvp => kvp.Value == false).Select(kvp => kvp.Key).ToList())
-                {
-                    eventsInfo.AddRange(type.GetEvents(BindingFlags.Public | BindingFlags.Instance));
-                    methodsInfo.AddRange(type.GetMethods(BindingFlags.Public | BindingFlags.Instance).Where(m => !m.IsSpecialName));
-                    propertyInfo.AddRange(type.GetProperties(BindingFlags.Public | BindingFlags.Instance));
-
-                    foreach (var baseInterface in type.GetInterfaces().Where(t => !typesToProcessMap.ContainsKey(t)))
-                    {
-                        typesToProcessMap.Add(baseInterface, false);
-                    }
-
-                    typesToProcessMap[type] = true;
-                }
-            }
-
-            EventsInfo = eventsInfo.ToArray();
-            MethodsInfo = methodsInfo.ToArray();
-            PropertiesInfo = propertyInfo.ToArray();
+            (EventsInfo, MethodsInfo, PropertiesInfo) = TargetType.GetAllInterfaceMembers();
         }
 
         private void InitializeTypeBuilder()
@@ -92,7 +68,7 @@ namespace Sharpaxe.DynamicProxy.Internal.DetectorBuilder
 
         private string GetTypeName()
         {
-            return $"{TargetType.Name}''_{DetectorInterfaceType.Name}";
+            return $"{TargetType.Name}``_{DetectorInterfaceType.Name}";
         }
 
         private void DefineConstructor()

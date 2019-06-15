@@ -1,4 +1,5 @@
 ﻿using Sharpaxe.DynamicProxy.Internal.Detector;
+using Sharpaxe.DynamicProxy.Internal.Proxy;
 using System;
 using System.Collections.Concurrent;
 using System.Reflection.Emit;

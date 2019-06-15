@@ -18,6 +18,31 @@ namespace Sharpaxe.DynamicProxy.Internal
             return source.Count <= 0;
         }
 
+        public static IEnumerable<T> ConcatInstances<T>(this T instance, params T[] anotherInstances)
+        {
+            return instance.ToEnumerable().Concat(anotherInstances);
+        }
+
+        public static IEnumerable<T> Concat<T>(this T instance, IEnumerable<T> enumerable)
+        {
+            return instance.ToEnumerable().Concat(enumerable);
+        }
+
+        public static IEnumerable<T> Concat<T>(this IEnumerable<T> source, T instance)
+        {
+            if (source == null)
+            {
+                throw new ArgumentNullException(nameof(source));
+            }
+
+            return source.Concat(instance.ToEnumerable());
+        }
+
+        public static IEnumerable<T> ToEnumerable<T>(this T instance)
+        {
+            yield return instance;
+        }
+
         public static ReadOnlyDictionary<TKey, TElement> ToReadOnlyDictionary<TSource, TKey, TElement>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TElement> valueSelector)
         {
             return new ReadOnlyDictionary<TKey, TElement>(source.ToDictionary(keySelector, valueSelector));
@@ -60,6 +85,197 @@ namespace Sharpaxe.DynamicProxy.Internal
             ILGenerator.Emit(OpCodes.Ldstr, message);
             ILGenerator.Emit(OpCodes.Newobj, typeof(NotSupportedException).GetConstructor(new Type[] { typeof(string) }));
             ILGenerator.Emit(OpCodes.Throw);
+        }
+
+        public static (EventInfo[], MethodInfo[], PropertyInfo[]) GetAllInterfaceMembers(this Type interfaceType)
+        {
+            if (interfaceType == null)
+            {
+                throw new ArgumentNullException(nameof(interfaceType));
+            }
+
+            if (!interfaceType.IsInterface)
+            {
+                throw new ArgumentException("Type is not an interface", nameof(interfaceType));
+            }
+
+            var eventsInfo = new List<EventInfo>();
+            var methodsInfo = new List<MethodInfo>();
+            var propertyInfo = new List<PropertyInfo>();
+            var typesToProcessMap = new Dictionary<Type, bool>() { { interfaceType, false } };
+
+            while (typesToProcessMap.Any(kvp => kvp.Value == false))
+            {
+                foreach (var type in typesToProcessMap.Where(kvp => kvp.Value == false).Select(kvp => kvp.Key).ToList())
+                {
+                    eventsInfo.AddRange(type.GetEvents(BindingFlags.Public | BindingFlags.Instance));
+                    methodsInfo.AddRange(type.GetMethods(BindingFlags.Public | BindingFlags.Instance).Where(m => !m.IsSpecialName));
+                    propertyInfo.AddRange(type.GetProperties(BindingFlags.Public | BindingFlags.Instance));
+
+                    foreach (var baseInterface in type.GetInterfaces().Where(t => !typesToProcessMap.ContainsKey(t)))
+                    {
+                        typesToProcessMap.Add(baseInterface, false);
+                    }
+
+                    typesToProcessMap[type] = true;
+                }
+            }
+
+            return (eventsInfo.ToArray(), methodsInfo.ToArray(), propertyInfo.ToArray());
+        }
+
+        public static Type MakeGenericDelegateType(this MethodInfo methodInfo)
+        {
+            if (methodInfo == null)
+            {
+                throw new ArgumentNullException(nameof(methodInfo));
+            }
+
+            var parametersType = methodInfo.GetParameters().Select(p => p.ParameterType).ToArray();
+               
+            switch (methodInfo.ReturnType)
+            {
+                case Type voidType when voidType == typeof(void):
+                    return methodInfo.GetParameters().Select(p => p.ParameterType).MakeGenericDelegateAction();
+
+                case Type nonVoidType:
+                    return methodInfo.GetParameters().Select(p => p.ParameterType).Concat(nonVoidType).MakeGenericDelegateFunction();
+
+                case null:
+                    throw new ArgumentException("Method info return type is null", $"{nameof(methodInfo)}.{nameof(methodInfo.ReturnType)}");
+            }
+        }
+
+        public static Type MakeGenericDelegateFunction(this IEnumerable<Type> argumentsWithReturnType)
+        {
+            if (argumentsWithReturnType == null)
+            {
+                throw new ArgumentNullException(nameof(argumentsWithReturnType));
+            }
+
+            var argumentsWithReturnTypeArray = argumentsWithReturnType.ToArray();
+            switch (argumentsWithReturnTypeArray.Length)
+            {
+                case 0:
+                    throw new ArgumentException("Array is empty. At least one type must be provided as a return type");
+
+                case 1:
+                    return typeof(Func<>).MakeGenericType(argumentsWithReturnTypeArray);
+
+                case 2:
+                    return typeof(Func<,>).MakeGenericType(argumentsWithReturnTypeArray);
+
+                case 3:
+                    return typeof(Func<,,>).MakeGenericType(argumentsWithReturnTypeArray);
+
+                case 4:
+                    return typeof(Func<,,,>).MakeGenericType(argumentsWithReturnTypeArray);
+
+                case 5:
+                    return typeof(Func<,,,,>).MakeGenericType(argumentsWithReturnTypeArray);
+
+                case 6:
+                    return typeof(Func<,,,,,>).MakeGenericType(argumentsWithReturnTypeArray);
+
+                case 7:
+                    return typeof(Func<,,,,,,>).MakeGenericType(argumentsWithReturnTypeArray);
+
+                case 8:
+                    return typeof(Func<,,,,,,,>).MakeGenericType(argumentsWithReturnTypeArray);
+
+                case 9:
+                    return typeof(Func<,,,,,,,,>).MakeGenericType(argumentsWithReturnTypeArray);
+
+                case 10:
+                    return typeof(Func<,,,,,,,,,>).MakeGenericType(argumentsWithReturnTypeArray);
+
+                case 11:
+                    return typeof(Func<,,,,,,,,,,>).MakeGenericType(argumentsWithReturnTypeArray);
+
+                case 12:
+                    return typeof(Func<,,,,,,,,,,,>).MakeGenericType(argumentsWithReturnTypeArray);
+
+                case 13:
+                    return typeof(Func<,,,,,,,,,,,,>).MakeGenericType(argumentsWithReturnTypeArray);
+
+                case 14:
+                    return typeof(Func<,,,,,,,,,,,,,>).MakeGenericType(argumentsWithReturnTypeArray);
+
+                case 15:
+                    return typeof(Func<,,,,,,,,,,,,,,,>).MakeGenericType(argumentsWithReturnTypeArray);
+
+                case 16:
+                    return typeof(Func<,,,,,,,,,,,,,,,,>).MakeGenericType(argumentsWithReturnTypeArray);
+
+                default:
+                    throw new ArgumentException($"Arguments with return type count '{argumentsWithReturnTypeArray.Length}' greater than 17", nameof(argumentsWithReturnType));
+            }
+        }
+
+        public static Type MakeGenericDelegateAction(this IEnumerable<Type> arguments)
+        {
+            if (arguments == null)
+            {
+                throw new ArgumentNullException(nameof(arguments));
+            }
+
+            var argumentsArray = arguments.ToArray();
+            switch (argumentsArray.Length)
+            {
+                case 0:
+                    return typeof(Action);
+
+                case 1:
+                    return typeof(Action<>).MakeGenericType(argumentsArray);
+
+                case 2:
+                    return typeof(Action<,>).MakeGenericType(argumentsArray);
+
+                case 3:
+                    return typeof(Action<,,>).MakeGenericType(argumentsArray);
+
+                case 4:
+                    return typeof(Action<,,,>).MakeGenericType(argumentsArray);
+
+                case 5:
+                    return typeof(Action<,,,,>).MakeGenericType(argumentsArray);
+
+                case 6:
+                    return typeof(Action<,,,,,>).MakeGenericType(argumentsArray);
+
+                case 7:
+                    return typeof(Action<,,,,,,>).MakeGenericType(argumentsArray);
+
+                case 8:
+                    return typeof(Action<,,,,,,,>).MakeGenericType(argumentsArray);
+
+                case 9:
+                    return typeof(Action<,,,,,,,,>).MakeGenericType(argumentsArray);
+
+                case 10:
+                    return typeof(Action<,,,,,,,,,>).MakeGenericType(argumentsArray);
+
+                case 11:
+                    return typeof(Action<,,,,,,,,,,>).MakeGenericType(argumentsArray);
+
+                case 12:
+                    return typeof(Action<,,,,,,,,,,,>).MakeGenericType(argumentsArray);
+
+                case 13:
+                    return typeof(Action<,,,,,,,,,,,,>).MakeGenericType(argumentsArray);
+
+                case 14:
+                    return typeof(Action<,,,,,,,,,,,,,>).MakeGenericType(argumentsArray);
+
+                case 15:
+                    return typeof(Action<,,,,,,,,,,,,,,>).MakeGenericType(argumentsArray);
+
+                case 16:
+                    return typeof(Action<,,,,,,,,,,,,,,,>).MakeGenericType(argumentsArray);
+
+                default:
+                    throw new ArgumentException($"Arguments count '{argumentsArray.Length}' greater than 16", nameof(arguments));
+            }
         }
     }
 }

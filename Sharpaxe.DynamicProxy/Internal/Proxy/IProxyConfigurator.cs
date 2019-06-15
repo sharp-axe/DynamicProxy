@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace Sharpaxe.DynamicProxy.Internal
+namespace Sharpaxe.DynamicProxy.Internal.Proxy
 {
     internal interface IProxyConfigurator
     {

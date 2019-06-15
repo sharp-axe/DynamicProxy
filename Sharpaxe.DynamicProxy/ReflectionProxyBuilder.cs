@@ -1,5 +1,6 @@
 ﻿using Sharpaxe.DynamicProxy.Internal;
 using Sharpaxe.DynamicProxy.Internal.Detector;
+using Sharpaxe.DynamicProxy.Internal.Proxy;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -725,7 +726,7 @@ namespace Sharpaxe.DynamicProxy
             }
 
             public object Proxy { get; set; }
-            public List<ValueTuple<object, object>> Decorators { get; set; }
+            public List<ValueTuple<object, object>> Decorators { get; }
         }
     }
 }
