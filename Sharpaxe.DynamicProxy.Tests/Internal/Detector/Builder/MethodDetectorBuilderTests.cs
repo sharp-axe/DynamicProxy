@@ -1,11 +1,11 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Sharpaxe.DynamicProxy.Internal.Detector;
-using Sharpaxe.DynamicProxy.Internal.DetectorBuilder;
+using Sharpaxe.DynamicProxy.Internal.Detector.Builder;
 using Sharpaxe.DynamicProxy.Tests.TestHelper;
 using System;
 using System.Collections.Concurrent;
 
-namespace Sharpaxe.DynamicProxy.Tests.Internal
+namespace Sharpaxe.DynamicProxy.Tests.Internal.Detector.Builder
 {
     [TestClass]
     public class MethodDetectorBuilderTests
@@ -224,7 +224,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal
             var instance = Activator.CreateInstance(type);
             var methodInstance = (IMethod)instance;
             var detectorInstance = (IMethodDetector)instance;
-            Assert.AreEqual(typeof(IMethod).GetMethod("ActionWithValueArgument"), detectorInstance.GetDetectedMethod((Action<int>)methodInstance.ActionWithValueArgument));
+            Assert.AreEqual(typeof(IMethod).GetMethod("ActionWithValueArgument", new Type[] { typeof(int) }), detectorInstance.GetDetectedMethod((Action<int>)methodInstance.ActionWithValueArgument));
         }
 
         [TestMethod]
@@ -234,7 +234,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal
             var instance = Activator.CreateInstance(type);
             var methodInstance = (IMethod)instance;
             var detectorInstance = (IMethodDetector)instance;
-            Assert.AreEqual(typeof(IMethod).GetMethod("ActionWithReferenceArgument"), detectorInstance.GetDetectedMethod((Action<object>)methodInstance.ActionWithReferenceArgument));
+            Assert.AreEqual(typeof(IMethod).GetMethod("ActionWithReferenceArgument", new Type[] { typeof(object) }), detectorInstance.GetDetectedMethod((Action<object>)methodInstance.ActionWithReferenceArgument));
         }
 
         [TestMethod]
@@ -254,7 +254,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal
             var instance = Activator.CreateInstance(type);
             var methodInstance = (IMethod)instance;
             var detectorInstance = (IMethodDetector)instance;
-            Assert.AreEqual(typeof(IMethod).GetMethod("FunctionWithValueArgumentAndValueReturnType"), detectorInstance.GetDetectedMethod((Func<int, int>)methodInstance.FunctionWithValueArgumentAndValueReturnType));
+            Assert.AreEqual(typeof(IMethod).GetMethod("FunctionWithValueArgumentAndValueReturnType", new Type[] { typeof(int) }), detectorInstance.GetDetectedMethod((Func<int, int>)methodInstance.FunctionWithValueArgumentAndValueReturnType));
         }
 
         [TestMethod]
@@ -264,7 +264,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal
             var instance = Activator.CreateInstance(type);
             var methodInstance = (IMethod)instance;
             var detectorInstance = (IMethodDetector)instance;
-            Assert.AreEqual(typeof(IMethod).GetMethod("FunctionWithReferenceArgumentAndValueReturnType"), detectorInstance.GetDetectedMethod((Func<object, int>)methodInstance.FunctionWithReferenceArgumentAndValueReturnType));
+            Assert.AreEqual(typeof(IMethod).GetMethod("FunctionWithReferenceArgumentAndValueReturnType", new Type[] { typeof(object) }), detectorInstance.GetDetectedMethod((Func<object, int>)methodInstance.FunctionWithReferenceArgumentAndValueReturnType));
         }   
 
         [TestMethod]
@@ -284,7 +284,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal
             var instance = Activator.CreateInstance(type);
             var methodInstance = (IMethod)instance;
             var detectorInstance = (IMethodDetector)instance;
-            Assert.AreEqual(typeof(IMethod).GetMethod("FunctionWithReferenceArgumentAndReferenceReturnType"), detectorInstance.GetDetectedMethod((Func<object, object>)methodInstance.FunctionWithReferenceArgumentAndReferenceReturnType));
+            Assert.AreEqual(typeof(IMethod).GetMethod("FunctionWithReferenceArgumentAndReferenceReturnType", new Type[] { typeof(object) }), detectorInstance.GetDetectedMethod((Func<object, object>)methodInstance.FunctionWithReferenceArgumentAndReferenceReturnType));
         }
 
         [TestMethod]
@@ -304,7 +304,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal
             var instance = Activator.CreateInstance(type);
             var methodInstance = (IMethod)instance;
             var detectorInstance = (IMethodDetector)instance;
-            Assert.AreEqual(typeof(IMethod).GetMethod("FunctionWithValueArgumentAndTupleReturnType"), detectorInstance.GetDetectedMethod((Func<int, ValueTuple<int, object>>)methodInstance.FunctionWithValueArgumentAndTupleReturnType));
+            Assert.AreEqual(typeof(IMethod).GetMethod("FunctionWithValueArgumentAndTupleReturnType", new Type[] { typeof(int) }), detectorInstance.GetDetectedMethod((Func<int, ValueTuple<int, object>>)methodInstance.FunctionWithValueArgumentAndTupleReturnType));
         }
 
         [TestMethod]
@@ -314,7 +314,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal
             var instance = Activator.CreateInstance(type);
             var methodInstance = (IMethod)instance;
             var detectorInstance = (IMethodDetector)instance;
-            Assert.AreEqual(typeof(IMethod).GetMethod("FunctionWithReferenceArgumentAndTupleReturnType"), detectorInstance.GetDetectedMethod((Func<object, ValueTuple<int, object>>)methodInstance.FunctionWithReferenceArgumentAndTupleReturnType));
+            Assert.AreEqual(typeof(IMethod).GetMethod("FunctionWithReferenceArgumentAndTupleReturnType", new Type[] { typeof(object) }), detectorInstance.GetDetectedMethod((Func<object, ValueTuple<int, object>>)methodInstance.FunctionWithReferenceArgumentAndTupleReturnType));
         }
 
         #endregion IMethodInterface

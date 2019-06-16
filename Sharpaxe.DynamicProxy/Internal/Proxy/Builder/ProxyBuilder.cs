@@ -22,6 +22,7 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy
         private ReadOnlyDictionary<PropertyInfo, MemberInfo> propertyInfoToSetterMemberInfoMap;
 
         public ProxyBuilder(Type targetType, ModuleBuilder moduleBuilder)
+            : this()
         {
             this.targetType = targetType ?? throw new ArgumentNullException(nameof(targetType));
             this.moduleBuilder = moduleBuilder ?? throw new ArgumentNullException(nameof(moduleBuilder));
@@ -41,7 +42,9 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy
             DefineConstructor();
 
 #warning Has not been finished
-            return null;
+            var type = typeBuilder.CreateType();
+
+            return type;
         }
 
         private void InitializeInfo()
@@ -64,7 +67,9 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy
                     GetTypeName(),
                     TypeAttributes.Class | TypeAttributes.Public,
                     typeof(object),
-                    new Type[] { targetType });
+#warning Temporary
+                    //new Type[] { targetType });
+                    new Type[] { });
         }
 
         private string GetTypeName()
@@ -219,12 +224,12 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy
 
         private static Type GetEventProxyFieldType(EventInfo eventInfo)
         {
-            return GetMethodProxyType(eventInfo.RaiseMethod);
+            return GetMethodProxyType(eventInfo.EventHandlerType.GetMethod("Invoke"));
         }
 
         private static Type GetEventDecoratorsFieldType(EventInfo eventInfo)
         {
-            return GetMethodDecoratorsType(eventInfo.RaiseMethod);
+            return GetMethodDecoratorsType(eventInfo.EventHandlerType.GetMethod("Invoke"));
         }
 
         private static Type GetPropertyGetterProxyFieldType(PropertyInfo propertyInfo)

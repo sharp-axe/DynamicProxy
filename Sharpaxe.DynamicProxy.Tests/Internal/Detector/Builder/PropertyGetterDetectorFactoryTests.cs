@@ -1,11 +1,11 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Sharpaxe.DynamicProxy.Internal.Detector;
-using Sharpaxe.DynamicProxy.Internal.DetectorBuilder;
+using Sharpaxe.DynamicProxy.Internal.Detector.Builder;
 using Sharpaxe.DynamicProxy.Tests.TestHelper;
 using System;
 using System.Collections.Concurrent;
 
-namespace Sharpaxe.DynamicProxy.Tests.Internal
+namespace Sharpaxe.DynamicProxy.Tests.Internal.Detector.Builder
 {
     [TestClass]
     public class PropertyGetterDetectorFactoryTests

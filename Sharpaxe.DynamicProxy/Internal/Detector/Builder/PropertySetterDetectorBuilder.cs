@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace Sharpaxe.DynamicProxy.Internal.DetectorBuilder
+namespace Sharpaxe.DynamicProxy.Internal.Detector.Builder
 {
     internal sealed class PropertySetterDetectorBuilder : CommonDetectorBuilder
     {
