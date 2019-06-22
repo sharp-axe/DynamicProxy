@@ -15,6 +15,7 @@ namespace Sharpaxe.DynamicProxy.Internal
             {
                 throw new ArgumentNullException(nameof(source));
             }
+
             return source.Count <= 0;
         }
 
@@ -45,11 +46,31 @@ namespace Sharpaxe.DynamicProxy.Internal
 
         public static ReadOnlyDictionary<TKey, TElement> ToReadOnlyDictionary<TSource, TKey, TElement>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TElement> valueSelector)
         {
+            if (source == null)
+            {
+                throw new ArgumentNullException(nameof(source));
+            }
+
             return new ReadOnlyDictionary<TKey, TElement>(source.ToDictionary(keySelector, valueSelector));
+        }
+
+        public static Type[] GetMethodArgumentsTypes(this MethodInfo methodInfo)
+        {
+            if (methodInfo == null)
+            {
+                throw new ArgumentNullException(nameof(methodInfo));
+            }
+
+            return methodInfo.GetParameters().Select(p => p.ParameterType).ToArray();
         }
 
         public static void EmitCreateTypeDefaultValueOnStack(this ILGenerator ILGenerator, Type type)
         {
+            if (ILGenerator == null)
+            {
+                throw new ArgumentNullException(nameof(ILGenerator));
+            }
+
             switch (type)
             {
                 case var _ when type == typeof(bool) || type == typeof(byte) || type == typeof(sbyte) || type == typeof(char) ||
@@ -80,8 +101,26 @@ namespace Sharpaxe.DynamicProxy.Internal
             }
         }
 
+        public static void EmitLoadArgumentsRange(this ILGenerator ILGenerator, int startArgumentIndex, int count)
+        {
+            if (ILGenerator == null)
+            {
+                throw new ArgumentNullException(nameof(ILGenerator));
+            }
+
+            for (short i = (short)startArgumentIndex; i < startArgumentIndex + count; i++)
+            {
+                ILGenerator.Emit(OpCodes.Ldarg, i);
+            }
+        }
+
         public static void EmitThrowNotSupportedException(this ILGenerator ILGenerator, string message)
         {
+            if (ILGenerator == null)
+            {
+                throw new ArgumentNullException(nameof(ILGenerator));
+            }
+
             ILGenerator.Emit(OpCodes.Ldstr, message);
             ILGenerator.Emit(OpCodes.Newobj, typeof(NotSupportedException).GetConstructor(new Type[] { typeof(string) }));
             ILGenerator.Emit(OpCodes.Throw);
@@ -130,16 +169,14 @@ namespace Sharpaxe.DynamicProxy.Internal
             {
                 throw new ArgumentNullException(nameof(methodInfo));
             }
-
-            var parametersType = methodInfo.GetParameters().Select(p => p.ParameterType).ToArray();
                
             switch (methodInfo.ReturnType)
             {
                 case Type voidType when voidType == typeof(void):
-                    return methodInfo.GetParameters().Select(p => p.ParameterType).MakeGenericDelegateAction();
+                    return methodInfo.GetMethodArgumentsTypes().MakeGenericDelegateAction();
 
                 case Type nonVoidType:
-                    return methodInfo.GetParameters().Select(p => p.ParameterType).Concat(nonVoidType).MakeGenericDelegateFunction();
+                    return methodInfo.GetMethodArgumentsTypes().Concat(nonVoidType).MakeGenericDelegateFunction();
 
                 case null:
                     throw new ArgumentException("Method info return type is null", $"{nameof(methodInfo)}.{nameof(methodInfo.ReturnType)}");

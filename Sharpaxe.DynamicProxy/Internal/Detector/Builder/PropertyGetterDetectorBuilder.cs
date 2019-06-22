@@ -44,7 +44,7 @@ namespace Sharpaxe.DynamicProxy.Internal.Detector.Builder
                     methodInfo.Name,
                     MethodAttributes.Public | MethodAttributes.Virtual,
                     methodInfo.ReturnType,
-                    methodInfo.GetParameters().Select(p => p.ParameterType).ToArray());
+                    methodInfo.GetMethodArgumentsTypes());
 
             var ILGenerator = methodBuilder.GetILGenerator();
 
@@ -76,7 +76,7 @@ namespace Sharpaxe.DynamicProxy.Internal.Detector.Builder
                     getMethod.Name,
                     MethodAttributes.Public | MethodAttributes.Virtual,
                     getMethod.ReturnType,
-                    getMethod.GetParameters().Select(p => p.ParameterType).ToArray());
+                    getMethod.GetMethodArgumentsTypes());
 
             var ILGenerator = methodBuilder.GetILGenerator();
 
