@@ -228,8 +228,31 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy
             ILGenerator.Emit(OpCodes.Call, typeof(object).GetConstructor(new Type[0]));
 
             // Set target field
+            ILGenerator.Emit(OpCodes.Ldarg_0);
             ILGenerator.Emit(OpCodes.Ldarg_1);
             ILGenerator.Emit(OpCodes.Stfld, targetFieldInfo);
+
+            var memberInfos =
+                methodInfoToMemberInfoMap.Values
+                .Concat(eventsInfoToMemberInfoMap.Values)
+                .Concat(propertyInfoToGetterMemberInfoMap.Values)
+                .Concat(propertyInfoToSetterMemberInfoMap.Values);
+
+            foreach (var mi in memberInfos)
+            {
+                ILGenerator.Emit(OpCodes.Ldarg_0);
+                ILGenerator.Emit(OpCodes.Newobj, mi.DecoratorsLinkedListInstanceFieldInfo.FieldType.GetConstructor(new Type[] { }));
+                ILGenerator.Emit(OpCodes.Stfld, mi.DecoratorsLinkedListInstanceFieldInfo);
+            }
+
+            var eventInfos = eventsInfoToMemberInfoMap.Values;
+
+            foreach (var ei in eventInfos)
+            {
+                ILGenerator.Emit(OpCodes.Ldarg_0);
+                ILGenerator.Emit(OpCodes.Newobj, ei.SubscribersListFieldInfo.FieldType.GetConstructor(new Type[] { }));
+                ILGenerator.Emit(OpCodes.Stfld, ei.SubscribersListFieldInfo);
+            }
 
             // Return
             ILGenerator.Emit(OpCodes.Ret);
@@ -309,6 +332,7 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy
             var ILGenerator = method.GetILGenerator();
 
             ILGenerator.Emit(OpCodes.Ldarg_0);
+            ILGenerator.Emit(OpCodes.Ldarg_0);
             ILGenerator.Emit(OpCodes.Ldfld, targetFieldInfo);
             ILGenerator.Emit(OpCodes.Dup);
             ILGenerator.Emit(OpCodes.Ldvirtftn, methodInfo);
@@ -373,7 +397,7 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy
                 ILGenerator.Emit(OpCodes.Stloc_2);
             }
 
-            ILGenerator.Emit(OpCodes.Br, beforeDecoratorsWhileStatementLabel);
+            ILGenerator.Emit(OpCodes.Br_S, beforeDecoratorsWhileStatementLabel);
 
             // Execute before decorators while body start
             ILGenerator.MarkLabel(beforeDecoratorsWhileBodyLabel);
@@ -385,7 +409,7 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy
             ILGenerator.Emit(OpCodes.Dup);
             ILGenerator.Emit(OpCodes.Brtrue_S, beforeDecoratorLabel);
             ILGenerator.Emit(OpCodes.Pop);
-            ILGenerator.Emit(OpCodes.Br, getNextDecoratorsPairLabel);
+            ILGenerator.Emit(OpCodes.Br_S, getNextDecoratorsPairLabel);
 
             // Invoke before decorator
             ILGenerator.MarkLabel(beforeDecoratorLabel);
@@ -419,6 +443,7 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy
             {
                 ILGenerator.Emit(OpCodes.Stloc_2);
             }
+            ILGenerator.Emit(OpCodes.Br_S, afterDecoratorsWhileStatementLabel);
 
             // Execute proxy
             ILGenerator.MarkLabel(proxyLabel);
@@ -426,11 +451,12 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy
             ILGenerator.Emit(OpCodes.Ldfld, memberInfo.ProxyInstanceFieldInfo);
             ILGenerator.Emit(OpCodes.Ldarg_1);
             ILGenerator.EmitLoadArgumentsRange(2, methodArgumentsTypes.Length);
-            ILGenerator.Emit(OpCodes.Callvirt, proxyType);
+            ILGenerator.Emit(OpCodes.Callvirt, proxyType.GetMethod("Invoke"));
             if (methodInfo.ReturnType != typeof(void))
             {
                 ILGenerator.Emit(OpCodes.Stloc_2);
             }
+            ILGenerator.Emit(OpCodes.Br_S, afterDecoratorsWhileStatementLabel);
 
             // Execute after decorators while body start
             ILGenerator.MarkLabel(afterDecoratorsWhileBodyLabel);
@@ -442,11 +468,15 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy
             ILGenerator.Emit(OpCodes.Dup);
             ILGenerator.Emit(OpCodes.Brtrue_S, afterDecoratorLabel);
             ILGenerator.Emit(OpCodes.Pop);
-            ILGenerator.Emit(OpCodes.Br, getPreviousDecoratorsPairLabel);
+            ILGenerator.Emit(OpCodes.Br_S, getPreviousDecoratorsPairLabel);
 
             // Invoke after decorator
             ILGenerator.MarkLabel(afterDecoratorLabel);
             ILGenerator.EmitLoadArgumentsRange(2, methodArgumentsTypes.Length);
+            if (methodInfo.ReturnType != typeof(void))
+            {
+                ILGenerator.Emit(OpCodes.Ldloc_2);
+            }
             ILGenerator.Emit(OpCodes.Callvirt, afterDecoratorType.GetMethod("Invoke"));
 
             // Get previous decorators pair
@@ -459,10 +489,7 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy
             // Execute after decorators while statement
             ILGenerator.MarkLabel(afterDecoratorsWhileStatementLabel);
             ILGenerator.Emit(OpCodes.Ldloc_0);
-            ILGenerator.Emit(OpCodes.Ldnull);
-            ILGenerator.Emit(OpCodes.Cgt_Un);
             ILGenerator.Emit(OpCodes.Brtrue_S, afterDecoratorsWhileBodyLabel);
-
 
             if (methodInfo.ReturnType != typeof(void))
             {
@@ -470,7 +497,7 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy
             }
             ILGenerator.Emit(OpCodes.Ret);
 
-            return methodInfo;
+            return method;
         }
 
         private static Type GetEventProxyFieldType(EventInfo eventInfo)

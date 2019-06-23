@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using Sharpaxe.DynamicProxy.Internal.Proxy;
 using Sharpaxe.DynamicProxy.Tests.TestHelper;
 using Sharpaxe.DynamicProxy.Internal;
@@ -19,7 +20,8 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
             var type = CreateTargetType(typeof(IPropertyGetter));
 
             var expectedFields =
-                ExpectedIPropertyGetterFields
+                ExpectedIPropertyGetterProxyFields
+                .Concat(ExpectedIPropertyGetterDecoratorsFields)
                 .Concat(new KeyValuePair<string, Type>("target", typeof(IPropertyGetter)))
                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
@@ -33,8 +35,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
 
             var expectedMethods =
                 ExpectedIPropertyGetterFunctions
-                .Concat(new KeyValuePair<string, Type>("Finalize", typeof(Action)))
-                .Concat(new KeyValuePair<string, Type>("MemberwiseClone", typeof(Func<object>)))
+                .Concat(ExpectedObjectFunctions)
                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
             AssertTypeHasPassedPrivateInstanceMethods(type, expectedMethods);
@@ -46,7 +47,8 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
             var type = CreateTargetType(typeof(IPropertySetter));
 
             var expectedFields =
-                ExpectedIPropertySetterFields
+                ExpectedIPropertySetterProxyFields
+                .Concat(ExpectedIPropertySetterDecoratorsFields)
                 .Concat(new KeyValuePair<string, Type>("target", typeof(IPropertySetter)))
                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
@@ -60,8 +62,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
 
             var expectedMethods =
                 ExpectedIPropertySetterFunctions
-                .Concat(new KeyValuePair<string, Type>("Finalize", typeof(Action)))
-                .Concat(new KeyValuePair<string, Type>("MemberwiseClone", typeof(Func<object>)))
+                .Concat(ExpectedObjectFunctions)
                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
             AssertTypeHasPassedPrivateInstanceMethods(type, expectedMethods);
@@ -73,11 +74,25 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
             var type = CreateTargetType(typeof(IEvent));
 
             var expectedFields =
-                ExpectedIEventFields
+                ExpectedIEventProxyFields
+                .Concat(ExpectedIEventDecoratorsFields)
                 .Concat(new KeyValuePair<string, Type>("target", typeof(IEvent)))
                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
             AssertTypeHasPassedPrivateInstanceFields(type, expectedFields);
+        }
+
+        [TestMethod]
+        public void CreateType_IEvent_HasExpectedMethods()
+        {
+            var type = CreateTargetType(typeof(IEvent));
+
+            var expectedFunctions =
+                ExpectedIEventMethods
+                .Concat(ExpectedObjectFunctions)
+                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+
+            AssertTypeHasPassedPrivateInstanceMethods(type, expectedFunctions);
         }
 
         [TestMethod]
@@ -86,7 +101,8 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
             var type = CreateTargetType(typeof(IMethod));
 
             var expectedFields =
-                ExpectedIMethodFields
+                ExpectedIMethodProxyFields
+                .Concat(ExpectedIMethodDecoratorsFields)
                 .Concat(new KeyValuePair<string, Type>("target", typeof(IMethod)))
                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
@@ -100,8 +116,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
 
             var expectedFunctions =
                 ExpectedIMethodFunctions
-                .Concat(new KeyValuePair<string, Type>("Finalize", typeof(Action)))
-                .Concat(new KeyValuePair<string, Type>("MemberwiseClone", typeof(Func<object>)))
+                .Concat(ExpectedObjectFunctions)
                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
             AssertTypeHasPassedPrivateInstanceMethods(type, expectedFunctions);
@@ -110,17 +125,371 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
         [TestMethod]
         public void CreateType_IInterface_HasExpectedFields()
         {
-            var type = CreateTargetType(typeof(IInteface));
+            var type = CreateTargetType(typeof(IInterface));
 
             var expectedFields =
-                ExpectedIEventFields
-                .Concat(ExpectedIMethodFields)
-                .Concat(ExpectedIPropertyGetterFields)
-                .Concat(ExpectedIPropertySetterFields)
-                .Concat(new KeyValuePair<string, Type>("target", typeof(IInteface)))
+                ExpectedIEventProxyFields
+                .Concat(ExpectedIEventDecoratorsFields)
+                .Concat(ExpectedIMethodProxyFields)
+                .Concat(ExpectedIMethodDecoratorsFields)
+                .Concat(ExpectedIPropertyGetterProxyFields)
+                .Concat(ExpectedIPropertyGetterDecoratorsFields)
+                .Concat(ExpectedIPropertySetterProxyFields)
+                .Concat(ExpectedIPropertySetterDecoratorsFields)
+                .Concat(new KeyValuePair<string, Type>("target", typeof(IInterface)))
                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
             AssertTypeHasPassedPrivateInstanceFields(type, expectedFields);
+        }
+
+        [TestMethod]
+        public void CreateType_IInterface_HasExpectedMethods()
+        {
+            var type = CreateTargetType(typeof(IInterface));
+
+            var expectedFunctions =
+                ExpectedIEventMethods
+                .Concat(ExpectedIMethodFunctions)
+                .Concat(ExpectedIPropertyGetterFunctions)
+                .Concat(ExpectedIPropertySetterFunctions)
+                .Concat(ExpectedObjectFunctions)
+                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+
+            AssertTypeHasPassedPrivateInstanceMethods(type, expectedFunctions);
+        }
+
+        [TestMethod]
+        public void CreateInstance_IPropertyGetterProxy_ThrowsNoException()
+        {
+            var type = CreateTargetType(typeof(IPropertyGetter));
+            var mock = new Mock<IPropertyGetter>();
+
+            Activator.CreateInstance(type, mock.Object);
+        }
+
+        [TestMethod]
+        public void CreateInstance_IPropertyGetterProxy_FieldsAreNotNull()
+        {
+            AssertInstanceHasNotNullFieldsValues(CreateTargetType(typeof(IPropertyGetter)), CreateProxyInstance<IPropertyGetter>(null), ExpectedIPropertyGetterDecoratorsFields.Keys);
+        }
+
+        [TestMethod]
+        public void CreateInstance_IPropertySetterProxy_ThrowsNoException()
+        {
+            var type = CreateTargetType(typeof(IPropertySetter));
+            var mock = new Mock<IPropertySetter>();
+
+            Activator.CreateInstance(type, mock.Object);
+        }
+
+        [TestMethod]
+        public void CreateInstance_IPropertySetterProxy_FieldsAreNotNull()
+        {
+            AssertInstanceHasNotNullFieldsValues(CreateTargetType(typeof(IPropertySetter)), CreateProxyInstance<IPropertySetter>(null), ExpectedIPropertySetterDecoratorsFields.Keys);
+        }
+
+        [TestMethod]
+        public void CreateInstance_IEventProxy_ThrowsNoException()
+        {
+            var type = CreateTargetType(typeof(IEvent));
+            var mock = new Mock<IEvent>();
+
+            Activator.CreateInstance(type, mock.Object);
+        }
+
+        [TestMethod]
+        public void CreateInstance_IEventProxy_FieldsAreNotNull()
+        {
+            AssertInstanceHasNotNullFieldsValues(CreateTargetType(typeof(IEvent)), CreateProxyInstance<IEvent>(null),
+                ExpectedIEventDecoratorsFields.Keys.Concat(ExpectedIEventSubscribersFields.Keys));
+        }
+
+        [TestMethod]
+        public void CreateInstance_IMethodProxy_ThrowsNoException()
+        {
+            var type = CreateTargetType(typeof(IMethod));
+            var mock = new Mock<IMethod>();
+
+            Activator.CreateInstance(type, mock.Object);
+        }
+
+        [TestMethod]
+        public void CreateInstance_IMethodProxy_FieldsAreNotNull()
+        {
+            AssertInstanceHasNotNullFieldsValues(CreateTargetType(typeof(IMethod)), CreateProxyInstance<IMethod>(null), ExpectedIMethodDecoratorsFields.Keys);
+        }
+
+        [TestMethod]
+        public void CreateInstance_IInterfaceProxy_ThrowsNoException()
+        {
+            var type = CreateTargetType(typeof(IInterface));
+            var mock = new Mock<IInterface>();
+
+            Activator.CreateInstance(type, mock.Object);
+        }
+
+        [TestMethod]
+        public void CreateInstance_IInterfaceProxy_FieldsAreNotNull()
+        {
+            AssertInstanceHasNotNullFieldsValues(CreateTargetType(typeof(IInterface)), CreateProxyInstance<IInterface>(null),
+                ExpectedIMethodDecoratorsFields.Keys
+                .Concat(ExpectedIEventDecoratorsFields.Keys)
+                .Concat(ExpectedIEventSubscribersFields.Keys)
+                .Concat(ExpectedIPropertyGetterDecoratorsFields.Keys)
+                .Concat(ExpectedIPropertySetterDecoratorsFields.Keys));
+        }
+
+        [TestMethod]
+        public void InvokeAction_IMethodProxy_CallsRequestedMethod()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+
+            proxy.Action();
+
+            mock.Verify(m => m.Action(), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeActionWithValueArgument_IMethodProxy_CallsRequestedMethod()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+
+            proxy.ActionWithValueArgument(123);
+
+            mock.Verify(m => m.ActionWithValueArgument(123), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeActionWithValueArgumentOverload_IMethodProxy_CallsRequestedMethod()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+
+            proxy.ActionWithValueArgument(123u);
+
+            mock.Verify(m => m.ActionWithValueArgument(123u), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeActionWithValueReference_IMethodProxy_CallsRequestedMethod()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+
+            var obj = new object();
+            proxy.ActionWithReferenceArgument(obj);
+
+            mock.Verify(m => m.ActionWithReferenceArgument(obj), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeActionWithValueReferenceOverload_IMethodProxy_CallsRequestedMethod()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+
+            var str = "TestString";
+            proxy.ActionWithReferenceArgument(str);
+
+            mock.Verify(m => m.ActionWithReferenceArgument(str), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithValueReturnType_IMethodProxy_CallsRequestedMethod()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+
+            proxy.FunctionWithValueReturnType();
+
+            mock.Verify(m => m.FunctionWithValueReturnType(), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithValueArgumentAndValueReturnType_IMethodProxy_CallsRequestedMethod()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+
+            proxy.FunctionWithValueArgumentAndValueReturnType(123);
+
+            mock.Verify(m => m.FunctionWithValueArgumentAndValueReturnType(123), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithValueArgumentAndValueReturnTypeOverload_IMethodProxy_CallsRequestedMethod()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+
+            proxy.FunctionWithValueArgumentAndValueReturnType(123u);
+
+            mock.Verify(m => m.FunctionWithValueArgumentAndValueReturnType(123u), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithReferenceArgumentAndValueReturnType_IMethodProxy_CallsRequestedMethod()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+
+            var obj = new object();
+            proxy.FunctionWithReferenceArgumentAndValueReturnType(obj);
+
+            mock.Verify(m => m.FunctionWithReferenceArgumentAndValueReturnType(obj), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithReferenceArgumentAndValueReturnTypeOverload_IMethodProxy_CallsRequestedMethod()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+
+            var str = "TestString";
+            proxy.FunctionWithReferenceArgumentAndValueReturnType(str);
+
+            mock.Verify(m => m.FunctionWithReferenceArgumentAndValueReturnType(str), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithReferenceReturnType_IMethodProxy_CallsRequestedMethod()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+
+            proxy.FunctionWithReferenceReturnType();
+
+            mock.Verify(m => m.FunctionWithReferenceReturnType(), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithValueArgumentAndReferenceReturnType_IMethodProxy_CallsRequestedMethod()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+
+            proxy.FunctionWithValueArgumentAndReferenceReturnType(123);
+
+            mock.Verify(m => m.FunctionWithValueArgumentAndReferenceReturnType(123), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithValueArgumentAndReferenceReturnTypeOverload_IMethodProxy_CallsRequestedMethod()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+
+            proxy.FunctionWithValueArgumentAndReferenceReturnType(123u);
+
+            mock.Verify(m => m.FunctionWithValueArgumentAndReferenceReturnType(123u), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithReferenceArgumentAndReferenceReturnType_IMethodProxy_CallsRequestedMethod()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+
+            var obj = new object();
+            proxy.FunctionWithReferenceArgumentAndReferenceReturnType(obj);
+
+            mock.Verify(m => m.FunctionWithReferenceArgumentAndReferenceReturnType(obj), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithReferenceArgumentAndReferenceReturnTypeOverload_IMethodProxy_CallsRequestedMethod()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+
+            var str = "TestString";
+            proxy.FunctionWithReferenceArgumentAndReferenceReturnType(str);
+
+            mock.Verify(m => m.FunctionWithReferenceArgumentAndReferenceReturnType(str), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithTupleReturnType_IMethodProxy_CallsRequestedMethod()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+
+            proxy.FunctionWithTupleReturnType();
+
+            mock.Verify(m => m.FunctionWithTupleReturnType(), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithValueArgumentAndTupleReturnType_IMethodProxy_CallsRequestedMethod()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+
+            proxy.FunctionWithValueArgumentAndTupleReturnType(123);
+
+            mock.Verify(m => m.FunctionWithValueArgumentAndTupleReturnType(123), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithValueArgumentAndTupleReturnTypeOverload_IMethodProxy_CallsRequestedMethod()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+
+            proxy.FunctionWithValueArgumentAndTupleReturnType(123u);
+
+            mock.Verify(m => m.FunctionWithValueArgumentAndTupleReturnType(123u), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithReferenceArgumentAndTupleReturnType_IMethodProxy_CallsRequestedMethod()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+
+            var obj = new object();
+            proxy.FunctionWithReferenceArgumentAndTupleReturnType(obj);
+
+            mock.Verify(m => m.FunctionWithReferenceArgumentAndTupleReturnType(obj), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithReferenceArgumentAndTupleReturnTypeOverload_IMethodProxy_CallsRequestedMethod()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+
+            var str = "TestString";
+            proxy.FunctionWithReferenceArgumentAndTupleReturnType(str);
+
+            mock.Verify(m => m.FunctionWithReferenceArgumentAndTupleReturnType(str), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        internal static T CreateProxyInstance<T>(T target)
+        {
+            return (T)Activator.CreateInstance(CreateTargetType(typeof(T)), target);
         }
 
         internal static Type CreateTargetType(Type targetType)
@@ -156,7 +525,15 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
             }
         }
 
-        internal static Dictionary<string, Type> ExpectedIPropertyGetterFields = new Dictionary<string, Type>()
+        internal static void AssertInstanceHasNotNullFieldsValues(Type type, object instance, IEnumerable<string> fields)
+        {
+            foreach (var f in fields)
+            {
+                Assert.IsNotNull(type.GetField(f, BindingFlags.NonPublic | BindingFlags.Instance).GetValue(instance));
+            }
+        }
+
+        internal static Dictionary<string, Type> ExpectedIPropertyGetterProxyFields = new Dictionary<string, Type>()
         {
             ["BooleanGetterProxy0"] = typeof(Func<Func<bool>, bool>),
             ["ByteGetterProxy0"] = typeof(Func<Func<byte>, byte>),
@@ -173,7 +550,10 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
             ["UShortGetterProxy0"] = typeof(Func<Func<ushort>, ushort>),
             ["StructGetterProxy0"] = typeof(Func<Func<TestStruct>, TestStruct>),
             ["ClassGetterProxy0"] = typeof(Func<Func<string>, string>),
+        };
 
+        internal static Dictionary<string, Type> ExpectedIPropertyGetterDecoratorsFields = new Dictionary<string, Type>()
+        {
             ["BooleanGetterDecorators0"] = typeof(LinkedList<ValueTuple<Action, Action<bool>>>),
             ["ByteGetterDecorators0"] = typeof(LinkedList<ValueTuple<Action, Action<byte>>>),
             ["SByteGetterDecorators0"] = typeof(LinkedList<ValueTuple<Action, Action<sbyte>>>),
@@ -210,7 +590,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
             ["ClassGetterWrapper0"] = typeof(Func<Func<string>, string>),
         };
 
-        internal static Dictionary<string, Type> ExpectedIPropertySetterFields = new Dictionary<string, Type>()
+        internal static Dictionary<string, Type> ExpectedIPropertySetterProxyFields = new Dictionary<string, Type>()
         {
             ["BooleanSetterProxy0"] = typeof(Action<Action<bool>, bool>),
             ["ByteSetterProxy0"] = typeof(Action<Action<byte>, byte>),
@@ -227,7 +607,10 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
             ["UShortSetterProxy0"] = typeof(Action<Action<ushort>, ushort>),
             ["StructSetterProxy0"] = typeof(Action<Action<TestStruct>, TestStruct>),
             ["ClassSetterProxy0"] = typeof(Action<Action<string>, string>),
+        };
 
+        internal static Dictionary<string, Type> ExpectedIPropertySetterDecoratorsFields = new Dictionary<string, Type>()
+        {
             ["BooleanSetterDecorators0"] = typeof(LinkedList<ValueTuple<Action<bool>, Action<bool>>>),
             ["ByteSetterDecorators0"] = typeof(LinkedList<ValueTuple<Action<byte>, Action<byte>>>),
             ["SByteSetterDecorators0"] = typeof(LinkedList<ValueTuple<Action<sbyte>, Action<sbyte>>>),
@@ -264,18 +647,35 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
             ["ClassSetterWrapper0"] = typeof(Action<Action<string>, string>)
         };
 
-        internal static Dictionary<string, Type> ExpectedIEventFields = new Dictionary<string, Type>()
+        internal static Dictionary<string, Type> ExpectedIEventProxyFields = new Dictionary<string, Type>()
         {
             ["EventEmptyArgsEventProxy0"] = typeof(Action<Action<object, EventArgs>, object, EventArgs>),
             ["EventIntArgsEventProxy0"] = typeof(Action<Action<object, EventArgs<int>>, object, EventArgs<int>>),
-            ["EventStringArgsEventProxy0"] = typeof(Action<Action<object, EventArgs<string>>, object, EventArgs<string>>),
+            ["EventStringArgsEventProxy0"] = typeof(Action<Action<object, EventArgs<string>>, object, EventArgs<string>>)
+        };
 
+        internal static Dictionary<string, Type> ExpectedIEventDecoratorsFields = new Dictionary<string, Type>()
+        {
             ["EventEmptyArgsEventDecorators0"] = typeof(LinkedList<ValueTuple<Action<object, EventArgs>, Action<object, EventArgs>>>),
             ["EventIntArgsEventDecorators0"] = typeof(LinkedList<ValueTuple<Action<object, EventArgs<int>>, Action<object, EventArgs<int>>>>),
             ["EventStringArgsEventDecorators0"] = typeof(LinkedList<ValueTuple<Action<object, EventArgs<string>>, Action<object, EventArgs<string>>>>),
         };
 
-        internal static Dictionary<string, Type> ExpectedIMethodFields = new Dictionary<string, Type>()
+        internal static Dictionary<string, Type> ExpectedIEventSubscribersFields = new Dictionary<string, Type>()
+        {
+            ["EventEmptyArgsEventSubscribers0"] = typeof(Dictionary<Action<object, EventArgs>, Action<object, EventArgs>>),
+            ["EventIntArgsEventSubscribers0"] = typeof(Dictionary<Action<object, EventArgs<int>>, Action<object, EventArgs<int>>>),
+            ["EventStringArgsEventSubscribers0"] = typeof(Dictionary<Action<object, EventArgs<string>>, Action<object, EventArgs<string>>>),
+        };
+
+        internal static Dictionary<string, Type> ExpectedIEventMethods = new Dictionary<string, Type>()
+        {
+            ["EventEmptyArgsEventWrapper0"] = typeof(Action<Action<object, EventArgs>, object, EventArgs>),
+            ["EventIntArgsEventWrapper0"] = typeof(Action<Action<object, EventArgs<int>>, object, EventArgs<int>>),
+            ["EventStringArgsEventWrapper0"] = typeof(Action<Action<object, EventArgs<string>>, object, EventArgs<string>>)
+        };
+
+        internal static Dictionary<string, Type> ExpectedIMethodProxyFields = new Dictionary<string, Type>()
         {
             ["ActionMethodProxy0"] = typeof(Action<Action>),
             ["ActionWithValueArgumentMethodProxy0"] = typeof(Action<Action<int>, int>),
@@ -297,7 +697,10 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
             ["FunctionWithValueArgumentAndTupleReturnTypeMethodProxy1"] = typeof(Func<Func<uint, ValueTuple<int, object>>, uint, ValueTuple<int, object>>),
             ["FunctionWithReferenceArgumentAndTupleReturnTypeMethodProxy0"] = typeof(Func<Func<object, ValueTuple<int, object>>, object, ValueTuple<int, object>>),
             ["FunctionWithReferenceArgumentAndTupleReturnTypeMethodProxy1"] = typeof(Func<Func<string, ValueTuple<int, object>>, string, ValueTuple<int, object>>),
+        };
 
+        internal static Dictionary<string, Type> ExpectedIMethodDecoratorsFields = new Dictionary<string, Type>()
+        {
             ["ActionMethodDecorators0"] = typeof(LinkedList<ValueTuple<Action, Action>>),
             ["ActionWithValueArgumentMethodDecorators0"] = typeof(LinkedList<ValueTuple<Action<int>, Action<int>>>),
             ["ActionWithValueArgumentMethodDecorators1"] = typeof(LinkedList<ValueTuple<Action<uint>, Action<uint>>>),
@@ -342,6 +745,12 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
             ["FunctionWithValueArgumentAndTupleReturnTypeMethodWrapper1"]         = typeof(Func<Func<uint, ValueTuple<int, object>>, uint, ValueTuple<int, object>>),
             ["FunctionWithReferenceArgumentAndTupleReturnTypeMethodWrapper0"]     = typeof(Func<Func<object, ValueTuple<int, object>>, object, ValueTuple<int, object>>),
             ["FunctionWithReferenceArgumentAndTupleReturnTypeMethodWrapper1"]     = typeof(Func<Func<string, ValueTuple<int, object>>, string, ValueTuple<int, object>>)
+        };
+
+        internal static Dictionary<string, Type> ExpectedObjectFunctions = new Dictionary<string, Type>()
+        {
+            ["Finalize"] = typeof(Action),
+            ["MemberwiseClone"] = typeof(Func<object>)
         };
     }
 }

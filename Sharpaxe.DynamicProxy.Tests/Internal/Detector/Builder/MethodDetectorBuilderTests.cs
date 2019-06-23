@@ -412,7 +412,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Detector.Builder
         [TestMethod]
         public void Create_IInteface_IsNotNull()
         {
-            Assert.IsNotNull(GetMethodDetectorType(typeof(IInteface)));
+            Assert.IsNotNull(GetMethodDetectorType(typeof(IInterface)));
         }
 
         [TestMethod]
@@ -439,7 +439,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Detector.Builder
         [TestMethod]
         public void CreateInstance_IInterface_ThrowsNoException()
         {
-            var type = GetMethodDetectorType(typeof(IInteface));
+            var type = GetMethodDetectorType(typeof(IInterface));
             Activator.CreateInstance(type);
         }
 
