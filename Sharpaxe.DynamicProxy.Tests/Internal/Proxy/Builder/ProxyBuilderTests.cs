@@ -487,6 +487,870 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
             mock.VerifyNoOtherCalls();
         }
 
+        [TestMethod]
+        public void InvokeAction_IMethodProxyWithBeforeDecorator_CallsRequestedMethodAndDecorator()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            bool decoratorCalled = false;
+            Action beforeDecorator = () => 
+            {
+                mock.VerifyNoOtherCalls();
+                decoratorCalled = true;
+            };
+            SetBeforeDecorator(proxy, "ActionMethodDecorators0", beforeDecorator);
+
+            proxy.Action();
+
+            Assert.IsTrue(decoratorCalled);
+            mock.Verify(m => m.Action(), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeActionWithValueArgument_IMethodProxyWithBeforeDecorator_CallsRequestedMethodAndDecorator()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            int arg = 123;
+            bool decoratorCalled = false;
+            Action<int> beforeDecorator = a =>
+            {
+                Assert.AreEqual(arg, a);
+                mock.VerifyNoOtherCalls();
+                decoratorCalled = true;
+            };
+            SetBeforeDecorator(proxy, "ActionWithValueArgumentMethodDecorators0", beforeDecorator);
+
+            proxy.ActionWithValueArgument(arg);
+
+            Assert.IsTrue(decoratorCalled);
+            mock.Verify(m => m.ActionWithValueArgument(arg), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeActionWithValueArgumentOverload_IMethodProxyWithBeforeDecorator_CallsRequestedMethodAndDecorator()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            uint arg = 123u;
+            bool decoratorCalled = false;
+            Action<uint> beforeDecorator = a =>
+            {
+                Assert.AreEqual(arg, a);
+                mock.VerifyNoOtherCalls();
+                decoratorCalled = true;
+            };
+            SetBeforeDecorator(proxy, "ActionWithValueArgumentMethodDecorators1", beforeDecorator);
+
+            proxy.ActionWithValueArgument(arg);
+
+            Assert.IsTrue(decoratorCalled);
+            mock.Verify(m => m.ActionWithValueArgument(arg), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeActionWithReferenceArgument_IMethodProxyWithBeforeDecorator_CallsRequestedMethodAndDecorator()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            var arg = new object();
+            bool decoratorCalled = false;
+            Action<object> beforeDecorator = a =>
+            {
+                Assert.AreEqual(arg, a);
+                mock.VerifyNoOtherCalls();
+                decoratorCalled = true;
+            };
+            SetBeforeDecorator(proxy, "ActionWithReferenceArgumentMethodDecorators0", beforeDecorator);
+
+            proxy.ActionWithReferenceArgument(arg);
+
+            Assert.IsTrue(decoratorCalled);
+            mock.Verify(m => m.ActionWithReferenceArgument(arg), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeActionWithReferenceArgumentOverload_IMethodProxyWithBeforeDecorator_CallsRequestedMethodAndDecorator()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            string arg = "TestString";
+            bool decoratorCalled = false;
+            Action<string> beforeDecorator = a =>
+            {
+                Assert.AreEqual(arg, a);
+                mock.VerifyNoOtherCalls();
+                decoratorCalled = true;
+            };
+            SetBeforeDecorator(proxy, "ActionWithReferenceArgumentMethodDecorators1", beforeDecorator);
+
+            proxy.ActionWithReferenceArgument(arg);
+
+            Assert.IsTrue(decoratorCalled);
+            mock.Verify(m => m.ActionWithReferenceArgument(arg), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithValueReturnType_IMethodProxyWithBeforeDecorator_CallsRequestedMethodAndDecorator()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            bool decoratorCalled = false;
+            Action beforeDecorator = () =>
+            {
+                mock.VerifyNoOtherCalls();
+                decoratorCalled = true;
+            };
+            SetBeforeDecorator<Action, Action<int>>(proxy, "FunctionWithValueReturnTypeMethodDecorators0", beforeDecorator);
+
+            proxy.FunctionWithValueReturnType();
+
+            Assert.IsTrue(decoratorCalled);
+            mock.Verify(m => m.FunctionWithValueReturnType(), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithValueArgumentAndValueReturnTypeWithValueArgument_IMethodProxyWithBeforeDecorator_CallsRequestedMethodAndDecorator()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            int arg = 123;
+            bool decoratorCalled = false;
+            Action<int> beforeDecorator = a =>
+            {
+                Assert.AreEqual(arg, a);
+                mock.VerifyNoOtherCalls();
+                decoratorCalled = true;
+            };
+            SetBeforeDecorator<Action<int>, Action<int, int>>(proxy, "FunctionWithValueArgumentAndValueReturnTypeMethodDecorators0", beforeDecorator);
+
+            proxy.FunctionWithValueArgumentAndValueReturnType(arg);
+
+            Assert.IsTrue(decoratorCalled);
+            mock.Verify(m => m.FunctionWithValueArgumentAndValueReturnType(arg), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithValueArgumentAndValueReturnTypeOverload_IMethodProxyWithBeforeDecorator_CallsRequestedMethodAndDecorator()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            uint arg = 123u;
+            bool decoratorCalled = false;
+            Action<uint> beforeDecorator = a =>
+            {
+                Assert.AreEqual(arg, a);
+                mock.VerifyNoOtherCalls();
+                decoratorCalled = true;
+            };
+            SetBeforeDecorator<Action<uint>, Action<uint, int>>(proxy, "FunctionWithValueArgumentAndValueReturnTypeMethodDecorators1", beforeDecorator);
+
+            proxy.FunctionWithValueArgumentAndValueReturnType(arg);
+
+            Assert.IsTrue(decoratorCalled);
+            mock.Verify(m => m.FunctionWithValueArgumentAndValueReturnType(arg), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithReferenceArgumentAndValueReturnType_IMethodProxyWithBeforeDecorator_CallsRequestedMethodAndDecorator()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            var arg = new object();
+            bool decoratorCalled = false;
+            Action<object> beforeDecorator = a =>
+            {
+                Assert.AreEqual(arg, a);
+                mock.VerifyNoOtherCalls();
+                decoratorCalled = true;
+            };
+            SetBeforeDecorator<Action<object>, Action<object, int>>(proxy, "FunctionWithReferenceArgumentAndValueReturnTypeMethodDecorators0", beforeDecorator);
+
+            proxy.FunctionWithReferenceArgumentAndValueReturnType(arg);
+
+            Assert.IsTrue(decoratorCalled);
+            mock.Verify(m => m.FunctionWithReferenceArgumentAndValueReturnType(arg), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithReferenceArgumentAndValueReturnTypeOverload_IMethodProxyWithBeforeDecorator_CallsRequestedMethodAndDecorator()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            string arg = "TestString";
+            bool decoratorCalled = false;
+            Action<string> beforeDecorator = a =>
+            {
+                Assert.AreEqual(arg, a);
+                mock.VerifyNoOtherCalls();
+                decoratorCalled = true;
+            };
+            SetBeforeDecorator<Action<string>, Action<string, int>>(proxy, "FunctionWithReferenceArgumentAndValueReturnTypeMethodDecorators1", beforeDecorator);
+
+            proxy.FunctionWithReferenceArgumentAndValueReturnType(arg);
+
+            Assert.IsTrue(decoratorCalled);
+            mock.Verify(m => m.FunctionWithReferenceArgumentAndValueReturnType(arg), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithReferenceReturnType_IMethodProxyWithBeforeDecorator_CallsRequestedMethodAndDecorator()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            bool decoratorCalled = false;
+            Action beforeDecorator = () =>
+            {
+                mock.VerifyNoOtherCalls();
+                decoratorCalled = true;
+            };
+            SetBeforeDecorator<Action, Action<object>>(proxy, "FunctionWithReferenceReturnTypeMethodDecorators0", beforeDecorator);
+
+            proxy.FunctionWithReferenceReturnType();
+
+            Assert.IsTrue(decoratorCalled);
+            mock.Verify(m => m.FunctionWithReferenceReturnType(), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithValueArgumentAndReferenceReturnTypeWithValueArgument_IMethodProxyWithBeforeDecorator_CallsRequestedMethodAndDecorator()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            int arg = 123;
+            bool decoratorCalled = false;
+            Action<int> beforeDecorator = a =>
+            {
+                Assert.AreEqual(arg, a);
+                mock.VerifyNoOtherCalls();
+                decoratorCalled = true;
+            };
+            SetBeforeDecorator<Action<int>, Action<int, object>>(proxy, "FunctionWithValueArgumentAndReferenceReturnTypeMethodDecorators0", beforeDecorator);
+
+            proxy.FunctionWithValueArgumentAndReferenceReturnType(arg);
+
+            Assert.IsTrue(decoratorCalled);
+            mock.Verify(m => m.FunctionWithValueArgumentAndReferenceReturnType(arg), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithValueArgumentAndReferenceReturnTypeOverload_IMethodProxyWithBeforeDecorator_CallsRequestedMethodAndDecorator()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            uint arg = 123u;
+            bool decoratorCalled = false;
+            Action<uint> beforeDecorator = a =>
+            {
+                Assert.AreEqual(arg, a);
+                mock.VerifyNoOtherCalls();
+                decoratorCalled = true;
+            };
+            SetBeforeDecorator<Action<uint>, Action<uint, object>>(proxy, "FunctionWithValueArgumentAndReferenceReturnTypeMethodDecorators1", beforeDecorator);
+
+            proxy.FunctionWithValueArgumentAndReferenceReturnType(arg);
+
+            Assert.IsTrue(decoratorCalled);
+            mock.Verify(m => m.FunctionWithValueArgumentAndReferenceReturnType(arg), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithReferenceArgumentAndReferenceReturnType_IMethodProxyWithBeforeDecorator_CallsRequestedMethodAndDecorator()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            var arg = new object();
+            bool decoratorCalled = false;
+            Action<object> beforeDecorator = a =>
+            {
+                Assert.AreEqual(arg, a);
+                mock.VerifyNoOtherCalls();
+                decoratorCalled = true;
+            };
+            SetBeforeDecorator<Action<object>, Action<object, object>>(proxy, "FunctionWithReferenceArgumentAndReferenceReturnTypeMethodDecorators0", beforeDecorator);
+
+            proxy.FunctionWithReferenceArgumentAndReferenceReturnType(arg);
+
+            Assert.IsTrue(decoratorCalled);
+            mock.Verify(m => m.FunctionWithReferenceArgumentAndReferenceReturnType(arg), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithReferenceArgumentAndReferenceReturnTypeOverload_IMethodProxyWithBeforeDecorator_CallsRequestedMethodAndDecorator()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            string arg = "TestString";
+            bool decoratorCalled = false;
+            Action<string> beforeDecorator = a =>
+            {
+                Assert.AreEqual(arg, a);
+                mock.VerifyNoOtherCalls();
+                decoratorCalled = true;
+            };
+            SetBeforeDecorator<Action<string>, Action<string, object>>(proxy, "FunctionWithReferenceArgumentAndReferenceReturnTypeMethodDecorators1", beforeDecorator);
+
+            proxy.FunctionWithReferenceArgumentAndReferenceReturnType(arg);
+
+            Assert.IsTrue(decoratorCalled);
+            mock.Verify(m => m.FunctionWithReferenceArgumentAndReferenceReturnType(arg), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithTupleReturnType_IMethodProxyWithBeforeDecorator_CallsRequestedMethodAndDecorator()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            bool decoratorCalled = false;
+            Action beforeDecorator = () =>
+            {
+                mock.VerifyNoOtherCalls();
+                decoratorCalled = true;
+            };
+            SetBeforeDecorator<Action, Action<ValueTuple<int, object>>>(proxy, "FunctionWithTupleReturnTypeMethodDecorators0", beforeDecorator);
+
+            proxy.FunctionWithTupleReturnType();
+
+            Assert.IsTrue(decoratorCalled);
+            mock.Verify(m => m.FunctionWithTupleReturnType(), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithValueArgumentAndTupleReturnTypeWithValueArgument_IMethodProxyWithBeforeDecorator_CallsRequestedMethodAndDecorator()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            int arg = 123;
+            bool decoratorCalled = false;
+            Action<int> beforeDecorator = a =>
+            {
+                Assert.AreEqual(arg, a);
+                mock.VerifyNoOtherCalls();
+                decoratorCalled = true;
+            };
+            SetBeforeDecorator<Action<int>, Action<int, ValueTuple<int, object>>>(proxy, "FunctionWithValueArgumentAndTupleReturnTypeMethodDecorators0", beforeDecorator);
+
+            proxy.FunctionWithValueArgumentAndTupleReturnType(arg);
+
+            Assert.IsTrue(decoratorCalled);
+            mock.Verify(m => m.FunctionWithValueArgumentAndTupleReturnType(arg), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithValueArgumentAndTupleReturnTypeOverload_IMethodProxyWithBeforeDecorator_CallsRequestedMethodAndDecorator()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            uint arg = 123u;
+            bool decoratorCalled = false;
+            Action<uint> beforeDecorator = a =>
+            {
+                Assert.AreEqual(arg, a);
+                mock.VerifyNoOtherCalls();
+                decoratorCalled = true;
+            };
+            SetBeforeDecorator<Action<uint>, Action<uint, ValueTuple<int, object>>>(proxy, "FunctionWithValueArgumentAndTupleReturnTypeMethodDecorators1", beforeDecorator);
+
+            proxy.FunctionWithValueArgumentAndTupleReturnType(arg);
+
+            Assert.IsTrue(decoratorCalled);
+            mock.Verify(m => m.FunctionWithValueArgumentAndTupleReturnType(arg), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithReferenceArgumentAndTupleReturnType_IMethodProxyWithBeforeDecorator_CallsRequestedMethodAndDecorator()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            var arg = new object();
+            bool decoratorCalled = false;
+            Action<object> beforeDecorator = a =>
+            {
+                Assert.AreEqual(arg, a);
+                mock.VerifyNoOtherCalls();
+                decoratorCalled = true;
+            };
+            SetBeforeDecorator<Action<object>, Action<object, ValueTuple<int, object>>>(proxy, "FunctionWithReferenceArgumentAndTupleReturnTypeMethodDecorators0", beforeDecorator);
+
+            proxy.FunctionWithReferenceArgumentAndTupleReturnType(arg);
+
+            Assert.IsTrue(decoratorCalled);
+            mock.Verify(m => m.FunctionWithReferenceArgumentAndTupleReturnType(arg), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithReferenceArgumentAndTupleReturnTypeOverload_IMethodProxyWithBeforeDecorator_CallsRequestedMethodAndDecorator()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            string arg = "TestString";
+            bool decoratorCalled = false;
+            Action<string> beforeDecorator = a =>
+            {
+                Assert.AreEqual(arg, a);
+                mock.VerifyNoOtherCalls();
+                decoratorCalled = true;
+            };
+            SetBeforeDecorator<Action<string>, Action<string, ValueTuple<int, object>>>(proxy, "FunctionWithReferenceArgumentAndTupleReturnTypeMethodDecorators1", beforeDecorator);
+
+            proxy.FunctionWithReferenceArgumentAndTupleReturnType(arg);
+
+            Assert.IsTrue(decoratorCalled);
+            mock.Verify(m => m.FunctionWithReferenceArgumentAndTupleReturnType(arg), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeAction_IMethodProxyWithAfterDecorator_CallsRequestedMethodAndDecorator()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            bool decoratorCalled = false;
+            Action afterDecorator = () =>
+            {
+                mock.Verify(m => m.Action(), Times.Once());
+                decoratorCalled = true;
+            };
+            SetAfterDecorator(proxy, "ActionMethodDecorators0", afterDecorator);
+
+            proxy.Action();
+
+            Assert.IsTrue(decoratorCalled);
+            mock.Verify(m => m.Action(), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeActionWithValueArgument_IMethodProxyWithAfterDecorator_CallsRequestedMethodAndDecorator()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            int arg = 123;
+            bool decoratorCalled = false;
+            Action<int> afterDecorator = a =>
+            {
+                Assert.AreEqual(arg, a);
+                mock.Verify(m => m.ActionWithValueArgument(arg), Times.Once());
+                decoratorCalled = true;
+            };
+            SetAfterDecorator(proxy, "ActionWithValueArgumentMethodDecorators0", afterDecorator);
+
+            proxy.ActionWithValueArgument(arg);
+
+            Assert.IsTrue(decoratorCalled);
+            mock.Verify(m => m.ActionWithValueArgument(arg), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeActionWithValueArgumentOverload_IMethodProxyWithAfterDecorator_CallsRequestedMethodAndDecorator()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            uint arg = 123u;
+            bool decoratorCalled = false;
+            Action<uint> afterDecorator = a =>
+            {
+                Assert.AreEqual(arg, a);
+                mock.Verify(m => m.ActionWithValueArgument(arg), Times.Once());
+                decoratorCalled = true;
+            };
+            SetAfterDecorator(proxy, "ActionWithValueArgumentMethodDecorators1", afterDecorator);
+
+            proxy.ActionWithValueArgument(arg);
+
+            Assert.IsTrue(decoratorCalled);
+            mock.Verify(m => m.ActionWithValueArgument(arg), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeActionWithReferenceArgument_IMethodProxyWithAfterDecorator_CallsRequestedMethodAndDecorator()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            var arg = new object();
+            bool decoratorCalled = false;
+            Action<object> afterDecorator = a =>
+            {
+                Assert.AreEqual(arg, a);
+                mock.Verify(m => m.ActionWithReferenceArgument(arg), Times.Once());
+                decoratorCalled = true;
+            };
+            SetAfterDecorator(proxy, "ActionWithReferenceArgumentMethodDecorators0", afterDecorator);
+
+            proxy.ActionWithReferenceArgument(arg);
+
+            Assert.IsTrue(decoratorCalled);
+            mock.Verify(m => m.ActionWithReferenceArgument(arg), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeActionWithReferenceArgumentOverload_IMethodProxyWithAfterDecorator_CallsRequestedMethodAndDecorator()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            string arg = "TestString";
+            bool decoratorCalled = false;
+            Action<string> afterDecorator = a =>
+            {
+                Assert.AreEqual(arg, a);
+                mock.Verify(m => m.ActionWithReferenceArgument(arg), Times.Once());
+                decoratorCalled = true;
+            };
+            SetAfterDecorator(proxy, "ActionWithReferenceArgumentMethodDecorators1", afterDecorator);
+
+            proxy.ActionWithReferenceArgument(arg);
+
+            Assert.IsTrue(decoratorCalled);
+            mock.Verify(m => m.ActionWithReferenceArgument(arg), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithValueReturnType_IMethodProxyWithAfterDecorator_CallsRequestedMethodAndDecorator()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            bool decoratorCalled = false;
+            Action<int> afterDecorator = r =>
+            {
+                mock.Verify(m => m.FunctionWithValueReturnType(), Times.Once());
+                decoratorCalled = true;
+            };
+            SetAfterDecorator<Action, Action<int>>(proxy, "FunctionWithValueReturnTypeMethodDecorators0", afterDecorator);
+
+            proxy.FunctionWithValueReturnType();
+
+            Assert.IsTrue(decoratorCalled);
+            mock.Verify(m => m.FunctionWithValueReturnType(), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithValueArgumentAndValueReturnTypeWithValueArgument_IMethodProxyWithAfterDecorator_CallsRequestedMethodAndDecorator()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            int arg = 123;
+            bool decoratorCalled = false;
+            Action<int, int> afterDecorator = (a, r) =>
+            {
+                Assert.AreEqual(arg, a);
+                mock.Verify(m => m.FunctionWithValueArgumentAndValueReturnType(arg), Times.Once());
+                decoratorCalled = true;
+            };
+            SetAfterDecorator<Action<int>, Action<int, int>>(proxy, "FunctionWithValueArgumentAndValueReturnTypeMethodDecorators0", afterDecorator);
+
+            proxy.FunctionWithValueArgumentAndValueReturnType(arg);
+
+            Assert.IsTrue(decoratorCalled);
+            mock.Verify(m => m.FunctionWithValueArgumentAndValueReturnType(arg), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithValueArgumentAndValueReturnTypeOverload_IMethodProxyWithAfterDecorator_CallsRequestedMethodAndDecorator()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            uint arg = 123u;
+            bool decoratorCalled = false;
+            Action<uint, int> afterDecorator = (a, r) =>
+            {
+                Assert.AreEqual(arg, a);
+                mock.Verify(m => m.FunctionWithValueArgumentAndValueReturnType(arg), Times.Once());
+                decoratorCalled = true;
+            };
+            SetAfterDecorator<Action<uint>, Action<uint, int>>(proxy, "FunctionWithValueArgumentAndValueReturnTypeMethodDecorators1", afterDecorator);
+
+            proxy.FunctionWithValueArgumentAndValueReturnType(arg);
+
+            Assert.IsTrue(decoratorCalled);
+            mock.Verify(m => m.FunctionWithValueArgumentAndValueReturnType(arg), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithReferenceArgumentAndValueReturnType_IMethodProxyWithAfterDecorator_CallsRequestedMethodAndDecorator()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            var arg = new object();
+            bool decoratorCalled = false;
+            Action<object, int> afterDecorator = (a, r) =>
+            {
+                Assert.AreEqual(arg, a);
+                mock.Verify(m => m.FunctionWithReferenceArgumentAndValueReturnType(arg), Times.Once());
+                decoratorCalled = true;
+            };
+            SetAfterDecorator<Action<object>, Action<object, int>>(proxy, "FunctionWithReferenceArgumentAndValueReturnTypeMethodDecorators0", afterDecorator);
+
+            proxy.FunctionWithReferenceArgumentAndValueReturnType(arg);
+
+            Assert.IsTrue(decoratorCalled);
+            mock.Verify(m => m.FunctionWithReferenceArgumentAndValueReturnType(arg), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithReferenceArgumentAndValueReturnTypeOverload_IMethodProxyWithAfterDecorator_CallsRequestedMethodAndDecorator()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            string arg = "TestString";
+            bool decoratorCalled = false;
+            Action<string, int> afterDecorator = (a, r) =>
+            {
+                Assert.AreEqual(arg, a);
+                mock.Verify(m => m.FunctionWithReferenceArgumentAndValueReturnType(arg), Times.Once());
+                decoratorCalled = true;
+            };
+            SetAfterDecorator<Action<string>, Action<string, int>>(proxy, "FunctionWithReferenceArgumentAndValueReturnTypeMethodDecorators1", afterDecorator);
+
+            proxy.FunctionWithReferenceArgumentAndValueReturnType(arg);
+
+            Assert.IsTrue(decoratorCalled);
+            mock.Verify(m => m.FunctionWithReferenceArgumentAndValueReturnType(arg), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithReferenceReturnType_IMethodProxyWithAfterDecorator_CallsRequestedMethodAndDecorator()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            bool decoratorCalled = false;
+            Action<object> afterDecorator = r =>
+            {
+                mock.Verify(m => m.FunctionWithReferenceReturnType(), Times.Once());
+                decoratorCalled = true;
+            };
+            SetAfterDecorator<Action, Action<object>>(proxy, "FunctionWithReferenceReturnTypeMethodDecorators0", afterDecorator);
+
+            proxy.FunctionWithReferenceReturnType();
+
+            Assert.IsTrue(decoratorCalled);
+            mock.Verify(m => m.FunctionWithReferenceReturnType(), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithValueArgumentAndReferenceReturnTypeWithValueArgument_IMethodProxyWithAfterDecorator_CallsRequestedMethodAndDecorator()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            int arg = 123;
+            bool decoratorCalled = false;
+            Action<int, object> afterDecorator = (a, r) =>
+            {
+                Assert.AreEqual(arg, a);
+                mock.Verify(m => m.FunctionWithValueArgumentAndReferenceReturnType(arg), Times.Once());
+                decoratorCalled = true;
+            };
+            SetAfterDecorator<Action<int>, Action<int, object>>(proxy, "FunctionWithValueArgumentAndReferenceReturnTypeMethodDecorators0", afterDecorator);
+
+            proxy.FunctionWithValueArgumentAndReferenceReturnType(arg);
+
+            Assert.IsTrue(decoratorCalled);
+            mock.Verify(m => m.FunctionWithValueArgumentAndReferenceReturnType(arg), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithValueArgumentAndReferenceReturnTypeOverload_IMethodProxyWithAfterDecorator_CallsRequestedMethodAndDecorator()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            uint arg = 123u;
+            bool decoratorCalled = false;
+            Action<uint, object> afterDecorator = (a, r) =>
+            {
+                Assert.AreEqual(arg, a);
+                mock.Verify(m => m.FunctionWithValueArgumentAndReferenceReturnType(arg), Times.Once());
+                decoratorCalled = true;
+            };
+            SetAfterDecorator<Action<uint>, Action<uint, object>>(proxy, "FunctionWithValueArgumentAndReferenceReturnTypeMethodDecorators1", afterDecorator);
+
+            proxy.FunctionWithValueArgumentAndReferenceReturnType(arg);
+
+            Assert.IsTrue(decoratorCalled);
+            mock.Verify(m => m.FunctionWithValueArgumentAndReferenceReturnType(arg), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithReferenceArgumentAndReferenceReturnType_IMethodProxyWithAfterDecorator_CallsRequestedMethodAndDecorator()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            var arg = new object();
+            bool decoratorCalled = false;
+            Action<object, object> afterDecorator = (a, r) =>
+            {
+                Assert.AreEqual(arg, a);
+                mock.Verify(m => m.FunctionWithReferenceArgumentAndReferenceReturnType(arg), Times.Once());
+                decoratorCalled = true;
+            };
+            SetAfterDecorator<Action<object>, Action<object, object>>(proxy, "FunctionWithReferenceArgumentAndReferenceReturnTypeMethodDecorators0", afterDecorator);
+
+            proxy.FunctionWithReferenceArgumentAndReferenceReturnType(arg);
+
+            Assert.IsTrue(decoratorCalled);
+            mock.Verify(m => m.FunctionWithReferenceArgumentAndReferenceReturnType(arg), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithReferenceArgumentAndReferenceReturnTypeOverload_IMethodProxyWithAfterDecorator_CallsRequestedMethodAndDecorator()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            string arg = "TestString";
+            bool decoratorCalled = false;
+            Action<string, object> afterDecorator = (a, r) =>
+            {
+                Assert.AreEqual(arg, a);
+                mock.Verify(m => m.FunctionWithReferenceArgumentAndReferenceReturnType(arg), Times.Once());
+                decoratorCalled = true;
+            };
+            SetAfterDecorator<Action<string>, Action<string, object>>(proxy, "FunctionWithReferenceArgumentAndReferenceReturnTypeMethodDecorators1", afterDecorator);
+
+            proxy.FunctionWithReferenceArgumentAndReferenceReturnType(arg);
+
+            Assert.IsTrue(decoratorCalled);
+            mock.Verify(m => m.FunctionWithReferenceArgumentAndReferenceReturnType(arg), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithTupleReturnType_IMethodProxyWithAfterDecorator_CallsRequestedMethodAndDecorator()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            bool decoratorCalled = false;
+            Action<ValueTuple<int, object>> afterDecorator = r =>
+            {
+                mock.Verify(m => m.FunctionWithTupleReturnType(), Times.Once());
+                decoratorCalled = true;
+            };
+            SetAfterDecorator<Action, Action<ValueTuple<int, object>>>(proxy, "FunctionWithTupleReturnTypeMethodDecorators0", afterDecorator);
+
+            proxy.FunctionWithTupleReturnType();
+
+            Assert.IsTrue(decoratorCalled);
+            mock.Verify(m => m.FunctionWithTupleReturnType(), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithValueArgumentAndTupleReturnTypeWithValueArgument_IMethodProxyWithAfterDecorator_CallsRequestedMethodAndDecorator()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            int arg = 123;
+            bool decoratorCalled = false;
+            Action<int, ValueTuple<int, object>> afterDecorator = (a, r) =>
+            {
+                Assert.AreEqual(arg, a);
+                mock.Verify(m => m.FunctionWithValueArgumentAndTupleReturnType(arg), Times.Once());
+                decoratorCalled = true;
+            };
+            SetAfterDecorator<Action<int>, Action<int, ValueTuple<int, object>>>(proxy, "FunctionWithValueArgumentAndTupleReturnTypeMethodDecorators0", afterDecorator);
+
+            proxy.FunctionWithValueArgumentAndTupleReturnType(arg);
+
+            Assert.IsTrue(decoratorCalled);
+            mock.Verify(m => m.FunctionWithValueArgumentAndTupleReturnType(arg), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithValueArgumentAndTupleReturnTypeOverload_IMethodProxyWithAfterDecorator_CallsRequestedMethodAndDecorator()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            uint arg = 123u;
+            bool decoratorCalled = false;
+            Action<uint, ValueTuple<int, object>> afterDecorator = (a, r) =>
+            {
+                Assert.AreEqual(arg, a);
+                mock.Verify(m => m.FunctionWithValueArgumentAndTupleReturnType(arg), Times.Once());
+                decoratorCalled = true;
+            };
+            SetAfterDecorator<Action<uint>, Action<uint, ValueTuple<int, object>>>(proxy, "FunctionWithValueArgumentAndTupleReturnTypeMethodDecorators1", afterDecorator);
+
+            proxy.FunctionWithValueArgumentAndTupleReturnType(arg);
+
+            Assert.IsTrue(decoratorCalled);
+            mock.Verify(m => m.FunctionWithValueArgumentAndTupleReturnType(arg), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithReferenceArgumentAndTupleReturnType_IMethodProxyWithAfterDecorator_CallsRequestedMethodAndDecorator()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            var arg = new object();
+            bool decoratorCalled = false;
+            Action<object, ValueTuple<int, object>> afterDecorator = (a, r) =>
+            {
+                Assert.AreEqual(arg, a);
+                mock.Verify(m => m.FunctionWithReferenceArgumentAndTupleReturnType(arg), Times.Once());
+                decoratorCalled = true;
+            };
+            SetAfterDecorator<Action<object>, Action<object, ValueTuple<int, object>>>(proxy, "FunctionWithReferenceArgumentAndTupleReturnTypeMethodDecorators0", afterDecorator);
+
+            proxy.FunctionWithReferenceArgumentAndTupleReturnType(arg);
+
+            Assert.IsTrue(decoratorCalled);
+            mock.Verify(m => m.FunctionWithReferenceArgumentAndTupleReturnType(arg), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithReferenceArgumentAndTupleReturnTypeOverload_IMethodProxyWithAfterDecorator_CallsRequestedMethodAndDecorator()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            string arg = "TestString";
+            bool decoratorCalled = false;
+            Action<string, ValueTuple<int, object>> afterDecorator = (a, r) =>
+            {
+                Assert.AreEqual(arg, a);
+                mock.Verify(m => m.FunctionWithReferenceArgumentAndTupleReturnType(arg), Times.Once());
+                decoratorCalled = true;
+            };
+            SetAfterDecorator<Action<string>, Action<string, ValueTuple<int, object>>>(proxy, "FunctionWithReferenceArgumentAndTupleReturnTypeMethodDecorators1", afterDecorator);
+
+            proxy.FunctionWithReferenceArgumentAndTupleReturnType(arg);
+
+            Assert.IsTrue(decoratorCalled);
+            mock.Verify(m => m.FunctionWithReferenceArgumentAndTupleReturnType(arg), Times.Once());
+            mock.VerifyNoOtherCalls();
+        }
+
         internal static T CreateProxyInstance<T>(T target)
         {
             return (T)Activator.CreateInstance(CreateTargetType(typeof(T)), target);
@@ -531,6 +1395,36 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
             {
                 Assert.IsNotNull(type.GetField(f, BindingFlags.NonPublic | BindingFlags.Instance).GetValue(instance));
             }
+        }
+
+        internal static void SetBeforeDecorator<TDecorator>(object instance, string fieldName, TDecorator decorator)
+            where TDecorator : Delegate
+        {
+            ((LinkedList<ValueTuple<TDecorator, TDecorator>>)instance.GetType().GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic).GetValue(instance))
+                .AddFirst(new ValueTuple<TDecorator, TDecorator>(decorator, null));
+        }
+
+        internal static void SetBeforeDecorator<TBeforeDecorator, TAfterDecorator>(object instance, string fieldName, TBeforeDecorator decorator)
+            where TBeforeDecorator : Delegate
+            where TAfterDecorator : Delegate
+        {
+            ((LinkedList<ValueTuple<TBeforeDecorator, TAfterDecorator>>)instance.GetType().GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic).GetValue(instance))
+                .AddFirst(new ValueTuple<TBeforeDecorator, TAfterDecorator>(decorator, null));
+        }
+
+        internal static void SetAfterDecorator<TDecorator>(object instance, string fieldName, TDecorator decorator)
+            where TDecorator : Delegate
+        {
+            ((LinkedList<ValueTuple<TDecorator, TDecorator>>)instance.GetType().GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic).GetValue(instance))
+                .AddFirst(new ValueTuple<TDecorator, TDecorator>(null, decorator));
+        }
+
+        internal static void SetAfterDecorator<TBeforeDecorator, TAfterDecorator>(object instance, string fieldName, TAfterDecorator decorator)
+            where TBeforeDecorator : Delegate
+            where TAfterDecorator : Delegate
+        {
+            ((LinkedList<ValueTuple<TBeforeDecorator, TAfterDecorator>>)instance.GetType().GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic).GetValue(instance))
+                .AddFirst(new ValueTuple<TBeforeDecorator, TAfterDecorator>(null, decorator));
         }
 
         internal static Dictionary<string, Type> ExpectedIPropertyGetterProxyFields = new Dictionary<string, Type>()

@@ -372,6 +372,7 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy
 
             var proxyLabel = ILGenerator.DefineLabel();
 
+            var setCurrentToLastDecoratorsNodeLabel = ILGenerator.DefineLabel();
             var afterDecoratorsWhileBodyLabel = ILGenerator.DefineLabel();
             var afterDecoratorLabel = ILGenerator.DefineLabel();
             var getPreviousDecoratorsPairLabel = ILGenerator.DefineLabel();
@@ -443,7 +444,7 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy
             {
                 ILGenerator.Emit(OpCodes.Stloc_2);
             }
-            ILGenerator.Emit(OpCodes.Br_S, afterDecoratorsWhileStatementLabel);
+            ILGenerator.Emit(OpCodes.Br_S, setCurrentToLastDecoratorsNodeLabel);
 
             // Execute proxy
             ILGenerator.MarkLabel(proxyLabel);
@@ -456,6 +457,13 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy
             {
                 ILGenerator.Emit(OpCodes.Stloc_2);
             }
+
+            // Store last decorators pair in current variable
+            ILGenerator.MarkLabel(setCurrentToLastDecoratorsNodeLabel);
+            ILGenerator.Emit(OpCodes.Ldarg_0);
+            ILGenerator.Emit(OpCodes.Ldfld, memberInfo.DecoratorsLinkedListInstanceFieldInfo);
+            ILGenerator.Emit(OpCodes.Callvirt, decoratorsListType.GetProperty("First").GetGetMethod());
+            ILGenerator.Emit(OpCodes.Stloc_0);
             ILGenerator.Emit(OpCodes.Br_S, afterDecoratorsWhileStatementLabel);
 
             // Execute after decorators while body start
