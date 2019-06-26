@@ -1351,6 +1351,919 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
             mock.VerifyNoOtherCalls();
         }
 
+        [TestMethod]
+        public void InvokeAction_IMethodProxyWithProxyDelegateCallingTargetAction_CallsRequestedMethodAndProxy()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            bool proxyCalled = false;
+            Action<Action> proxyDelegate = a =>
+            {
+                mock.VerifyNoOtherCalls();
+                a.Invoke();
+                mock.Verify(m => m.Action(), Times.Once());
+                mock.VerifyNoOtherCalls();
+                proxyCalled = true;
+            };
+            SetProxy(proxy, "ActionMethodProxy0", proxyDelegate);
+
+            proxy.Action();
+
+            Assert.IsTrue(proxyCalled);
+        }
+
+        [TestMethod]
+        public void InvokeAction_IMethodProxyWithProxyDelegateNotCallingTargetAction_CallsRequestedMethodAndProxy()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            bool proxyCalled = false;
+            Action<Action> proxyDelegate = a =>
+            {
+                proxyCalled = true;
+            };
+            SetProxy(proxy, "ActionMethodProxy0", proxyDelegate);
+
+            proxy.Action();
+
+            Assert.IsTrue(proxyCalled);
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeActionWithValueArgument_IMethodProxyWithProxyDelegateCallingTargetAction_CallsRequestedMethodAndProxy()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            int arg = 123;
+            bool proxyCalled = false;
+            Action<Action<int>, int> proxyDelegate = (a, i) =>
+            {
+                Assert.AreEqual(i, arg);
+                mock.VerifyNoOtherCalls();
+                a.Invoke(i);
+                mock.Verify(m => m.ActionWithValueArgument(arg), Times.Once());
+                mock.VerifyNoOtherCalls();
+                proxyCalled = true;
+            };
+            SetProxy(proxy, "ActionWithValueArgumentMethodProxy0", proxyDelegate);
+
+            proxy.ActionWithValueArgument(arg);
+
+            Assert.IsTrue(proxyCalled);
+        }
+
+        [TestMethod]
+        public void InvokeActionWithValueArgument_IMethodProxyWithProxyDelegateNotCallingTargetAction_CallsRequestedMethodAndProxy()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            int arg = 123;
+            bool proxyCalled = false;
+            Action<Action<int>, int> proxyDelegate = (a, i) =>
+            {
+                Assert.AreEqual(arg, i);
+                proxyCalled = true;
+            };
+            SetProxy(proxy, "ActionWithValueArgumentMethodProxy0", proxyDelegate);
+
+            proxy.ActionWithValueArgument(arg);
+
+            Assert.IsTrue(proxyCalled);
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeActionWithValueArgumentOverloaded_IMethodProxyWithProxyDelegateCallingTargetAction_CallsRequestedMethodAndProxy()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            uint arg = 123;
+            bool proxyCalled = false;
+            Action<Action<uint>, uint> proxyDelegate = (a, ui) =>
+            {
+                Assert.AreEqual(ui, arg);
+                mock.VerifyNoOtherCalls();
+                a.Invoke(ui);
+                mock.Verify(m => m.ActionWithValueArgument(arg), Times.Once());
+                mock.VerifyNoOtherCalls();
+                proxyCalled = true;
+            };
+            SetProxy(proxy, "ActionWithValueArgumentMethodProxy1", proxyDelegate);
+
+            proxy.ActionWithValueArgument(arg);
+
+            Assert.IsTrue(proxyCalled);
+        }
+
+        [TestMethod]
+        public void InvokeActionWithValueArgumentOverloaded_IMethodProxyWithProxyDelegateNotCallingTargetAction_CallsRequestedMethodAndProxy()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            uint arg = 123;
+            bool proxyCalled = false;
+            Action<Action<uint>, uint> proxyDelegate = (a, ui) =>
+            {
+                Assert.AreEqual(arg, ui);
+                proxyCalled = true;
+            };
+            SetProxy(proxy, "ActionWithValueArgumentMethodProxy1", proxyDelegate);
+
+            proxy.ActionWithValueArgument(arg);
+
+            Assert.IsTrue(proxyCalled);
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeActionWithReferenceArgument_IMethodProxyWithProxyDelegateCallingTargetAction_CallsRequestedMethodAndProxy()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            object arg = new object();
+            bool proxyCalled = false;
+            Action<Action<object>, object> proxyDelegate = (a, o) =>
+            {
+                Assert.AreEqual(o, arg);
+                mock.VerifyNoOtherCalls();
+                a.Invoke(o);
+                mock.Verify(m => m.ActionWithReferenceArgument(arg), Times.Once());
+                mock.VerifyNoOtherCalls();
+                proxyCalled = true;
+            };
+            SetProxy(proxy, "ActionWithReferenceArgumentMethodProxy0", proxyDelegate);
+
+            proxy.ActionWithReferenceArgument(arg);
+
+            Assert.IsTrue(proxyCalled);
+        }
+
+        [TestMethod]
+        public void InvokeActionWithReferenceArgument_IMethodProxyWithProxyDelegateNotCallingTargetAction_CallsRequestedMethodAndProxy()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            object arg = new object();
+            bool proxyCalled = false;
+            Action<Action<object>, object> proxyDelegate = (a, o) =>
+            {
+                Assert.AreEqual(arg, o);
+                proxyCalled = true;
+            };
+            SetProxy(proxy, "ActionWithReferenceArgumentMethodProxy0", proxyDelegate);
+
+            proxy.ActionWithReferenceArgument(arg);
+
+            Assert.IsTrue(proxyCalled);
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeActionWithReferenceArgumentOverloaded_IMethodProxyWithProxyDelegateCallingTargetAction_CallsRequestedMethodAndProxy()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            string arg = "TestString";
+            bool proxyCalled = false;
+            Action<Action<string>, string> proxyDelegate = (a, s) =>
+            {
+                Assert.AreEqual(s, arg);
+                mock.VerifyNoOtherCalls();
+                a.Invoke(s);
+                mock.Verify(m => m.ActionWithReferenceArgument(arg), Times.Once());
+                mock.VerifyNoOtherCalls();
+                proxyCalled = true;
+            };
+            SetProxy(proxy, "ActionWithReferenceArgumentMethodProxy1", proxyDelegate);
+
+            proxy.ActionWithReferenceArgument(arg);
+
+            Assert.IsTrue(proxyCalled);
+        }
+
+        [TestMethod]
+        public void InvokeActionWithReferenceArgumentOverloaded_IMethodProxyWithProxyDelegateNotCallingTargetAction_CallsRequestedMethodAndProxy()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            string arg = "TestString";
+            bool proxyCalled = false;
+            Action<Action<string>, string> proxyDelegate = (a, ui) =>
+            {
+                Assert.AreEqual(arg, ui);
+                proxyCalled = true;
+            };
+            SetProxy(proxy, "ActionWithReferenceArgumentMethodProxy1", proxyDelegate);
+
+            proxy.ActionWithReferenceArgument(arg);
+
+            Assert.IsTrue(proxyCalled);
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithValueReturnType_IMethodProxyWithProxyDelegateCallingTargetAction_CallsRequestedMethodAndProxy()
+        {
+            int result = 321;
+            var mock = new Mock<IMethod>();
+            mock.Setup(m => m.FunctionWithValueReturnType()).Returns(result);
+            var proxy = CreateProxyInstance(mock.Object);
+            bool proxyCalled = false;
+            Func<Func<int>, int> proxyDelegate = a =>
+            {
+                mock.VerifyNoOtherCalls();
+                var targetResult = a.Invoke();
+                mock.Verify(m => m.FunctionWithValueReturnType(), Times.Once());
+                mock.VerifyNoOtherCalls();
+                proxyCalled = true;
+                return targetResult;
+            };
+            SetProxy(proxy, "FunctionWithValueReturnTypeMethodProxy0", proxyDelegate);
+
+            Assert.AreEqual(result, proxy.FunctionWithValueReturnType());
+
+            Assert.IsTrue(proxyCalled);
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithValueReturnType_IMethodProxyWithProxyDelegateNotCallingTargetAction_CallsRequestedMethodAndProxy()
+        {
+            int result = 321;
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            bool proxyCalled = false;
+            Func<Func<int>, int> proxyDelegate = a =>
+            {
+                proxyCalled = true;
+                return result;
+            };
+            SetProxy(proxy, "FunctionWithValueReturnTypeMethodProxy0", proxyDelegate);
+
+            Assert.AreEqual(result, proxy.FunctionWithValueReturnType());
+
+            Assert.IsTrue(proxyCalled);
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithValueArgumentAndValueReturnType_IMethodProxyWithProxyDelegateCallingTargetAction_CallsRequestedMethodAndProxy()
+        {
+            int result = 321;   
+            var mock = new Mock<IMethod>();
+            mock.Setup(m => m.FunctionWithValueArgumentAndValueReturnType(It.IsAny<int>())).Returns(result);
+            var proxy = CreateProxyInstance(mock.Object);
+            int arg = 123;
+            bool proxyCalled = false;
+            Func<Func<int, int>, int, int> proxyDelegate = (a, i) =>
+            {
+                Assert.AreEqual(arg, i);
+                mock.VerifyNoOtherCalls();
+                var targetResult = a.Invoke(i);
+                mock.Verify(m => m.FunctionWithValueArgumentAndValueReturnType(arg), Times.Once());
+                mock.VerifyNoOtherCalls();
+                proxyCalled = true;
+                return targetResult;
+            };
+            SetProxy(proxy, "FunctionWithValueArgumentAndValueReturnTypeMethodProxy0", proxyDelegate);
+
+            Assert.AreEqual(result, proxy.FunctionWithValueArgumentAndValueReturnType(arg));
+
+            Assert.IsTrue(proxyCalled);
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithValueArgumentAndValueReturnType_IMethodProxyWithProxyDelegateNotCallingTargetAction_CallsRequestedMethodAndProxy()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            int arg = 123;
+            int result = 321;
+            bool proxyCalled = false;
+            Func<Func<int, int>, int, int> proxyDelegate = (a, i) =>
+            {
+                Assert.AreEqual(arg, i);
+                proxyCalled = true;
+                return result;
+            };
+            SetProxy(proxy, "FunctionWithValueArgumentAndValueReturnTypeMethodProxy0", proxyDelegate);
+
+            Assert.AreEqual(result, proxy.FunctionWithValueArgumentAndValueReturnType(arg));
+
+            Assert.IsTrue(proxyCalled);
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithValueArgumentAndValueReturnTypeOverloaded_IMethodProxyWithProxyDelegateCallingTargetAction_CallsRequestedMethodAndProxy()
+        {
+            int result = 321;
+            var mock = new Mock<IMethod>();
+            mock.Setup(m => m.FunctionWithValueArgumentAndValueReturnType(It.IsAny<uint>())).Returns(result);
+            var proxy = CreateProxyInstance(mock.Object);
+            uint arg = 123;
+            bool proxyCalled = false;
+            Func<Func<uint, int>, uint, int> proxyDelegate = (a, ui) =>
+            {
+                Assert.AreEqual(arg, ui);
+                mock.VerifyNoOtherCalls();
+                var targetResult = a.Invoke(ui);
+                mock.Verify(m => m.FunctionWithValueArgumentAndValueReturnType(arg), Times.Once());
+                mock.VerifyNoOtherCalls();
+                proxyCalled = true;
+                return targetResult;
+            };
+            SetProxy(proxy, "FunctionWithValueArgumentAndValueReturnTypeMethodProxy1", proxyDelegate);
+
+            Assert.AreEqual(result, proxy.FunctionWithValueArgumentAndValueReturnType(arg));
+
+            Assert.IsTrue(proxyCalled);
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithValueArgumentAndValueReturnTypeOverloaded_IMethodProxyWithProxyDelegateNotCallingTargetAction_CallsRequestedMethodAndProxy()
+        {
+            int result = 321;
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            uint arg = 123;
+            bool proxyCalled = false;
+            Func<Func<uint, int>, uint, int> proxyDelegate = (a, ui) =>
+            {
+                proxyCalled = true;
+                return result;
+            };
+            SetProxy(proxy, "FunctionWithValueArgumentAndValueReturnTypeMethodProxy1", proxyDelegate);
+
+            Assert.AreEqual(result, proxy.FunctionWithValueArgumentAndValueReturnType(arg));
+
+            Assert.IsTrue(proxyCalled);
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithReferenceArgumentAndValueReturnType_IMethodProxyWithProxyDelegateCallingTargetAction_CallsRequestedMethodAndProxy()
+        {
+            int result = 321;
+            var mock = new Mock<IMethod>();
+            mock.Setup(m => m.FunctionWithReferenceArgumentAndValueReturnType(It.IsAny<object>())).Returns(result);
+            var proxy = CreateProxyInstance(mock.Object);
+            object arg = new object();
+            bool proxyCalled = false;
+            Func<Func<object, int>, object, int> proxyDelegate = (a, o) =>
+            {
+                Assert.AreEqual(arg, o);
+                mock.VerifyNoOtherCalls();
+                var targetResult = a.Invoke(o);
+                mock.Verify(m => m.FunctionWithReferenceArgumentAndValueReturnType(arg), Times.Once());
+                mock.VerifyNoOtherCalls();
+                proxyCalled = true;
+                return targetResult;
+            };
+            SetProxy(proxy, "FunctionWithReferenceArgumentAndValueReturnTypeMethodProxy0", proxyDelegate);
+
+            Assert.AreEqual(result, proxy.FunctionWithReferenceArgumentAndValueReturnType(arg));
+
+            Assert.IsTrue(proxyCalled);
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithReferenceArgumentAndValueReturnType_IMethodProxyWithProxyDelegateNotCallingTargetAction_CallsRequestedMethodAndProxy()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            object arg = new object();
+            int result = 321;
+            bool proxyCalled = false;
+            Func<Func<object, int>, object, int> proxyDelegate = (a, i) =>
+            {
+                Assert.AreEqual(arg, i);
+                proxyCalled = true;
+                return result;
+            };
+            SetProxy(proxy, "FunctionWithReferenceArgumentAndValueReturnTypeMethodProxy0", proxyDelegate);
+
+            Assert.AreEqual(result, proxy.FunctionWithReferenceArgumentAndValueReturnType(arg));
+
+            Assert.IsTrue(proxyCalled);
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithReferenceArgumentAndValueReturnTypeOverloaded_IMethodProxyWithProxyDelegateCallingTargetAction_CallsRequestedMethodAndProxy()
+        {
+            int result = 321;
+            var mock = new Mock<IMethod>();
+            mock.Setup(m => m.FunctionWithReferenceArgumentAndValueReturnType(It.IsAny<string>())).Returns(result);
+            var proxy = CreateProxyInstance(mock.Object);
+            string arg = "TestString";
+            bool proxyCalled = false;
+            Func<Func<string, int>, string, int> proxyDelegate = (a, s) =>
+            {
+                Assert.AreEqual(arg, s);
+                mock.VerifyNoOtherCalls();
+                var targetResult = a.Invoke(s);
+                mock.Verify(m => m.FunctionWithReferenceArgumentAndValueReturnType(arg), Times.Once());
+                mock.VerifyNoOtherCalls();
+                proxyCalled = true;
+                return targetResult;
+            };
+            SetProxy(proxy, "FunctionWithReferenceArgumentAndValueReturnTypeMethodProxy1", proxyDelegate);
+
+            Assert.AreEqual(result, proxy.FunctionWithReferenceArgumentAndValueReturnType(arg));
+
+            Assert.IsTrue(proxyCalled);
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithReferenceArgumentAndValueReturnTypeOverloaded_IMethodProxyWithProxyDelegateNonCallingTargetAction_CallsRequestedMethodAndProxy()
+        {
+            int result = 321;
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            string arg = "TestString";
+            bool proxyCalled = false;
+            Func<Func<string, int>, string, int> proxyDelegate = (a, s) =>
+            {
+                proxyCalled = true;
+                return result;
+            };
+            SetProxy(proxy, "FunctionWithReferenceArgumentAndValueReturnTypeMethodProxy1", proxyDelegate);
+
+            Assert.AreEqual(result, proxy.FunctionWithReferenceArgumentAndValueReturnType(arg));
+
+            Assert.IsTrue(proxyCalled);
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithReferenceReturnType_IMethodProxyWithProxyDelegateCallingTargetAction_CallsRequestedMethodAndProxy()
+        {
+            object result = new object();
+            var mock = new Mock<IMethod>();
+            mock.Setup(m => m.FunctionWithReferenceReturnType()).Returns(result);
+            var proxy = CreateProxyInstance(mock.Object);
+            bool proxyCalled = false;
+            Func<Func<object>, object> proxyDelegate = a =>
+            {
+                mock.VerifyNoOtherCalls();
+                var targetResult = a.Invoke();
+                mock.Verify(m => m.FunctionWithReferenceReturnType(), Times.Once());
+                mock.VerifyNoOtherCalls();
+                proxyCalled = true;
+                return targetResult;
+            };
+            SetProxy(proxy, "FunctionWithReferenceReturnTypeMethodProxy0", proxyDelegate);
+
+            Assert.AreEqual(result, proxy.FunctionWithReferenceReturnType());
+
+            Assert.IsTrue(proxyCalled);
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithReferenceReturnType_IMethodProxyWithProxyDelegateNotCallingTargetAction_CallsRequestedMethodAndProxy()
+        {
+            object result = new object();
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            bool proxyCalled = false;
+            Func<Func<object>, object> proxyDelegate = a =>
+            {
+                proxyCalled = true;
+                return result;
+            };
+            SetProxy(proxy, "FunctionWithReferenceReturnTypeMethodProxy0", proxyDelegate);
+
+            Assert.AreEqual(result, proxy.FunctionWithReferenceReturnType());
+
+            Assert.IsTrue(proxyCalled);
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithValueArgumentAndReferenceReturnType_IMethodProxyWithProxyDelegateCallingTargetAction_CallsRequestedMethodAndProxy()
+        {
+            object result = new object();
+            var mock = new Mock<IMethod>();
+            mock.Setup(m => m.FunctionWithValueArgumentAndReferenceReturnType(It.IsAny<int>())).Returns(result);
+            var proxy = CreateProxyInstance(mock.Object);
+            int arg = 123;
+            bool proxyCalled = false;
+            Func<Func<int, object>, int, object> proxyDelegate = (a, i) =>
+            {
+                Assert.AreEqual(arg, i);
+                mock.VerifyNoOtherCalls();
+                var targetResult = a.Invoke(i);
+                mock.Verify(m => m.FunctionWithValueArgumentAndReferenceReturnType(arg), Times.Once());
+                mock.VerifyNoOtherCalls();
+                proxyCalled = true;
+                return targetResult;
+            };
+            SetProxy(proxy, "FunctionWithValueArgumentAndReferenceReturnTypeMethodProxy0", proxyDelegate);
+
+            Assert.AreEqual(result, proxy.FunctionWithValueArgumentAndReferenceReturnType(arg));
+
+            Assert.IsTrue(proxyCalled);
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithValueArgumentAndReferenceReturnType_IMethodProxyWithProxyDelegateNotCallingTargetAction_CallsRequestedMethodAndProxy()
+        {
+            object result = new object();
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            int arg = 123;
+            bool proxyCalled = false;
+            Func<Func<int, object>, int, object> proxyDelegate = (a, i) =>
+            {
+                Assert.AreEqual(arg, i);
+                proxyCalled = true;
+                return result;
+            };
+            SetProxy(proxy, "FunctionWithValueArgumentAndReferenceReturnTypeMethodProxy0", proxyDelegate);
+
+            Assert.AreEqual(result, proxy.FunctionWithValueArgumentAndReferenceReturnType(arg));
+
+            Assert.IsTrue(proxyCalled);
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithValueArgumentAndReferenceReturnTypeOverloaded_IMethodProxyWithProxyDelegateCallingTargetAction_CallsRequestedMethodAndProxy()
+        {
+            object result = new object();
+            var mock = new Mock<IMethod>();
+            mock.Setup(m => m.FunctionWithValueArgumentAndReferenceReturnType(It.IsAny<uint>())).Returns(result);
+            var proxy = CreateProxyInstance(mock.Object);
+            uint arg = 123;
+            bool proxyCalled = false;
+            Func<Func<uint, object>, uint, object> proxyDelegate = (a, ui) =>
+            {
+                Assert.AreEqual(arg, ui);
+                mock.VerifyNoOtherCalls();
+                var targetResult = a.Invoke(ui);
+                mock.Verify(m => m.FunctionWithValueArgumentAndReferenceReturnType(arg), Times.Once());
+                mock.VerifyNoOtherCalls();
+                proxyCalled = true;
+                return targetResult;
+            };
+            SetProxy(proxy, "FunctionWithValueArgumentAndReferenceReturnTypeMethodProxy1", proxyDelegate);
+
+            Assert.AreEqual(result, proxy.FunctionWithValueArgumentAndReferenceReturnType(arg));
+
+            Assert.IsTrue(proxyCalled);
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithValueArgumentAndReferenceReturnTypeOverloaded_IMethodProxyWithProxyDelegateNotCallingTargetAction_CallsRequestedMethodAndProxy()
+        {
+            object result = new object();
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            uint arg = 123;
+            bool proxyCalled = false;
+            Func<Func<uint, object>, uint, object> proxyDelegate = (a, ui) =>
+            {
+                proxyCalled = true;
+                return result;
+            };
+            SetProxy(proxy, "FunctionWithValueArgumentAndReferenceReturnTypeMethodProxy1", proxyDelegate);
+
+            Assert.AreEqual(result, proxy.FunctionWithValueArgumentAndReferenceReturnType(arg));
+
+            Assert.IsTrue(proxyCalled);
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithReferenceArgumentAndReferenceReturnType_IMethodProxyWithProxyDelegateCallingTargetAction_CallsRequestedMethodAndProxy()
+        {
+            object result = new object();
+            var mock = new Mock<IMethod>();
+            mock.Setup(m => m.FunctionWithReferenceArgumentAndReferenceReturnType(It.IsAny<object>())).Returns(result);
+            var proxy = CreateProxyInstance(mock.Object);
+            object arg = new object();
+            bool proxyCalled = false;
+            Func<Func<object, object>, object, object> proxyDelegate = (a, o) =>
+            {
+                Assert.AreEqual(arg, o);
+                mock.VerifyNoOtherCalls();
+                var targetResult = a.Invoke(o);
+                mock.Verify(m => m.FunctionWithReferenceArgumentAndReferenceReturnType(arg), Times.Once());
+                mock.VerifyNoOtherCalls();
+                proxyCalled = true;
+                return targetResult;
+            };
+            SetProxy(proxy, "FunctionWithReferenceArgumentAndReferenceReturnTypeMethodProxy0", proxyDelegate);
+
+            Assert.AreEqual(result, proxy.FunctionWithReferenceArgumentAndReferenceReturnType(arg));
+
+            Assert.IsTrue(proxyCalled);
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithReferenceArgumentAndReferenceReturnType_IMethodProxyWithProxyDelegateNotCallingTargetAction_CallsRequestedMethodAndProxy()
+        {
+            object result = new object();
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            object arg = new object();
+            bool proxyCalled = false;
+            Func<Func<object, object>, object, object> proxyDelegate = (a, i) =>
+            {
+                Assert.AreEqual(arg, i);
+                proxyCalled = true;
+                return result;
+            };
+            SetProxy(proxy, "FunctionWithReferenceArgumentAndReferenceReturnTypeMethodProxy0", proxyDelegate);
+
+            Assert.AreEqual(result, proxy.FunctionWithReferenceArgumentAndReferenceReturnType(arg));
+
+            Assert.IsTrue(proxyCalled);
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithReferenceArgumentAndReferenceReturnTypeOverloaded_IMethodProxyWithProxyDelegateCallingTargetAction_CallsRequestedMethodAndProxy()
+        {
+            object result = new object();
+            var mock = new Mock<IMethod>();
+            mock.Setup(m => m.FunctionWithReferenceArgumentAndReferenceReturnType(It.IsAny<string>())).Returns(result);
+            var proxy = CreateProxyInstance(mock.Object);
+            string arg = "TestString";
+            bool proxyCalled = false;
+            Func<Func<string, object>, string, object> proxyDelegate = (a, s) =>
+            {
+                Assert.AreEqual(arg, s);
+                mock.VerifyNoOtherCalls();
+                var targetResult = a.Invoke(s);
+                mock.Verify(m => m.FunctionWithReferenceArgumentAndReferenceReturnType(arg), Times.Once());
+                mock.VerifyNoOtherCalls();
+                proxyCalled = true;
+                return targetResult;
+            };
+            SetProxy(proxy, "FunctionWithReferenceArgumentAndReferenceReturnTypeMethodProxy1", proxyDelegate);
+
+            Assert.AreEqual(result, proxy.FunctionWithReferenceArgumentAndReferenceReturnType(arg));
+
+            Assert.IsTrue(proxyCalled);
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithReferenceArgumentAndReferenceReturnTypeOverloaded_IMethodProxyWithProxyDelegateNonCallingTargetAction_CallsRequestedMethodAndProxy()
+        {
+            object result = new object();
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            string arg = "TestString";
+            bool proxyCalled = false;
+            Func<Func<string, object>, string, object> proxyDelegate = (a, s) =>
+            {
+                proxyCalled = true;
+                return result;
+            };
+            SetProxy(proxy, "FunctionWithReferenceArgumentAndReferenceReturnTypeMethodProxy1", proxyDelegate);
+
+            Assert.AreEqual(result, proxy.FunctionWithReferenceArgumentAndReferenceReturnType(arg));
+
+            Assert.IsTrue(proxyCalled);
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithTupleReturnType_IMethodProxyWithProxyDelegateCallingTargetAction_CallsRequestedMethodAndProxy()
+        {
+            var result = new ValueTuple<int, object>(321, new object());
+            var mock = new Mock<IMethod>();
+            mock.Setup(m => m.FunctionWithTupleReturnType()).Returns(result);
+            var proxy = CreateProxyInstance(mock.Object);
+            bool proxyCalled = false;
+            Func<Func<ValueTuple<int, object>>, ValueTuple<int, object>> proxyDelegate = a =>
+            {
+                mock.VerifyNoOtherCalls();
+                var targetResult = a.Invoke();
+                mock.Verify(m => m.FunctionWithTupleReturnType(), Times.Once());
+                mock.VerifyNoOtherCalls();
+                proxyCalled = true;
+                return targetResult;
+            };
+            SetProxy(proxy, "FunctionWithTupleReturnTypeMethodProxy0", proxyDelegate);
+
+            Assert.AreEqual(result, proxy.FunctionWithTupleReturnType());
+
+            Assert.IsTrue(proxyCalled);
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithTupleReturnType_IMethodProxyWithProxyDelegateNotCallingTargetAction_CallsRequestedMethodAndProxy()
+        {
+            var result = new ValueTuple<int, object>(321, new object());
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            bool proxyCalled = false;
+            Func<Func<ValueTuple<int, object>>, ValueTuple<int, object>> proxyDelegate = a =>
+            {
+                proxyCalled = true;
+                return result;
+            };
+            SetProxy(proxy, "FunctionWithTupleReturnTypeMethodProxy0", proxyDelegate);
+
+            Assert.AreEqual(result, proxy.FunctionWithTupleReturnType());
+
+            Assert.IsTrue(proxyCalled);
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithValueArgumentAndTupleReturnType_IMethodProxyWithProxyDelegateCallingTargetAction_CallsRequestedMethodAndProxy()
+        {
+            var result = new ValueTuple<int, object>(321, new object());
+            var mock = new Mock<IMethod>();
+            mock.Setup(m => m.FunctionWithValueArgumentAndTupleReturnType(It.IsAny<int>())).Returns(result);
+            var proxy = CreateProxyInstance(mock.Object);
+            int arg = 123;
+            bool proxyCalled = false;
+            Func<Func<int, ValueTuple<int, object>>, int, ValueTuple<int, object>> proxyDelegate = (a, i) =>
+            {
+                Assert.AreEqual(arg, i);
+                mock.VerifyNoOtherCalls();
+                var targetResult = a.Invoke(i);
+                mock.Verify(m => m.FunctionWithValueArgumentAndTupleReturnType(arg), Times.Once());
+                mock.VerifyNoOtherCalls();
+                proxyCalled = true;
+                return targetResult;
+            };
+            SetProxy(proxy, "FunctionWithValueArgumentAndTupleReturnTypeMethodProxy0", proxyDelegate);
+
+            Assert.AreEqual(result, proxy.FunctionWithValueArgumentAndTupleReturnType(arg));
+
+            Assert.IsTrue(proxyCalled);
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithValueArgumentAndTupleReturnType_IMethodProxyWithProxyDelegateNotCallingTargetAction_CallsRequestedMethodAndProxy()
+        {
+            var result = new ValueTuple<int, object>(321, new object());
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            int arg = 123;
+            bool proxyCalled = false;
+            Func<Func<int, ValueTuple<int, object>>, int, ValueTuple<int, object>> proxyDelegate = (a, i) =>
+            {
+                Assert.AreEqual(arg, i);
+                proxyCalled = true;
+                return result;
+            };
+            SetProxy(proxy, "FunctionWithValueArgumentAndTupleReturnTypeMethodProxy0", proxyDelegate);
+
+            Assert.AreEqual(result, proxy.FunctionWithValueArgumentAndTupleReturnType(arg));
+
+            Assert.IsTrue(proxyCalled);
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithValueArgumentAndTupleReturnTypeOverloaded_IMethodProxyWithProxyDelegateCallingTargetAction_CallsRequestedMethodAndProxy()
+        {
+            var result = new ValueTuple<int, object>(321, new object());
+            var mock = new Mock<IMethod>();
+            mock.Setup(m => m.FunctionWithValueArgumentAndTupleReturnType(It.IsAny<uint>())).Returns(result);
+            var proxy = CreateProxyInstance(mock.Object);
+            uint arg = 123;
+            bool proxyCalled = false;
+            Func<Func<uint, ValueTuple<int, object>>, uint, ValueTuple<int, object>> proxyDelegate = (a, ui) =>
+            {
+                Assert.AreEqual(arg, ui);
+                mock.VerifyNoOtherCalls();
+                var targetResult = a.Invoke(ui);
+                mock.Verify(m => m.FunctionWithValueArgumentAndTupleReturnType(arg), Times.Once());
+                mock.VerifyNoOtherCalls();
+                proxyCalled = true;
+                return targetResult;
+            };
+            SetProxy(proxy, "FunctionWithValueArgumentAndTupleReturnTypeMethodProxy1", proxyDelegate);
+
+            Assert.AreEqual(result, proxy.FunctionWithValueArgumentAndTupleReturnType(arg));
+
+            Assert.IsTrue(proxyCalled);
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithValueArgumentAndTupleReturnTypeOverloaded_IMethodProxyWithProxyDelegateNotCallingTargetAction_CallsRequestedMethodAndProxy()
+        {
+            var result = new ValueTuple<int, object>(321, new object());
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            uint arg = 123;
+            bool proxyCalled = false;
+            Func<Func<uint, ValueTuple<int, object>>, uint, ValueTuple<int, object>> proxyDelegate = (a, ui) =>
+            {
+                proxyCalled = true;
+                return result;
+            };
+            SetProxy(proxy, "FunctionWithValueArgumentAndTupleReturnTypeMethodProxy1", proxyDelegate);
+
+            Assert.AreEqual(result, proxy.FunctionWithValueArgumentAndTupleReturnType(arg));
+
+            Assert.IsTrue(proxyCalled);
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithReferenceArgumentAndTupleReturnType_IMethodProxyWithProxyDelegateCallingTargetAction_CallsRequestedMethodAndProxy()
+        {
+            var result = new ValueTuple<int, object>(321, new object());
+            var mock = new Mock<IMethod>();
+            mock.Setup(m => m.FunctionWithReferenceArgumentAndTupleReturnType(It.IsAny<object>())).Returns(result);
+            var proxy = CreateProxyInstance(mock.Object);
+            object arg = new object();
+            bool proxyCalled = false;
+            Func<Func<object, ValueTuple<int, object>>, object, ValueTuple<int, object>> proxyDelegate = (a, o) =>
+            {
+                Assert.AreEqual(arg, o);
+                mock.VerifyNoOtherCalls();
+                var targetResult = a.Invoke(o);
+                mock.Verify(m => m.FunctionWithReferenceArgumentAndTupleReturnType(arg), Times.Once());
+                mock.VerifyNoOtherCalls();
+                proxyCalled = true;
+                return targetResult;
+            };
+            SetProxy(proxy, "FunctionWithReferenceArgumentAndTupleReturnTypeMethodProxy0", proxyDelegate);
+
+            Assert.AreEqual(result, proxy.FunctionWithReferenceArgumentAndTupleReturnType(arg));
+
+            Assert.IsTrue(proxyCalled);
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithReferenceArgumentAndTupleReturnType_IMethodProxyWithProxyDelegateNotCallingTargetAction_CallsRequestedMethodAndProxy()
+        {
+            var result = new ValueTuple<int, object>(321, new object());
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            object arg = new object();
+            bool proxyCalled = false;
+            Func<Func<object, ValueTuple<int, object>>, object, ValueTuple<int, object>> proxyDelegate = (a, i) =>
+            {
+                Assert.AreEqual(arg, i);
+                proxyCalled = true;
+                return result;
+            };
+            SetProxy(proxy, "FunctionWithReferenceArgumentAndTupleReturnTypeMethodProxy0", proxyDelegate);
+
+            Assert.AreEqual(result, proxy.FunctionWithReferenceArgumentAndTupleReturnType(arg));
+
+            Assert.IsTrue(proxyCalled);
+            mock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithReferenceArgumentAndTupleReturnTypeOverloaded_IMethodProxyWithProxyDelegateCallingTargetAction_CallsRequestedMethodAndProxy()
+        {
+            var result = new ValueTuple<int, object>(321, new object());
+            var mock = new Mock<IMethod>();
+            mock.Setup(m => m.FunctionWithReferenceArgumentAndTupleReturnType(It.IsAny<string>())).Returns(result);
+            var proxy = CreateProxyInstance(mock.Object);
+            string arg = "TestString";
+            bool proxyCalled = false;
+            Func<Func<string, ValueTuple<int, object>>, string, ValueTuple<int, object>> proxyDelegate = (a, s) =>
+            {
+                Assert.AreEqual(arg, s);
+                mock.VerifyNoOtherCalls();
+                var targetResult = a.Invoke(s);
+                mock.Verify(m => m.FunctionWithReferenceArgumentAndTupleReturnType(arg), Times.Once());
+                mock.VerifyNoOtherCalls();
+                proxyCalled = true;
+                return targetResult;
+            };
+            SetProxy(proxy, "FunctionWithReferenceArgumentAndTupleReturnTypeMethodProxy1", proxyDelegate);
+
+            Assert.AreEqual(result, proxy.FunctionWithReferenceArgumentAndTupleReturnType(arg));
+
+            Assert.IsTrue(proxyCalled);
+        }
+
+        [TestMethod]
+        public void InvokeFunctionWithReferenceArgumentAndTupleReturnTypeOverloaded_IMethodProxyWithProxyDelegateNonCallingTargetAction_CallsRequestedMethodAndProxy()
+        {
+            var result = new ValueTuple<int, object>(321, new object());
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            string arg = "TestString";
+            bool proxyCalled = false;
+            Func<Func<string, ValueTuple<int, object>>, string, ValueTuple<int, object>> proxyDelegate = (a, s) =>
+            {
+                proxyCalled = true;
+                return result;
+            };
+            SetProxy(proxy, "FunctionWithReferenceArgumentAndTupleReturnTypeMethodProxy1", proxyDelegate);
+
+            Assert.AreEqual(result, proxy.FunctionWithReferenceArgumentAndTupleReturnType(arg));
+
+            Assert.IsTrue(proxyCalled);
+            mock.VerifyNoOtherCalls();
+        }
+
         internal static T CreateProxyInstance<T>(T target)
         {
             return (T)Activator.CreateInstance(CreateTargetType(typeof(T)), target);
@@ -1425,6 +2338,11 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
         {
             ((LinkedList<ValueTuple<TBeforeDecorator, TAfterDecorator>>)instance.GetType().GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic).GetValue(instance))
                 .AddFirst(new ValueTuple<TBeforeDecorator, TAfterDecorator>(null, decorator));
+        }
+
+        internal static void SetProxy<TProxy>(object instance, string fieldName, TProxy proxy)
+        {
+            instance.GetType().GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic).SetValue(instance, proxy);
         }
 
         internal static Dictionary<string, Type> ExpectedIPropertyGetterProxyFields = new Dictionary<string, Type>()
