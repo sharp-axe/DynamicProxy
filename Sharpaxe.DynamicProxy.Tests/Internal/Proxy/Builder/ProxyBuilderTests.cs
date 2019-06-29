@@ -14,6 +14,8 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
     [TestClass]
     public class ProxyBuilderTests
     {
+        #region Create Type
+
         [TestMethod]
         public void CreateType_IPropertyGetter_HasExpectedFields()
         {
@@ -158,6 +160,10 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
             AssertTypeHasPassedPrivateInstanceMethods(type, expectedFunctions);
         }
 
+        #endregion Create Type
+
+        #region Create Instance
+
         [TestMethod]
         public void CreateInstance_IPropertyGetterProxy_ThrowsNoException()
         {
@@ -238,6 +244,10 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
                 .Concat(ExpectedIPropertyGetterDecoratorsFields.Keys)
                 .Concat(ExpectedIPropertySetterDecoratorsFields.Keys));
         }
+
+        #endregion Create Instance
+
+        #region Transparent Call
 
         [TestMethod]
         public void InvokeAction_IMethodProxy_CallsRequestedMethod()
@@ -486,6 +496,10 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
             mock.Verify(m => m.FunctionWithReferenceArgumentAndTupleReturnType(str), Times.Once());
             mock.VerifyNoOtherCalls();
         }
+
+        #endregion Transparent Call
+
+        #region Call with Before Decorator
 
         [TestMethod]
         public void InvokeAction_IMethodProxyWithBeforeDecorator_CallsRequestedMethodAndDecorator()
@@ -919,6 +933,10 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
             mock.VerifyNoOtherCalls();
         }
 
+        #endregion Call with Before Decorator
+
+        #region Call with After Decorator
+
         [TestMethod]
         public void InvokeAction_IMethodProxyWithAfterDecorator_CallsRequestedMethodAndDecorator()
         {
@@ -1350,6 +1368,10 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
             mock.Verify(m => m.FunctionWithReferenceArgumentAndTupleReturnType(arg), Times.Once());
             mock.VerifyNoOtherCalls();
         }
+
+        #endregion Call with After Decorator
+
+        #region Call with Proxy
 
         [TestMethod]
         public void InvokeAction_IMethodProxyWithProxyDelegateCallingTargetAction_CallsRequestedMethodAndProxy()
@@ -2264,6 +2286,10 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
             mock.VerifyNoOtherCalls();
         }
 
+        #endregion Call with Proxy
+
+        #region Call with Throwing Exception
+
         [TestMethod]
         [ExpectedException(typeof(TestException))]
         public void InvokeAction_IMethodProxyDecoratorWithBeforeDecoratorThrowingException_ThrowsExpectedException()
@@ -2772,6 +2798,405 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
                 Assert.IsTrue(afterDecoratorExecuted);
             }
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(TestException))]
+        public void InvokeFunctionWithValueArgumentAndValueReturnType_IMethodProxyPreviousBeforeDecoratorThrowsException_NextPairedAfterDecoratorNotExecuted()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            Action<int> beforeDecoratorThrowingException = i =>
+            {
+                throw new TestException();
+            };
+            AddBeforeDecorator<Action<int>, Action<int, int>>(proxy, "FunctionWithValueArgumentAndValueReturnTypeMethodDecorators0", beforeDecoratorThrowingException);
+            Action<int> beforePairedDecorator = i =>
+            {
+
+            };
+            bool afterDecoratorExecuted = false;
+            Action<int, int> afterPairedDecorator = (i, r) =>
+            {
+                afterDecoratorExecuted = true;
+            };
+            AddDecorators(proxy, "FunctionWithValueArgumentAndValueReturnTypeMethodDecorators0", beforePairedDecorator, afterPairedDecorator);
+
+            try
+            {
+                proxy.FunctionWithValueArgumentAndValueReturnType(default);
+            }
+            finally
+            {
+                Assert.IsFalse(afterDecoratorExecuted);
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(TestException))]
+        public void InvokeFunctionWithValueArgumentAndValueReturnType_IMethodProxyPreviousBeforeDecoratorThrowsException_NextNotPairedAfterDecoratorNotExecuted()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            Action<int> beforeDecoratorThrowingException = i =>
+            {
+                throw new TestException();
+            };
+            AddBeforeDecorator<Action<int>, Action<int, int>>(proxy, "FunctionWithValueArgumentAndValueReturnTypeMethodDecorators0", beforeDecoratorThrowingException);
+            bool afterDecoratorExecuted = false;
+            Action<int, int> afterNotPairedDecorator = (i, r)=>
+            {
+                afterDecoratorExecuted = true;
+            };
+            AddAfterDecorator<Action<int>, Action<int, int>>(proxy, "FunctionWithValueArgumentAndValueReturnTypeMethodDecorators0", afterNotPairedDecorator);
+
+            try
+            {
+                proxy.FunctionWithValueArgumentAndValueReturnType(default);
+            }
+            finally
+            {
+                Assert.IsFalse(afterDecoratorExecuted);
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(TestException))]
+        public void InvokeFunctionWithValueArgumentAndValueReturnType_IMethodProxyPairDecoratorThrowsException_PairAfterDecoratorExecuted()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            Action<int> beforePairedDecorator = i =>
+            {
+                throw new TestException();
+            };
+            bool afterDecoratorExecuted = false;
+            Action<int, int> afterPairedDecorator = (i, r) =>
+            {
+                afterDecoratorExecuted = true;
+            };
+            AddDecorators(proxy, "FunctionWithValueArgumentAndValueReturnTypeMethodDecorators0", beforePairedDecorator, afterPairedDecorator);
+
+            try
+            {
+                proxy.FunctionWithValueArgumentAndValueReturnType(default);
+            }
+            finally
+            {
+                Assert.IsTrue(afterDecoratorExecuted);
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(TestException))]
+        public void InvokeFunctionWithValueArgumentAndValueReturnType_IMethodProxyNextBeforeDecoratorThrowsException_PreviousPairedAfterDecoratorExecuted()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            Action<int> beforePairedDecorator = i =>
+            {
+
+            };
+            bool afterDecoratorExecuted = false;
+            Action<int, int> afterPairDecorator = (i, r) =>
+            {
+                afterDecoratorExecuted = true;
+            };
+            AddDecorators(proxy, "FunctionWithValueArgumentAndValueReturnTypeMethodDecorators0", beforePairedDecorator, afterPairDecorator);
+            Action<int> beforeDecoratorThrowingException = i =>
+            {
+                throw new TestException();
+            };
+            AddBeforeDecorator<Action<int>, Action<int, int>>(proxy, "FunctionWithValueArgumentAndValueReturnTypeMethodDecorators0", beforeDecoratorThrowingException);
+
+            try
+            {
+                proxy.FunctionWithValueArgumentAndValueReturnType(default);
+            }
+            finally
+            {
+                Assert.IsTrue(afterDecoratorExecuted);
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(TestException))]
+        public void InvokeFunctionWithValueArgumentAndValueReturnType_IMethodProxyNextBeforeDecoratorThrowsException_PreviousNotPairedAfterDecoratorNotExecuted()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            bool afterDecoratorExecuted = false;
+            Action<int, int> afterNotPairedDecorator = (i, r) =>
+            {
+                afterDecoratorExecuted = true;
+            };
+            AddAfterDecorator<Action<int>, Action<int, int>>(proxy, "FunctionWithValueArgumentAndValueReturnTypeMethodDecorators0", afterNotPairedDecorator);
+            Action<int> beforeDecoratorThrowingException = i =>
+            {
+                throw new TestException();
+            };
+            AddBeforeDecorator<Action<int>, Action<int, int>>(proxy, "FunctionWithValueArgumentAndValueReturnTypeMethodDecorators0", beforeDecoratorThrowingException);
+
+            try
+            {
+                proxy.FunctionWithValueArgumentAndValueReturnType(default);
+            }
+            finally
+            {
+                Assert.IsFalse(afterDecoratorExecuted);
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(TestException))]
+        public void InvokeFunctionWithValueArgumentAndValueReturnType_IMethodProxyWhenProxyDelegateThrowsException_PairedAfterDecoratorExecuted()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            bool afterDecoratorExecuted = false;
+            Action<int> beforePairedDecorator = i =>
+            {
+
+            };
+            Action<int, int> afterPairedDecorator = (i, r) =>
+            {
+                afterDecoratorExecuted = true;
+            };
+            AddDecorators(proxy, "FunctionWithValueArgumentAndValueReturnTypeMethodDecorators0", beforePairedDecorator, afterPairedDecorator);
+            Func<Func<int, int>, int, int> proxyDelegatedThrowingException = (f, i) =>
+            {
+                throw new TestException();
+            };
+            SetProxy(proxy, "FunctionWithValueArgumentAndValueReturnTypeMethodProxy0", proxyDelegatedThrowingException);
+
+            try
+            {
+                proxy.FunctionWithValueArgumentAndValueReturnType(default);
+            }
+            finally
+            {
+                Assert.IsTrue(afterDecoratorExecuted);
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(TestException))]
+        public void InvokeFunctionWithValueArgumentAndValueReturnType_IMethodProxyWhenProxyDelegateThrowsException_NotPairedAfterDecoratorNotExecuted()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            bool afterDecoratorExecuted = false;
+            Action<int, int> afterNotPairedDecorator = (i, r) =>
+            {
+                afterDecoratorExecuted = true;
+            };
+            AddAfterDecorator<Action<int>, Action<int, int>>(proxy, "FunctionWithValueArgumentAndValueReturnTypeMethodDecorators0", afterNotPairedDecorator);
+            Func<Func<int, int>, int, int> proxyDelegatedThrowingException = (f, i) =>
+            {
+                throw new TestException();
+            };
+            SetProxy(proxy, "FunctionWithValueArgumentAndValueReturnTypeMethodProxy0", proxyDelegatedThrowingException);
+
+            try
+            {
+                proxy.FunctionWithValueArgumentAndValueReturnType(default);
+            }
+            finally
+            {
+                Assert.IsFalse(afterDecoratorExecuted);
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(TestException))]
+        public void InvokeFunctionWithValueArgumentAndValueReturnType_IMethodProxyTargetThrowingException_PairedAfterDecoratorExecuted()
+        {
+            var mock = new Mock<IMethod>();
+            mock.Setup(m => m.FunctionWithValueArgumentAndValueReturnType(It.IsAny<int>())).Throws<TestException>();
+            var proxy = CreateProxyInstance(mock.Object);
+            bool afterDecoratorExecuted = false;
+            Action<int> beforePairedDecorator = i =>
+            {
+
+            };
+            Action<int, int> afterPairedDecorator = (i, r) =>
+            {
+                afterDecoratorExecuted = true;
+            };
+            AddDecorators(proxy, "FunctionWithValueArgumentAndValueReturnTypeMethodDecorators0", beforePairedDecorator, afterPairedDecorator);
+
+            try
+            {
+                proxy.FunctionWithValueArgumentAndValueReturnType(default);
+            }
+            finally
+            {
+                Assert.IsTrue(afterDecoratorExecuted);
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(TestException))]
+        public void InvokeFunctionWithValueArgumentAndValueReturnType_IMethodProxyTargetThrowingException_NotPairedAfterDecoratorNotExecuted()
+        {
+            var mock = new Mock<IMethod>();
+            mock.Setup(m => m.FunctionWithValueArgumentAndValueReturnType(It.IsAny<int>())).Throws<TestException>();
+            var proxy = CreateProxyInstance(mock.Object);
+            bool afterDecoratorExecuted = false;
+            Action<int, int> afterNotPairedDecorator = (i, r) =>
+            {
+                afterDecoratorExecuted = true;
+            };
+            AddAfterDecorator<Action<int>, Action<int, int>>(proxy, "FunctionWithValueArgumentAndValueReturnTypeMethodDecorators0", afterNotPairedDecorator);
+
+            try
+            {
+                proxy.FunctionWithValueArgumentAndValueReturnType(default);
+            }
+            finally
+            {
+                Assert.IsFalse(afterDecoratorExecuted);
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(TestException))]
+        public void InvokeFunctionWithValueArgumentAndValueReturnType_IMethodProxyPreviousAfterDecoratorThrowingException_PairedAfterDecoratorExecuted()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            bool afterDecoratorExecuted = false;
+            Action<int> beforePairedDecorator = i =>
+            {
+
+            };
+            Action<int, int> afterPairedDecorator = (i, r) =>
+            {
+                afterDecoratorExecuted = true;
+            };
+            AddDecorators(proxy, "FunctionWithValueArgumentAndValueReturnTypeMethodDecorators0", beforePairedDecorator, afterPairedDecorator);
+            Action<int, int> afterDecoratorThrowingException = (i, r) =>
+            {
+                throw new TestException();
+            };
+            AddAfterDecorator<Action<int>, Action<int, int>>(proxy, "FunctionWithValueArgumentAndValueReturnTypeMethodDecorators0", afterDecoratorThrowingException);
+
+            try
+            {
+                proxy.FunctionWithValueArgumentAndValueReturnType(default);
+            }
+            finally
+            {
+                Assert.IsTrue(afterDecoratorExecuted);
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(TestException))]
+        public void InvokeFunctionWithValueArgumentAndValueReturnType_IMethodProxyPreviousAfterDecoratorThrowingException_NotPairedAfterDecoratorNotExecuted()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            bool afterDecoratorExecuted = false;
+            Action<int, int> afterPairedDecorator = (i, r) =>
+            {
+                afterDecoratorExecuted = true;
+            };
+            AddAfterDecorator<Action<int>, Action<int, int>>(proxy, "FunctionWithValueArgumentAndValueReturnTypeMethodDecorators0", afterPairedDecorator);
+            Action<int, int> afterDecoratorThrowingException = (i, r) =>
+            {
+                throw new TestException();
+            };
+            AddAfterDecorator<Action<int>, Action<int, int>>(proxy, "FunctionWithValueArgumentAndValueReturnTypeMethodDecorators0", afterDecoratorThrowingException);
+
+            try
+            {
+                proxy.FunctionWithValueArgumentAndValueReturnType(default);
+            }
+            finally
+            {
+                Assert.IsFalse(afterDecoratorExecuted);
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(AggregateException))]
+        public void InvokeFunctionWithValueArgumentAndValueReturnType_IMethodProxyTargetAndAfterDecoratorThrowingException_ThrowsExpectedException()
+        {
+            var mock = new Mock<IMethod>();
+            mock.Setup(m => m.FunctionWithValueArgumentAndValueReturnType(It.IsAny<int>())).Throws(new TestException(1));
+            var proxy = CreateProxyInstance(mock.Object);
+            Action<int> beforePairedDecorator = i =>
+            {
+
+            };
+            Action<int, int> afterPairedDecorator = (i, r) =>
+            {
+                throw new TestException(2);
+            };
+            AddDecorators(proxy, "FunctionWithValueArgumentAndValueReturnTypeMethodDecorators0", beforePairedDecorator, afterPairedDecorator);
+
+            try
+            {
+                proxy.FunctionWithValueArgumentAndValueReturnType(default);
+            }
+            catch (AggregateException ex)
+            {
+                Assert.AreEqual(2, ex.InnerExceptions.Count);
+                Assert.IsInstanceOfType(ex.InnerExceptions[0], typeof(TestException));
+                Assert.AreEqual(1, ((TestException)ex.InnerExceptions[0]).Id);
+                Assert.IsInstanceOfType(ex.InnerExceptions[1], typeof(TestException));
+                Assert.AreEqual(2, ((TestException)ex.InnerExceptions[1]).Id);
+                throw;
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(AggregateException))]
+        public void InvokeFunctionWithValueArgumentAndValueReturnType_IMethodProxyTargetAndPreviousAfterDecoratorThrowingException_PairedAfterDecoratorExecuted()
+        {
+            var mock = new Mock<IMethod>();
+            mock.Setup(m => m.FunctionWithValueArgumentAndValueReturnType(It.IsAny<int>())).Throws(new TestException(1));
+            var proxy = CreateProxyInstance(mock.Object);
+            bool afterDecoratorExecuted = false;
+            Action<int> beforePairedDecorator = i =>
+            {
+
+            };
+            Action<int, int> afterPairedDecorator = (i, r) =>
+            {
+                afterDecoratorExecuted = true;
+            };
+            AddDecorators(proxy, "FunctionWithValueArgumentAndValueReturnTypeMethodDecorators0", beforePairedDecorator, afterPairedDecorator);
+            Action<int> beforeDecoratorPairedWithThrowingException = i =>
+            {
+
+            };
+            Action<int, int> afterDecoratorThrowingException = (i, r) =>
+            {
+                throw new TestException(2);
+            };
+            AddDecorators(proxy, "FunctionWithValueArgumentAndValueReturnTypeMethodDecorators0", beforeDecoratorPairedWithThrowingException, afterDecoratorThrowingException);
+
+            try
+            {
+                proxy.FunctionWithValueArgumentAndValueReturnType(default);
+            }
+            catch (AggregateException ex)
+            {
+                Assert.AreEqual(2, ex.InnerExceptions.Count);
+                Assert.IsInstanceOfType(ex.InnerExceptions[0], typeof(TestException));
+                Assert.AreEqual(1, ((TestException)ex.InnerExceptions[0]).Id);
+                Assert.IsInstanceOfType(ex.InnerExceptions[1], typeof(TestException));
+                Assert.AreEqual(2, ((TestException)ex.InnerExceptions[1]).Id);
+                throw;
+            }
+            finally
+            {
+                Assert.IsTrue(afterDecoratorExecuted);
+            }
+        }
+
+        #endregion Call with Throwing Exception
 
         internal static T CreateProxyInstance<T>(T target)
         {
