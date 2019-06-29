@@ -366,17 +366,22 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy
             var ILGenerator = method.GetILGenerator();
 
             var beforeDecoratorsWhileBodyLabel = ILGenerator.DefineLabel();
-            var beforeDecoratorLabel = ILGenerator.DefineLabel();
             var getNextDecoratorsPairLabel = ILGenerator.DefineLabel();
             var beforeDecoratorsWhileStatementLabel = ILGenerator.DefineLabel();
 
             var proxyLabel = ILGenerator.DefineLabel();
-
             var setCurrentToLastDecoratorsNodeLabel = ILGenerator.DefineLabel();
+
             var afterDecoratorsWhileBodyLabel = ILGenerator.DefineLabel();
-            var afterDecoratorLabel = ILGenerator.DefineLabel();
             var getPreviousDecoratorsPairLabel = ILGenerator.DefineLabel();
             var afterDecoratorsWhileStatementLabel = ILGenerator.DefineLabel();
+
+            var catchBlockDecoratorsWhileBodyLabel = ILGenerator.DefineLabel();
+            var catchBlockGetPreviousDecoratorsPair = ILGenerator.DefineLabel();
+            var catchBlockDecoratorsWhileStatementLabel = ILGenerator.DefineLabel();
+            var catchBlockRethrowLabel = ILGenerator.DefineLabel();
+
+            var returnLabel = ILGenerator.DefineLabel();
 
             // Store first decorators pair in current variable
             ILGenerator.DeclareLocal(decoratorsListItemType); // Local 0
@@ -390,30 +395,31 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy
             ILGenerator.Emit(OpCodes.Newobj, typeof(List<Exception>).GetConstructor(new Type[] { }));
             ILGenerator.Emit(OpCodes.Stloc_1);
 
+            ILGenerator.DeclareLocal(typeof(Exception)); // Local 2 - temp exception variable
+
             // Store default value of return type in result variable
             if (methodInfo.ReturnType != typeof(void))
             {
-                ILGenerator.DeclareLocal(methodInfo.ReturnType); // Local 2
+                ILGenerator.DeclareLocal(methodInfo.ReturnType); // Local 3
                 ILGenerator.EmitCreateTypeDefaultValueOnStack(methodInfo.ReturnType);
-                ILGenerator.Emit(OpCodes.Stloc_2);
+                ILGenerator.Emit(OpCodes.Stloc_3);
             }
+
+            ILGenerator.BeginExceptionBlock();
 
             ILGenerator.Emit(OpCodes.Br_S, beforeDecoratorsWhileStatementLabel);
 
             // Execute before decorators while body start
             ILGenerator.MarkLabel(beforeDecoratorsWhileBodyLabel);
 
-            // Check if current before decorator is null
+            // Invoke before decorator if not null
             ILGenerator.Emit(OpCodes.Ldloc_0);
             ILGenerator.Emit(OpCodes.Callvirt, decoratorsListItemType.GetProperty("Value").GetGetMethod());
             ILGenerator.Emit(OpCodes.Ldfld, decoratorsPairType.GetField("Item1"));
-            ILGenerator.Emit(OpCodes.Dup);
-            ILGenerator.Emit(OpCodes.Brtrue_S, beforeDecoratorLabel);
-            ILGenerator.Emit(OpCodes.Pop);
-            ILGenerator.Emit(OpCodes.Br_S, getNextDecoratorsPairLabel);
-
-            // Invoke before decorator
-            ILGenerator.MarkLabel(beforeDecoratorLabel);
+            ILGenerator.Emit(OpCodes.Brfalse_S, getNextDecoratorsPairLabel);
+            ILGenerator.Emit(OpCodes.Ldloc_0);
+            ILGenerator.Emit(OpCodes.Callvirt, decoratorsListItemType.GetProperty("Value").GetGetMethod());
+            ILGenerator.Emit(OpCodes.Ldfld, decoratorsPairType.GetField("Item1"));
             ILGenerator.EmitLoadArgumentsRange(2, methodArgumentsTypes.Length);
             ILGenerator.Emit(OpCodes.Callvirt, beforeDecoratorType.GetMethod("Invoke"));
 
@@ -442,7 +448,7 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy
             ILGenerator.Emit(OpCodes.Callvirt, methodDelegateType.GetMethod("Invoke"));
             if (methodInfo.ReturnType != typeof(void))
             {
-                ILGenerator.Emit(OpCodes.Stloc_2);
+                ILGenerator.Emit(OpCodes.Stloc_3);
             }
             ILGenerator.Emit(OpCodes.Br_S, setCurrentToLastDecoratorsNodeLabel);
 
@@ -455,35 +461,32 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy
             ILGenerator.Emit(OpCodes.Callvirt, proxyType.GetMethod("Invoke"));
             if (methodInfo.ReturnType != typeof(void))
             {
-                ILGenerator.Emit(OpCodes.Stloc_2);
+                ILGenerator.Emit(OpCodes.Stloc_3);
             }
 
             // Store last decorators pair in current variable
             ILGenerator.MarkLabel(setCurrentToLastDecoratorsNodeLabel);
             ILGenerator.Emit(OpCodes.Ldarg_0);
             ILGenerator.Emit(OpCodes.Ldfld, memberInfo.DecoratorsLinkedListInstanceFieldInfo);
-            ILGenerator.Emit(OpCodes.Callvirt, decoratorsListType.GetProperty("First").GetGetMethod());
+            ILGenerator.Emit(OpCodes.Callvirt, decoratorsListType.GetProperty("Last").GetGetMethod());
             ILGenerator.Emit(OpCodes.Stloc_0);
             ILGenerator.Emit(OpCodes.Br_S, afterDecoratorsWhileStatementLabel);
 
             // Execute after decorators while body start
             ILGenerator.MarkLabel(afterDecoratorsWhileBodyLabel);
 
-            // Check if current after decorator is null
+            // Invoke after decorator if it is not null
             ILGenerator.Emit(OpCodes.Ldloc_0);
             ILGenerator.Emit(OpCodes.Callvirt, decoratorsListItemType.GetProperty("Value").GetGetMethod());
             ILGenerator.Emit(OpCodes.Ldfld, decoratorsPairType.GetField("Item2"));
-            ILGenerator.Emit(OpCodes.Dup);
-            ILGenerator.Emit(OpCodes.Brtrue_S, afterDecoratorLabel);
-            ILGenerator.Emit(OpCodes.Pop);
-            ILGenerator.Emit(OpCodes.Br_S, getPreviousDecoratorsPairLabel);
-
-            // Invoke after decorator
-            ILGenerator.MarkLabel(afterDecoratorLabel);
+            ILGenerator.Emit(OpCodes.Brfalse_S, getPreviousDecoratorsPairLabel);
+            ILGenerator.Emit(OpCodes.Ldloc_0);
+            ILGenerator.Emit(OpCodes.Callvirt, decoratorsListItemType.GetProperty("Value").GetGetMethod());
+            ILGenerator.Emit(OpCodes.Ldfld, decoratorsPairType.GetField("Item2"));
             ILGenerator.EmitLoadArgumentsRange(2, methodArgumentsTypes.Length);
             if (methodInfo.ReturnType != typeof(void))
             {
-                ILGenerator.Emit(OpCodes.Ldloc_2);
+                ILGenerator.Emit(OpCodes.Ldloc_3);
             }
             ILGenerator.Emit(OpCodes.Callvirt, afterDecoratorType.GetMethod("Invoke"));
 
@@ -497,11 +500,92 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy
             // Execute after decorators while statement
             ILGenerator.MarkLabel(afterDecoratorsWhileStatementLabel);
             ILGenerator.Emit(OpCodes.Ldloc_0);
-            ILGenerator.Emit(OpCodes.Brtrue_S, afterDecoratorsWhileBodyLabel);
+            ILGenerator.Emit(OpCodes.Brtrue, afterDecoratorsWhileBodyLabel);
+            ILGenerator.Emit(OpCodes.Leave, returnLabel);
 
+            // Main block catch start
+            ILGenerator.BeginCatchBlock(typeof(Exception));
+
+            // Add main block exception to list
+            ILGenerator.Emit(OpCodes.Stloc_2);
+            ILGenerator.Emit(OpCodes.Ldloc_1);
+            ILGenerator.Emit(OpCodes.Ldloc_2);
+            ILGenerator.Emit(OpCodes.Callvirt, typeof(List<Exception>).GetMethod("Add", new Type[] { typeof(Exception) }));
+
+            // Set current to last element of decorators list if it is null
+            ILGenerator.Emit(OpCodes.Ldloc_0);
+            ILGenerator.Emit(OpCodes.Brtrue, catchBlockDecoratorsWhileStatementLabel);
+            ILGenerator.Emit(OpCodes.Ldarg_0);
+            ILGenerator.Emit(OpCodes.Ldfld, memberInfo.DecoratorsLinkedListInstanceFieldInfo);
+            ILGenerator.Emit(OpCodes.Callvirt, memberInfo.DecoratorsLinkedListInstanceFieldInfo.FieldType.GetProperty("Last").GetGetMethod());
+            ILGenerator.Emit(OpCodes.Stloc_0);
+            ILGenerator.Emit(OpCodes.Br, catchBlockDecoratorsWhileStatementLabel);
+
+            // Catch block while body start
+            ILGenerator.MarkLabel(catchBlockDecoratorsWhileBodyLabel);
+
+            // Invoke after decorator if both after decorator and before decorator are not null
+            ILGenerator.Emit(OpCodes.Ldloc_0);
+            ILGenerator.Emit(OpCodes.Callvirt, decoratorsListItemType.GetProperty("Value").GetGetMethod());
+            ILGenerator.Emit(OpCodes.Ldfld, decoratorsPairType.GetField("Item1"));
+            ILGenerator.Emit(OpCodes.Brfalse, catchBlockGetPreviousDecoratorsPair);
+            ILGenerator.Emit(OpCodes.Ldloc_0);
+            ILGenerator.Emit(OpCodes.Callvirt, decoratorsListItemType.GetProperty("Value").GetGetMethod());
+            ILGenerator.Emit(OpCodes.Ldfld, decoratorsPairType.GetField("Item2"));
+            ILGenerator.Emit(OpCodes.Brfalse, catchBlockGetPreviousDecoratorsPair);
+
+            // Invoke catching exception into list
+            ILGenerator.BeginExceptionBlock();
+            ILGenerator.Emit(OpCodes.Ldloc_0);
+            ILGenerator.Emit(OpCodes.Callvirt, decoratorsListItemType.GetProperty("Value").GetGetMethod());
+            ILGenerator.Emit(OpCodes.Ldfld, decoratorsPairType.GetField("Item2"));
+            ILGenerator.EmitLoadArgumentsRange(2, methodArgumentsTypes.Length);
             if (methodInfo.ReturnType != typeof(void))
             {
-                ILGenerator.Emit(OpCodes.Ldloc_2);
+                ILGenerator.Emit(OpCodes.Ldloc_3);
+            }
+            ILGenerator.Emit(OpCodes.Callvirt, afterDecoratorType.GetMethod("Invoke"));
+            ILGenerator.Emit(OpCodes.Leave, catchBlockGetPreviousDecoratorsPair);
+            ILGenerator.BeginCatchBlock(typeof(Exception));
+            ILGenerator.Emit(OpCodes.Stloc_2);
+            ILGenerator.Emit(OpCodes.Ldloc_1);
+            ILGenerator.Emit(OpCodes.Ldloc_2);
+            ILGenerator.Emit(OpCodes.Callvirt, typeof(List<Exception>).GetMethod("Add", new Type[] { typeof(Exception) }));
+            ILGenerator.EndExceptionBlock();
+
+            // Get previous decorator
+            ILGenerator.MarkLabel(catchBlockGetPreviousDecoratorsPair);
+            ILGenerator.Emit(OpCodes.Ldloc_0);
+            ILGenerator.Emit(OpCodes.Callvirt, decoratorsListItemType.GetProperty("Previous").GetGetMethod());
+            ILGenerator.Emit(OpCodes.Stloc_0);
+
+            // Catch block while body finish
+
+            // Catch block while statement check
+            ILGenerator.MarkLabel(catchBlockDecoratorsWhileStatementLabel);
+            ILGenerator.Emit(OpCodes.Ldloc_0);
+            ILGenerator.Emit(OpCodes.Brtrue, catchBlockDecoratorsWhileBodyLabel);
+
+            // Throw aggregated exception if an after decorators in catch block has thrown an exception
+            ILGenerator.Emit(OpCodes.Ldloc_1);
+            ILGenerator.Emit(OpCodes.Callvirt, typeof(List<Exception>).GetProperty("Count").GetGetMethod());
+            ILGenerator.Emit(OpCodes.Ldc_I4_1);
+            ILGenerator.Emit(OpCodes.Ble, catchBlockRethrowLabel);
+            ILGenerator.Emit(OpCodes.Ldloc_1);
+            ILGenerator.Emit(OpCodes.Newobj, typeof(AggregateException).GetConstructor(new Type[] { typeof(IEnumerable<Exception>) }));
+            ILGenerator.Emit(OpCodes.Throw);
+
+            ILGenerator.MarkLabel(catchBlockRethrowLabel);
+            ILGenerator.Emit(OpCodes.Rethrow);
+
+            ILGenerator.EndExceptionBlock();
+            // Main block catch finish
+
+            // Return
+            ILGenerator.MarkLabel(returnLabel);
+            if (methodInfo.ReturnType != typeof(void))
+            {
+                ILGenerator.Emit(OpCodes.Ldloc_3);
             }
             ILGenerator.Emit(OpCodes.Ret);
 

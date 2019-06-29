@@ -498,7 +498,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
                 mock.VerifyNoOtherCalls();
                 decoratorCalled = true;
             };
-            SetBeforeDecorator(proxy, "ActionMethodDecorators0", beforeDecorator);
+            AddBeforeDecorator(proxy, "ActionMethodDecorators0", beforeDecorator);
 
             proxy.Action();
 
@@ -520,7 +520,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
                 mock.VerifyNoOtherCalls();
                 decoratorCalled = true;
             };
-            SetBeforeDecorator(proxy, "ActionWithValueArgumentMethodDecorators0", beforeDecorator);
+            AddBeforeDecorator(proxy, "ActionWithValueArgumentMethodDecorators0", beforeDecorator);
 
             proxy.ActionWithValueArgument(arg);
 
@@ -542,7 +542,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
                 mock.VerifyNoOtherCalls();
                 decoratorCalled = true;
             };
-            SetBeforeDecorator(proxy, "ActionWithValueArgumentMethodDecorators1", beforeDecorator);
+            AddBeforeDecorator(proxy, "ActionWithValueArgumentMethodDecorators1", beforeDecorator);
 
             proxy.ActionWithValueArgument(arg);
 
@@ -564,7 +564,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
                 mock.VerifyNoOtherCalls();
                 decoratorCalled = true;
             };
-            SetBeforeDecorator(proxy, "ActionWithReferenceArgumentMethodDecorators0", beforeDecorator);
+            AddBeforeDecorator(proxy, "ActionWithReferenceArgumentMethodDecorators0", beforeDecorator);
 
             proxy.ActionWithReferenceArgument(arg);
 
@@ -586,7 +586,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
                 mock.VerifyNoOtherCalls();
                 decoratorCalled = true;
             };
-            SetBeforeDecorator(proxy, "ActionWithReferenceArgumentMethodDecorators1", beforeDecorator);
+            AddBeforeDecorator(proxy, "ActionWithReferenceArgumentMethodDecorators1", beforeDecorator);
 
             proxy.ActionWithReferenceArgument(arg);
 
@@ -606,7 +606,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
                 mock.VerifyNoOtherCalls();
                 decoratorCalled = true;
             };
-            SetBeforeDecorator<Action, Action<int>>(proxy, "FunctionWithValueReturnTypeMethodDecorators0", beforeDecorator);
+            AddBeforeDecorator<Action, Action<int>>(proxy, "FunctionWithValueReturnTypeMethodDecorators0", beforeDecorator);
 
             proxy.FunctionWithValueReturnType();
 
@@ -628,7 +628,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
                 mock.VerifyNoOtherCalls();
                 decoratorCalled = true;
             };
-            SetBeforeDecorator<Action<int>, Action<int, int>>(proxy, "FunctionWithValueArgumentAndValueReturnTypeMethodDecorators0", beforeDecorator);
+            AddBeforeDecorator<Action<int>, Action<int, int>>(proxy, "FunctionWithValueArgumentAndValueReturnTypeMethodDecorators0", beforeDecorator);
 
             proxy.FunctionWithValueArgumentAndValueReturnType(arg);
 
@@ -650,7 +650,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
                 mock.VerifyNoOtherCalls();
                 decoratorCalled = true;
             };
-            SetBeforeDecorator<Action<uint>, Action<uint, int>>(proxy, "FunctionWithValueArgumentAndValueReturnTypeMethodDecorators1", beforeDecorator);
+            AddBeforeDecorator<Action<uint>, Action<uint, int>>(proxy, "FunctionWithValueArgumentAndValueReturnTypeMethodDecorators1", beforeDecorator);
 
             proxy.FunctionWithValueArgumentAndValueReturnType(arg);
 
@@ -672,7 +672,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
                 mock.VerifyNoOtherCalls();
                 decoratorCalled = true;
             };
-            SetBeforeDecorator<Action<object>, Action<object, int>>(proxy, "FunctionWithReferenceArgumentAndValueReturnTypeMethodDecorators0", beforeDecorator);
+            AddBeforeDecorator<Action<object>, Action<object, int>>(proxy, "FunctionWithReferenceArgumentAndValueReturnTypeMethodDecorators0", beforeDecorator);
 
             proxy.FunctionWithReferenceArgumentAndValueReturnType(arg);
 
@@ -694,7 +694,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
                 mock.VerifyNoOtherCalls();
                 decoratorCalled = true;
             };
-            SetBeforeDecorator<Action<string>, Action<string, int>>(proxy, "FunctionWithReferenceArgumentAndValueReturnTypeMethodDecorators1", beforeDecorator);
+            AddBeforeDecorator<Action<string>, Action<string, int>>(proxy, "FunctionWithReferenceArgumentAndValueReturnTypeMethodDecorators1", beforeDecorator);
 
             proxy.FunctionWithReferenceArgumentAndValueReturnType(arg);
 
@@ -714,7 +714,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
                 mock.VerifyNoOtherCalls();
                 decoratorCalled = true;
             };
-            SetBeforeDecorator<Action, Action<object>>(proxy, "FunctionWithReferenceReturnTypeMethodDecorators0", beforeDecorator);
+            AddBeforeDecorator<Action, Action<object>>(proxy, "FunctionWithReferenceReturnTypeMethodDecorators0", beforeDecorator);
 
             proxy.FunctionWithReferenceReturnType();
 
@@ -736,7 +736,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
                 mock.VerifyNoOtherCalls();
                 decoratorCalled = true;
             };
-            SetBeforeDecorator<Action<int>, Action<int, object>>(proxy, "FunctionWithValueArgumentAndReferenceReturnTypeMethodDecorators0", beforeDecorator);
+            AddBeforeDecorator<Action<int>, Action<int, object>>(proxy, "FunctionWithValueArgumentAndReferenceReturnTypeMethodDecorators0", beforeDecorator);
 
             proxy.FunctionWithValueArgumentAndReferenceReturnType(arg);
 
@@ -758,7 +758,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
                 mock.VerifyNoOtherCalls();
                 decoratorCalled = true;
             };
-            SetBeforeDecorator<Action<uint>, Action<uint, object>>(proxy, "FunctionWithValueArgumentAndReferenceReturnTypeMethodDecorators1", beforeDecorator);
+            AddBeforeDecorator<Action<uint>, Action<uint, object>>(proxy, "FunctionWithValueArgumentAndReferenceReturnTypeMethodDecorators1", beforeDecorator);
 
             proxy.FunctionWithValueArgumentAndReferenceReturnType(arg);
 
@@ -780,7 +780,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
                 mock.VerifyNoOtherCalls();
                 decoratorCalled = true;
             };
-            SetBeforeDecorator<Action<object>, Action<object, object>>(proxy, "FunctionWithReferenceArgumentAndReferenceReturnTypeMethodDecorators0", beforeDecorator);
+            AddBeforeDecorator<Action<object>, Action<object, object>>(proxy, "FunctionWithReferenceArgumentAndReferenceReturnTypeMethodDecorators0", beforeDecorator);
 
             proxy.FunctionWithReferenceArgumentAndReferenceReturnType(arg);
 
@@ -802,7 +802,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
                 mock.VerifyNoOtherCalls();
                 decoratorCalled = true;
             };
-            SetBeforeDecorator<Action<string>, Action<string, object>>(proxy, "FunctionWithReferenceArgumentAndReferenceReturnTypeMethodDecorators1", beforeDecorator);
+            AddBeforeDecorator<Action<string>, Action<string, object>>(proxy, "FunctionWithReferenceArgumentAndReferenceReturnTypeMethodDecorators1", beforeDecorator);
 
             proxy.FunctionWithReferenceArgumentAndReferenceReturnType(arg);
 
@@ -822,7 +822,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
                 mock.VerifyNoOtherCalls();
                 decoratorCalled = true;
             };
-            SetBeforeDecorator<Action, Action<ValueTuple<int, object>>>(proxy, "FunctionWithTupleReturnTypeMethodDecorators0", beforeDecorator);
+            AddBeforeDecorator<Action, Action<ValueTuple<int, object>>>(proxy, "FunctionWithTupleReturnTypeMethodDecorators0", beforeDecorator);
 
             proxy.FunctionWithTupleReturnType();
 
@@ -844,7 +844,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
                 mock.VerifyNoOtherCalls();
                 decoratorCalled = true;
             };
-            SetBeforeDecorator<Action<int>, Action<int, ValueTuple<int, object>>>(proxy, "FunctionWithValueArgumentAndTupleReturnTypeMethodDecorators0", beforeDecorator);
+            AddBeforeDecorator<Action<int>, Action<int, ValueTuple<int, object>>>(proxy, "FunctionWithValueArgumentAndTupleReturnTypeMethodDecorators0", beforeDecorator);
 
             proxy.FunctionWithValueArgumentAndTupleReturnType(arg);
 
@@ -866,7 +866,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
                 mock.VerifyNoOtherCalls();
                 decoratorCalled = true;
             };
-            SetBeforeDecorator<Action<uint>, Action<uint, ValueTuple<int, object>>>(proxy, "FunctionWithValueArgumentAndTupleReturnTypeMethodDecorators1", beforeDecorator);
+            AddBeforeDecorator<Action<uint>, Action<uint, ValueTuple<int, object>>>(proxy, "FunctionWithValueArgumentAndTupleReturnTypeMethodDecorators1", beforeDecorator);
 
             proxy.FunctionWithValueArgumentAndTupleReturnType(arg);
 
@@ -888,7 +888,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
                 mock.VerifyNoOtherCalls();
                 decoratorCalled = true;
             };
-            SetBeforeDecorator<Action<object>, Action<object, ValueTuple<int, object>>>(proxy, "FunctionWithReferenceArgumentAndTupleReturnTypeMethodDecorators0", beforeDecorator);
+            AddBeforeDecorator<Action<object>, Action<object, ValueTuple<int, object>>>(proxy, "FunctionWithReferenceArgumentAndTupleReturnTypeMethodDecorators0", beforeDecorator);
 
             proxy.FunctionWithReferenceArgumentAndTupleReturnType(arg);
 
@@ -910,7 +910,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
                 mock.VerifyNoOtherCalls();
                 decoratorCalled = true;
             };
-            SetBeforeDecorator<Action<string>, Action<string, ValueTuple<int, object>>>(proxy, "FunctionWithReferenceArgumentAndTupleReturnTypeMethodDecorators1", beforeDecorator);
+            AddBeforeDecorator<Action<string>, Action<string, ValueTuple<int, object>>>(proxy, "FunctionWithReferenceArgumentAndTupleReturnTypeMethodDecorators1", beforeDecorator);
 
             proxy.FunctionWithReferenceArgumentAndTupleReturnType(arg);
 
@@ -930,7 +930,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
                 mock.Verify(m => m.Action(), Times.Once());
                 decoratorCalled = true;
             };
-            SetAfterDecorator(proxy, "ActionMethodDecorators0", afterDecorator);
+            AddAfterDecorator(proxy, "ActionMethodDecorators0", afterDecorator);
 
             proxy.Action();
 
@@ -952,7 +952,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
                 mock.Verify(m => m.ActionWithValueArgument(arg), Times.Once());
                 decoratorCalled = true;
             };
-            SetAfterDecorator(proxy, "ActionWithValueArgumentMethodDecorators0", afterDecorator);
+            AddAfterDecorator(proxy, "ActionWithValueArgumentMethodDecorators0", afterDecorator);
 
             proxy.ActionWithValueArgument(arg);
 
@@ -974,7 +974,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
                 mock.Verify(m => m.ActionWithValueArgument(arg), Times.Once());
                 decoratorCalled = true;
             };
-            SetAfterDecorator(proxy, "ActionWithValueArgumentMethodDecorators1", afterDecorator);
+            AddAfterDecorator(proxy, "ActionWithValueArgumentMethodDecorators1", afterDecorator);
 
             proxy.ActionWithValueArgument(arg);
 
@@ -996,7 +996,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
                 mock.Verify(m => m.ActionWithReferenceArgument(arg), Times.Once());
                 decoratorCalled = true;
             };
-            SetAfterDecorator(proxy, "ActionWithReferenceArgumentMethodDecorators0", afterDecorator);
+            AddAfterDecorator(proxy, "ActionWithReferenceArgumentMethodDecorators0", afterDecorator);
 
             proxy.ActionWithReferenceArgument(arg);
 
@@ -1018,7 +1018,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
                 mock.Verify(m => m.ActionWithReferenceArgument(arg), Times.Once());
                 decoratorCalled = true;
             };
-            SetAfterDecorator(proxy, "ActionWithReferenceArgumentMethodDecorators1", afterDecorator);
+            AddAfterDecorator(proxy, "ActionWithReferenceArgumentMethodDecorators1", afterDecorator);
 
             proxy.ActionWithReferenceArgument(arg);
 
@@ -1038,7 +1038,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
                 mock.Verify(m => m.FunctionWithValueReturnType(), Times.Once());
                 decoratorCalled = true;
             };
-            SetAfterDecorator<Action, Action<int>>(proxy, "FunctionWithValueReturnTypeMethodDecorators0", afterDecorator);
+            AddAfterDecorator<Action, Action<int>>(proxy, "FunctionWithValueReturnTypeMethodDecorators0", afterDecorator);
 
             proxy.FunctionWithValueReturnType();
 
@@ -1060,7 +1060,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
                 mock.Verify(m => m.FunctionWithValueArgumentAndValueReturnType(arg), Times.Once());
                 decoratorCalled = true;
             };
-            SetAfterDecorator<Action<int>, Action<int, int>>(proxy, "FunctionWithValueArgumentAndValueReturnTypeMethodDecorators0", afterDecorator);
+            AddAfterDecorator<Action<int>, Action<int, int>>(proxy, "FunctionWithValueArgumentAndValueReturnTypeMethodDecorators0", afterDecorator);
 
             proxy.FunctionWithValueArgumentAndValueReturnType(arg);
 
@@ -1082,7 +1082,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
                 mock.Verify(m => m.FunctionWithValueArgumentAndValueReturnType(arg), Times.Once());
                 decoratorCalled = true;
             };
-            SetAfterDecorator<Action<uint>, Action<uint, int>>(proxy, "FunctionWithValueArgumentAndValueReturnTypeMethodDecorators1", afterDecorator);
+            AddAfterDecorator<Action<uint>, Action<uint, int>>(proxy, "FunctionWithValueArgumentAndValueReturnTypeMethodDecorators1", afterDecorator);
 
             proxy.FunctionWithValueArgumentAndValueReturnType(arg);
 
@@ -1104,7 +1104,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
                 mock.Verify(m => m.FunctionWithReferenceArgumentAndValueReturnType(arg), Times.Once());
                 decoratorCalled = true;
             };
-            SetAfterDecorator<Action<object>, Action<object, int>>(proxy, "FunctionWithReferenceArgumentAndValueReturnTypeMethodDecorators0", afterDecorator);
+            AddAfterDecorator<Action<object>, Action<object, int>>(proxy, "FunctionWithReferenceArgumentAndValueReturnTypeMethodDecorators0", afterDecorator);
 
             proxy.FunctionWithReferenceArgumentAndValueReturnType(arg);
 
@@ -1126,7 +1126,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
                 mock.Verify(m => m.FunctionWithReferenceArgumentAndValueReturnType(arg), Times.Once());
                 decoratorCalled = true;
             };
-            SetAfterDecorator<Action<string>, Action<string, int>>(proxy, "FunctionWithReferenceArgumentAndValueReturnTypeMethodDecorators1", afterDecorator);
+            AddAfterDecorator<Action<string>, Action<string, int>>(proxy, "FunctionWithReferenceArgumentAndValueReturnTypeMethodDecorators1", afterDecorator);
 
             proxy.FunctionWithReferenceArgumentAndValueReturnType(arg);
 
@@ -1146,7 +1146,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
                 mock.Verify(m => m.FunctionWithReferenceReturnType(), Times.Once());
                 decoratorCalled = true;
             };
-            SetAfterDecorator<Action, Action<object>>(proxy, "FunctionWithReferenceReturnTypeMethodDecorators0", afterDecorator);
+            AddAfterDecorator<Action, Action<object>>(proxy, "FunctionWithReferenceReturnTypeMethodDecorators0", afterDecorator);
 
             proxy.FunctionWithReferenceReturnType();
 
@@ -1168,7 +1168,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
                 mock.Verify(m => m.FunctionWithValueArgumentAndReferenceReturnType(arg), Times.Once());
                 decoratorCalled = true;
             };
-            SetAfterDecorator<Action<int>, Action<int, object>>(proxy, "FunctionWithValueArgumentAndReferenceReturnTypeMethodDecorators0", afterDecorator);
+            AddAfterDecorator<Action<int>, Action<int, object>>(proxy, "FunctionWithValueArgumentAndReferenceReturnTypeMethodDecorators0", afterDecorator);
 
             proxy.FunctionWithValueArgumentAndReferenceReturnType(arg);
 
@@ -1190,7 +1190,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
                 mock.Verify(m => m.FunctionWithValueArgumentAndReferenceReturnType(arg), Times.Once());
                 decoratorCalled = true;
             };
-            SetAfterDecorator<Action<uint>, Action<uint, object>>(proxy, "FunctionWithValueArgumentAndReferenceReturnTypeMethodDecorators1", afterDecorator);
+            AddAfterDecorator<Action<uint>, Action<uint, object>>(proxy, "FunctionWithValueArgumentAndReferenceReturnTypeMethodDecorators1", afterDecorator);
 
             proxy.FunctionWithValueArgumentAndReferenceReturnType(arg);
 
@@ -1212,7 +1212,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
                 mock.Verify(m => m.FunctionWithReferenceArgumentAndReferenceReturnType(arg), Times.Once());
                 decoratorCalled = true;
             };
-            SetAfterDecorator<Action<object>, Action<object, object>>(proxy, "FunctionWithReferenceArgumentAndReferenceReturnTypeMethodDecorators0", afterDecorator);
+            AddAfterDecorator<Action<object>, Action<object, object>>(proxy, "FunctionWithReferenceArgumentAndReferenceReturnTypeMethodDecorators0", afterDecorator);
 
             proxy.FunctionWithReferenceArgumentAndReferenceReturnType(arg);
 
@@ -1234,7 +1234,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
                 mock.Verify(m => m.FunctionWithReferenceArgumentAndReferenceReturnType(arg), Times.Once());
                 decoratorCalled = true;
             };
-            SetAfterDecorator<Action<string>, Action<string, object>>(proxy, "FunctionWithReferenceArgumentAndReferenceReturnTypeMethodDecorators1", afterDecorator);
+            AddAfterDecorator<Action<string>, Action<string, object>>(proxy, "FunctionWithReferenceArgumentAndReferenceReturnTypeMethodDecorators1", afterDecorator);
 
             proxy.FunctionWithReferenceArgumentAndReferenceReturnType(arg);
 
@@ -1254,7 +1254,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
                 mock.Verify(m => m.FunctionWithTupleReturnType(), Times.Once());
                 decoratorCalled = true;
             };
-            SetAfterDecorator<Action, Action<ValueTuple<int, object>>>(proxy, "FunctionWithTupleReturnTypeMethodDecorators0", afterDecorator);
+            AddAfterDecorator<Action, Action<ValueTuple<int, object>>>(proxy, "FunctionWithTupleReturnTypeMethodDecorators0", afterDecorator);
 
             proxy.FunctionWithTupleReturnType();
 
@@ -1276,7 +1276,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
                 mock.Verify(m => m.FunctionWithValueArgumentAndTupleReturnType(arg), Times.Once());
                 decoratorCalled = true;
             };
-            SetAfterDecorator<Action<int>, Action<int, ValueTuple<int, object>>>(proxy, "FunctionWithValueArgumentAndTupleReturnTypeMethodDecorators0", afterDecorator);
+            AddAfterDecorator<Action<int>, Action<int, ValueTuple<int, object>>>(proxy, "FunctionWithValueArgumentAndTupleReturnTypeMethodDecorators0", afterDecorator);
 
             proxy.FunctionWithValueArgumentAndTupleReturnType(arg);
 
@@ -1298,7 +1298,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
                 mock.Verify(m => m.FunctionWithValueArgumentAndTupleReturnType(arg), Times.Once());
                 decoratorCalled = true;
             };
-            SetAfterDecorator<Action<uint>, Action<uint, ValueTuple<int, object>>>(proxy, "FunctionWithValueArgumentAndTupleReturnTypeMethodDecorators1", afterDecorator);
+            AddAfterDecorator<Action<uint>, Action<uint, ValueTuple<int, object>>>(proxy, "FunctionWithValueArgumentAndTupleReturnTypeMethodDecorators1", afterDecorator);
 
             proxy.FunctionWithValueArgumentAndTupleReturnType(arg);
 
@@ -1320,7 +1320,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
                 mock.Verify(m => m.FunctionWithReferenceArgumentAndTupleReturnType(arg), Times.Once());
                 decoratorCalled = true;
             };
-            SetAfterDecorator<Action<object>, Action<object, ValueTuple<int, object>>>(proxy, "FunctionWithReferenceArgumentAndTupleReturnTypeMethodDecorators0", afterDecorator);
+            AddAfterDecorator<Action<object>, Action<object, ValueTuple<int, object>>>(proxy, "FunctionWithReferenceArgumentAndTupleReturnTypeMethodDecorators0", afterDecorator);
 
             proxy.FunctionWithReferenceArgumentAndTupleReturnType(arg);
 
@@ -1342,7 +1342,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
                 mock.Verify(m => m.FunctionWithReferenceArgumentAndTupleReturnType(arg), Times.Once());
                 decoratorCalled = true;
             };
-            SetAfterDecorator<Action<string>, Action<string, ValueTuple<int, object>>>(proxy, "FunctionWithReferenceArgumentAndTupleReturnTypeMethodDecorators1", afterDecorator);
+            AddAfterDecorator<Action<string>, Action<string, ValueTuple<int, object>>>(proxy, "FunctionWithReferenceArgumentAndTupleReturnTypeMethodDecorators1", afterDecorator);
 
             proxy.FunctionWithReferenceArgumentAndTupleReturnType(arg);
 
@@ -2264,6 +2264,515 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
             mock.VerifyNoOtherCalls();
         }
 
+        [TestMethod]
+        [ExpectedException(typeof(TestException))]
+        public void InvokeAction_IMethodProxyDecoratorWithBeforeDecoratorThrowingException_ThrowsExpectedException()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            Action beforeDecorator = () =>
+            {
+                throw new TestException();
+            };
+            AddBeforeDecorator(proxy, "ActionMethodDecorators0", beforeDecorator);
+
+            proxy.Action();
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(TestException))]
+        public void InvokeAction_IMethodProxyWithProxyDelegateThrowingException_ThrowsExpectedException()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            Action<Action> proxyDelegate = a =>
+            {
+                throw new TestException();
+            };
+            SetProxy(proxy, "ActionMethodProxy0", proxyDelegate);
+
+            proxy.Action();
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(TestException))]
+        public void InvokeAction_IMethodProxyDecoratorWithTargetThrowingException_ThrowsExpectedException()
+        {
+            var mock = new Mock<IMethod>();
+            mock.Setup(m => m.Action()).Throws<TestException>();
+            var proxy = CreateProxyInstance(mock.Object);
+
+            proxy.Action();
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(TestException))]
+        public void InvokeAction_IMethodProxyDecoratorWithAfterDecoratorThrowingException_ThrowsExpectedException()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            Action afterDecorator = () =>
+            {
+                throw new TestException();
+            };
+            AddAfterDecorator(proxy, "ActionMethodDecorators0", afterDecorator);
+
+            proxy.Action();
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(TestException))]
+        public void InvokeFunctionWithReferenceArgumentAndTupleReturnType_IMethodProxyDecoratorWithBeforeDecoratorThrowingException_ThrowsExpectedException()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            Action<string> beforeDecorator = o =>
+            {
+                throw new TestException();
+            };
+            AddBeforeDecorator<Action<string>, Action<string, ValueTuple<int, object>>>(proxy, "FunctionWithReferenceArgumentAndTupleReturnTypeMethodDecorators1", beforeDecorator);
+
+            proxy.FunctionWithReferenceArgumentAndTupleReturnType(default);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(TestException))]
+        public void InvokeFunctionWithReferenceArgumentAndTupleReturnType_IMethodProxyWithProxyDelegateThrowingException_ThrowsExpectedException()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            Func<Func<string, ValueTuple<int, object>>, string, ValueTuple<int, object>> proxyDelegate = (a, o) =>
+            {
+                throw new TestException();
+            };
+            SetProxy(proxy, "FunctionWithReferenceArgumentAndTupleReturnTypeMethodProxy1", proxyDelegate);
+
+            proxy.FunctionWithReferenceArgumentAndTupleReturnType(default);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(TestException))]
+        public void InvokeFunctionWithReferenceArgumentAndTupleReturnType_IMethodProxyDecoratorWithTargetThrowingException_ThrowsExpectedException()
+        {
+            var mock = new Mock<IMethod>();
+            mock.Setup(m => m.FunctionWithReferenceArgumentAndTupleReturnType(It.IsAny<string>())).Throws<TestException>();
+            var proxy = CreateProxyInstance(mock.Object);
+
+            proxy.FunctionWithReferenceArgumentAndTupleReturnType(default);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(TestException))]
+        public void InvokeFunctionWithReferenceArgumentAndTupleReturnType_IMethodProxyDecoratorWithAfterDecoratorThrowingException_ThrowsExpectedException()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            Action<string, ValueTuple<int, object>> afterDecorator = (o, r) =>
+            {
+                throw new TestException();
+            };
+            AddAfterDecorator<Action<string>, Action<string, ValueTuple<int, object>>>(proxy, "FunctionWithReferenceArgumentAndTupleReturnTypeMethodDecorators1", afterDecorator);
+
+            proxy.FunctionWithReferenceArgumentAndTupleReturnType(default);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(TestException))]
+        public void InvokeAction_IMethodProxyPreviousBeforeDecoratorThrowsException_NextPairedAfterDecoratorNotExecuted()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            Action beforeDecoratorThrowingException = () =>
+            {
+                throw new TestException();
+            };
+            AddBeforeDecorator(proxy, "ActionMethodDecorators0", beforeDecoratorThrowingException);
+            Action beforePairedDecorator = () =>
+            {
+
+            };
+            bool afterDecoratorExecuted = false;
+            Action afterPairedDecorator = () =>
+            {
+                afterDecoratorExecuted = true;
+            };
+            AddDecorators<Action>(proxy, "ActionMethodDecorators0", beforePairedDecorator, afterPairedDecorator);
+
+            try
+            {
+                proxy.Action();
+            }
+            finally
+            {
+                Assert.IsFalse(afterDecoratorExecuted);
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(TestException))]
+        public void InvokeAction_IMethodProxyPreviousBeforeDecoratorThrowsException_NextNotPairedAfterDecoratorNotExecuted()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            Action beforeDecoratorThrowingException = () =>
+            {
+                throw new TestException();
+            };
+            AddBeforeDecorator(proxy, "ActionMethodDecorators0", beforeDecoratorThrowingException);
+            bool afterDecoratorExecuted = false;
+            Action afterNotPairedDecorator = () =>
+            {
+                afterDecoratorExecuted = true;
+            };
+            AddAfterDecorator<Action>(proxy, "ActionMethodDecorators0", afterNotPairedDecorator);
+
+            try
+            {
+                proxy.Action();
+            }
+            finally
+            {
+                Assert.IsFalse(afterDecoratorExecuted);
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(TestException))]
+        public void InvokeAction_IMethodProxyPairDecoratorThrowsException_PairAfterDecoratorExecuted()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            Action beforePairedDecorator = () =>
+            {
+                throw new TestException();
+            };
+            bool afterDecoratorExecuted = false;
+            Action afterPairedDecorator = () =>
+            {
+                afterDecoratorExecuted = true;
+            };
+            AddDecorators<Action>(proxy, "ActionMethodDecorators0", beforePairedDecorator, afterPairedDecorator);
+
+            try
+            {
+                proxy.Action();
+            }
+            finally
+            {
+                Assert.IsTrue(afterDecoratorExecuted);
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(TestException))]
+        public void InvokeAction_IMethodProxyNextBeforeDecoratorThrowsException_PreviousPairedAfterDecoratorExecuted()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            Action beforePairedDecorator = () =>
+            {
+
+            };
+            bool afterDecoratorExecuted = false;
+            Action afterPairDecorator = () =>
+            {
+                afterDecoratorExecuted = true;
+            };
+            AddDecorators<Action>(proxy, "ActionMethodDecorators0", beforePairedDecorator, afterPairDecorator);
+            Action beforeDecoratorThrowingException = () =>
+            {
+                throw new TestException();
+            };
+            AddBeforeDecorator(proxy, "ActionMethodDecorators0", beforeDecoratorThrowingException);
+
+            try
+            {
+                proxy.Action();
+            }
+            finally
+            {
+                Assert.IsTrue(afterDecoratorExecuted);
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(TestException))]
+        public void InvokeAction_IMethodProxyNextBeforeDecoratorThrowsException_PreviousNotPairedAfterDecoratorNotExecuted()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            bool afterDecoratorExecuted = false;
+            Action afterNotPairedDecorator = () =>
+            {
+                afterDecoratorExecuted = true;
+            };
+            AddAfterDecorator(proxy, "ActionMethodDecorators0", afterNotPairedDecorator);
+            Action beforeDecoratorThrowingException = () =>
+            {
+                throw new TestException();
+            };
+            AddBeforeDecorator(proxy, "ActionMethodDecorators0", beforeDecoratorThrowingException);
+
+            try
+            {
+                proxy.Action();
+            }
+            finally
+            {
+                Assert.IsFalse(afterDecoratorExecuted);
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(TestException))]
+        public void InvokeAction_IMethodProxyWhenProxyDelegateThrowsException_PairedAfterDecoratorExecuted()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            bool afterDecoratorExecuted = false;
+            Action beforePairedDecorator = () =>
+            {
+
+            };
+            Action afterPairedDecorator = () =>
+            {
+                afterDecoratorExecuted = true;
+            };
+            AddDecorators<Action, Action>(proxy, "ActionMethodDecorators0", beforePairedDecorator, afterPairedDecorator);
+            Action<Action> proxyDelegatedThrowingException = a =>
+            {
+                throw new TestException();
+            };
+            SetProxy(proxy, "ActionMethodProxy0", proxyDelegatedThrowingException);
+
+            try
+            {
+                proxy.Action();
+            }
+            finally
+            {
+                Assert.IsTrue(afterDecoratorExecuted);
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(TestException))]
+        public void InvokeAction_IMethodProxyWhenProxyDelegateThrowsException_NotPairedAfterDecoratorNotExecuted()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            bool afterDecoratorExecuted = false;
+            Action afterNotPairedDecorator = () =>
+            {
+                afterDecoratorExecuted = true;
+            };
+            AddAfterDecorator(proxy, "ActionMethodDecorators0", afterNotPairedDecorator);
+            Action<Action> proxyDelegatedThrowingException = a =>
+            {
+                throw new TestException();
+            };
+            SetProxy(proxy, "ActionMethodProxy0", proxyDelegatedThrowingException);
+
+            try
+            {
+                proxy.Action();
+            }
+            finally
+            {
+                Assert.IsFalse(afterDecoratorExecuted);
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(TestException))]
+        public void InvokeAction_IMethodProxyTargetThrowingException_PairedAfterDecoratorExecuted()
+        {
+            var mock = new Mock<IMethod>();
+            mock.Setup(m => m.Action()).Throws<TestException>();
+            var proxy = CreateProxyInstance(mock.Object);
+            bool afterDecoratorExecuted = false;
+            Action beforePairedDecorator = () =>
+            {
+
+            };
+            Action afterPairedDecorator = () =>
+            {
+                afterDecoratorExecuted = true;
+            };
+            AddDecorators<Action, Action>(proxy, "ActionMethodDecorators0", beforePairedDecorator, afterPairedDecorator);
+
+            try
+            {
+                proxy.Action();
+            }
+            finally
+            {
+                Assert.IsTrue(afterDecoratorExecuted);
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(TestException))]
+        public void InvokeAction_IMethodProxyTargetThrowingException_NotPairedAfterDecoratorNotExecuted()
+        {
+            var mock = new Mock<IMethod>();
+            mock.Setup(m => m.Action()).Throws<TestException>();
+            var proxy = CreateProxyInstance(mock.Object);
+            bool afterDecoratorExecuted = false;
+            Action afterNotPairedDecorator = () =>
+            {
+                afterDecoratorExecuted = true;
+            };
+            AddAfterDecorator<Action, Action>(proxy, "ActionMethodDecorators0", afterNotPairedDecorator);
+
+            try
+            {
+                proxy.Action();
+            }
+            finally
+            {
+                Assert.IsFalse(afterDecoratorExecuted);
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(TestException))]
+        public void InvokeAction_IMethodProxyPreviousAfterDecoratorThrowingException_PairedAfterDecoratorExecuted()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            bool afterDecoratorExecuted = false;
+            Action beforePairedDecorator = () =>
+            {
+
+            };
+            Action afterPairedDecorator = () =>
+            {
+                afterDecoratorExecuted = true;
+            };
+            AddDecorators<Action, Action>(proxy, "ActionMethodDecorators0", beforePairedDecorator, afterPairedDecorator);
+            Action afterDecoratorThrowingException = () =>
+            {
+                throw new TestException();
+            };
+            AddAfterDecorator(proxy, "ActionMethodDecorators0", afterDecoratorThrowingException);
+
+            try
+            {
+                proxy.Action();
+            }
+            finally
+            {
+                Assert.IsTrue(afterDecoratorExecuted);
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(TestException))]
+        public void InvokeAction_IMethodProxyPreviousAfterDecoratorThrowingException_NotPairedAfterDecoratorNotExecuted()
+        {
+            var mock = new Mock<IMethod>();
+            var proxy = CreateProxyInstance(mock.Object);
+            bool afterDecoratorExecuted = false;
+            Action afterPairedDecorator = () =>
+            {
+                afterDecoratorExecuted = true;
+            };
+            AddAfterDecorator(proxy, "ActionMethodDecorators0", afterPairedDecorator);
+            Action afterDecoratorThrowingException = () =>
+            {
+                throw new TestException();
+            };
+            AddAfterDecorator(proxy, "ActionMethodDecorators0", afterDecoratorThrowingException);
+
+            try
+            {
+                proxy.Action();
+            }
+            finally
+            {
+                Assert.IsFalse(afterDecoratorExecuted);
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(AggregateException))]
+        public void InvokeAction_IMethodProxyTargetAndAfterDecoratorThrowingException_ThrowsExpectedException()
+        {
+            var mock = new Mock<IMethod>();
+            mock.Setup(m => m.Action()).Throws(new TestException(1));
+            var proxy = CreateProxyInstance(mock.Object);
+            Action beforePairedDecorator = () =>
+            {
+
+            };
+            Action afterPairedDecorator = () =>
+            {
+                throw new TestException(2);
+            };
+            AddDecorators<Action, Action>(proxy, "ActionMethodDecorators0", beforePairedDecorator, afterPairedDecorator);
+
+            try
+            {
+                proxy.Action();
+            }
+            catch (AggregateException ex)
+            {
+                Assert.AreEqual(2, ex.InnerExceptions.Count);
+                Assert.IsInstanceOfType(ex.InnerExceptions[0], typeof(TestException));
+                Assert.AreEqual(1, ((TestException)ex.InnerExceptions[0]).Id);
+                Assert.IsInstanceOfType(ex.InnerExceptions[1], typeof(TestException));
+                Assert.AreEqual(2, ((TestException)ex.InnerExceptions[1]).Id);
+                throw;
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(AggregateException))]
+        public void InvokeAction_IMethodProxyTargetAndPreviousAfterDecoratorThrowingException_PairedAfterDecoratorExecuted()
+        {
+            var mock = new Mock<IMethod>();
+            mock.Setup(m => m.Action()).Throws(new TestException(1));
+            var proxy = CreateProxyInstance(mock.Object);
+            bool afterDecoratorExecuted = false;
+            Action beforePairedDecorator = () =>
+            {
+
+            };
+            Action afterPairedDecorator = () =>
+            {
+                afterDecoratorExecuted = true;
+            };
+            AddDecorators<Action, Action>(proxy, "ActionMethodDecorators0", beforePairedDecorator, afterPairedDecorator);
+            Action beforeDecoratorPairedWithThrowingException = () =>
+            {
+
+            };
+            Action afterDecoratorThrowingException = () =>
+            {
+                throw new TestException(2);
+            };
+            AddDecorators<Action, Action>(proxy, "ActionMethodDecorators0", beforeDecoratorPairedWithThrowingException, afterDecoratorThrowingException);
+
+            try
+            {
+                proxy.Action();
+            }
+            catch (AggregateException ex)
+            {
+                Assert.AreEqual(2, ex.InnerExceptions.Count);
+                Assert.IsInstanceOfType(ex.InnerExceptions[0], typeof(TestException));
+                Assert.AreEqual(1, ((TestException)ex.InnerExceptions[0]).Id);
+                Assert.IsInstanceOfType(ex.InnerExceptions[1], typeof(TestException));
+                Assert.AreEqual(2, ((TestException)ex.InnerExceptions[1]).Id);
+                throw;
+            }
+            finally
+            {
+                Assert.IsTrue(afterDecoratorExecuted);
+            }
+        }
+
         internal static T CreateProxyInstance<T>(T target)
         {
             return (T)Activator.CreateInstance(CreateTargetType(typeof(T)), target);
@@ -2310,34 +2819,46 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
             }
         }
 
-        internal static void SetBeforeDecorator<TDecorator>(object instance, string fieldName, TDecorator decorator)
+        internal static void AddBeforeDecorator<TDecorator>(object instance, string fieldName, TDecorator decorator)
             where TDecorator : Delegate
         {
             ((LinkedList<ValueTuple<TDecorator, TDecorator>>)instance.GetType().GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic).GetValue(instance))
-                .AddFirst(new ValueTuple<TDecorator, TDecorator>(decorator, null));
+                .AddLast(new ValueTuple<TDecorator, TDecorator>(decorator, null));
         }
 
-        internal static void SetBeforeDecorator<TBeforeDecorator, TAfterDecorator>(object instance, string fieldName, TBeforeDecorator decorator)
+        internal static void AddBeforeDecorator<TBeforeDecorator, TAfterDecorator>(object instance, string fieldName, TBeforeDecorator decorator)
             where TBeforeDecorator : Delegate
             where TAfterDecorator : Delegate
         {
             ((LinkedList<ValueTuple<TBeforeDecorator, TAfterDecorator>>)instance.GetType().GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic).GetValue(instance))
-                .AddFirst(new ValueTuple<TBeforeDecorator, TAfterDecorator>(decorator, null));
+                .AddLast(new ValueTuple<TBeforeDecorator, TAfterDecorator>(decorator, null));
         }
 
-        internal static void SetAfterDecorator<TDecorator>(object instance, string fieldName, TDecorator decorator)
+        internal static void AddAfterDecorator<TDecorator>(object instance, string fieldName, TDecorator decorator)
             where TDecorator : Delegate
         {
             ((LinkedList<ValueTuple<TDecorator, TDecorator>>)instance.GetType().GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic).GetValue(instance))
-                .AddFirst(new ValueTuple<TDecorator, TDecorator>(null, decorator));
+                .AddLast(new ValueTuple<TDecorator, TDecorator>(null, decorator));
         }
 
-        internal static void SetAfterDecorator<TBeforeDecorator, TAfterDecorator>(object instance, string fieldName, TAfterDecorator decorator)
+        internal static void AddAfterDecorator<TBeforeDecorator, TAfterDecorator>(object instance, string fieldName, TAfterDecorator decorator)
             where TBeforeDecorator : Delegate
             where TAfterDecorator : Delegate
         {
             ((LinkedList<ValueTuple<TBeforeDecorator, TAfterDecorator>>)instance.GetType().GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic).GetValue(instance))
-                .AddFirst(new ValueTuple<TBeforeDecorator, TAfterDecorator>(null, decorator));
+                .AddLast(new ValueTuple<TBeforeDecorator, TAfterDecorator>(null, decorator));
+        }
+
+        internal static void AddDecorators<TDecorator>(object instance, string fieldName, TDecorator beforeDecorator, TDecorator afterDecorator)
+        {
+            ((LinkedList<ValueTuple<TDecorator, TDecorator>>)instance.GetType().GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic).GetValue(instance))
+                .AddLast(new ValueTuple<TDecorator, TDecorator>(beforeDecorator, afterDecorator));
+        }
+
+        internal static void AddDecorators<TBeforeDecorator, TAfterDecorator>(object instance, string fieldName, TBeforeDecorator beforeDecorator, TAfterDecorator afterDecorator)
+        {
+            ((LinkedList<ValueTuple<TBeforeDecorator, TAfterDecorator>>)instance.GetType().GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic).GetValue(instance))
+                .AddLast(new ValueTuple<TBeforeDecorator, TAfterDecorator>(beforeDecorator, afterDecorator));
         }
 
         internal static void SetProxy<TProxy>(object instance, string fieldName, TProxy proxy)
