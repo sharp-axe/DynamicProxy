@@ -189,7 +189,9 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy
                     eventInvokeMethodArguments);
 
             var invokeMethodILGenerator = invokeMethod.GetILGenerator();
+            invokeMethodILGenerator.Emit(OpCodes.Ldarg_0);
             invokeMethodILGenerator.Emit(OpCodes.Ldfld, wrapperMethodField);
+            invokeMethodILGenerator.Emit(OpCodes.Ldarg_0);
             invokeMethodILGenerator.Emit(OpCodes.Ldfld, targetDelegateField);
             invokeMethodILGenerator.EmitLoadArgumentsRange(0, eventInvokeMethodArguments.Length);
             invokeMethodILGenerator.Emit(OpCodes.Callvirt, wrapperMethodDelegateType.GetMethod("Invoke"));
@@ -340,7 +342,7 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy
                 var eventInvokeDelegateType = eventInvokeMethod.MakeGenericDelegateType();
                 var wrapperMethodDelegateType = eventInvokeDelegateType.ToEnumerable().Concat(eventInvokeMethodArguments).MakeGenericDelegateAction();
 
-                var wrapperMethod = DefineWrapperMethod(eventInfo.EventHandlerType.GetMethod("Invoke"), memberInfo, GetEventWrapperMethodName(eventInfo));
+                var wrapperMethod = DefineWrapperMethod(eventInvokeMethod, memberInfo, GetEventWrapperMethodName(eventInfo));
 
                 var addMethod = eventInfo.AddMethod;
                 var addMethodOverriden =
@@ -356,10 +358,11 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy
 
                 addMethodILGenerator.Emit(OpCodes.Ldarg_1);
                 addMethodILGenerator.Emit(OpCodes.Ldarg_0);
+                addMethodILGenerator.Emit(OpCodes.Ldarg_0);
                 addMethodILGenerator.Emit(OpCodes.Ldvirtftn, wrapperMethod);
                 addMethodILGenerator.Emit(OpCodes.Newobj, wrapperMethodDelegateType.GetConstructor(new Type[] { typeof(Object), typeof(IntPtr) }));
                 addMethodILGenerator.Emit(OpCodes.Newobj, memberInfo.EventDisplayType.GetConstructor(new Type[] { eventInvokeDelegateType, wrapperMethodDelegateType }));
-
+                addMethodILGenerator.Emit(OpCodes.Dup);
                 addMethodILGenerator.Emit(OpCodes.Ldvirtftn, memberInfo.EventDisplayType.GetMethod("Invoke"));
                 addMethodILGenerator.Emit(OpCodes.Newobj, eventInvokeDelegateType.GetConstructor(new Type[] { typeof(Object), typeof(IntPtr) }));
                 addMethodILGenerator.Emit(OpCodes.Stloc_0);
@@ -409,6 +412,7 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy
                 removeMethodILGenerator.Emit(OpCodes.Ldfld, memberInfo.SubscribersMapFieldInfo);
                 removeMethodILGenerator.Emit(OpCodes.Ldarg_1);
                 removeMethodILGenerator.Emit(OpCodes.Callvirt, memberInfo.SubscribersMapFieldInfo.FieldType.GetMethod("Remove", new Type[] { eventInvokeDelegateType }));
+                removeMethodILGenerator.Emit(OpCodes.Pop);
 
                 removeMethodILGenerator.MarkLabel(removeMethodReturnLabel);
                 removeMethodILGenerator.Emit(OpCodes.Ret);

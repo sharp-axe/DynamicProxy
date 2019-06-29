@@ -3200,6 +3200,140 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
 
         #endregion Call with Throwing Exception
 
+        #region Event
+
+        [TestMethod]
+        public void TriggerEventOnTarget_IEventProxySubscribed_CallHandler()
+        {
+            var mock = new Mock<IEvent>();
+            var proxy = CreateProxyInstance(mock.Object);
+            var handlerInvoked = false;
+            EventHandler handler = (o, a) =>
+            {
+                handlerInvoked = true;
+            };
+            proxy.EventEmptyArgs += handler;
+
+            mock.Raise(m => m.EventEmptyArgs += null, EventArgs.Empty);
+
+            Assert.IsTrue(handlerInvoked);
+        }
+
+        [TestMethod]
+        public void TriggerEventOnTarget_IEventProxyUnsubscribed_CallHandler()
+        {
+            var mock = new Mock<IEvent>();
+            var proxy = CreateProxyInstance(mock.Object);
+            var handlerInvoked = false;
+            EventHandler handler = (o, a) =>
+            {
+                handlerInvoked = true;
+            };
+            proxy.EventEmptyArgs += handler;
+            proxy.EventEmptyArgs -= handler;
+
+            mock.Raise(m => m.EventEmptyArgs += null, EventArgs.Empty);
+
+            Assert.IsFalse(handlerInvoked);
+        }
+
+        [TestMethod]
+        public void TriggerEventOnTarget_IEventProxyWithBeforeDecorator_DecoratorInvoked()
+        {
+            var mock = new Mock<IEvent>();
+            var proxy = CreateProxyInstance(mock.Object);
+            bool decoratorInvoked = false;
+            Action<object, EventArgs> beforeDecorator = (o, a) =>
+            {
+                decoratorInvoked = true;
+            };
+            AddBeforeDecorator(proxy, "EventEmptyArgsEventDecorators0", beforeDecorator);
+            EventHandler handler = (o, a) =>
+            {
+                Assert.IsTrue(decoratorInvoked);
+            };
+            proxy.EventEmptyArgs += handler;
+
+            mock.Raise(m => m.EventEmptyArgs += null, EventArgs.Empty);
+
+            Assert.IsTrue(decoratorInvoked);
+        }
+
+        [TestMethod]
+        public void TriggerEventOnTarget_IEventProxyWithProxyDelegateCallingHandler_ProxyAndHandlerInvoked()
+        {
+            var mock = new Mock<IEvent>();
+            var proxy = CreateProxyInstance(mock.Object);
+            bool proxyInvoked = false;
+            Action<Action<object, EventArgs>, object, EventArgs> proxyDelegate = (h, o, a) =>
+            {
+                proxyInvoked = true;
+                h.Invoke(o, a);
+            };
+            SetProxy(proxy, "EventEmptyArgsEventProxy0", proxyDelegate);
+            bool handlerInvoked = false;
+            EventHandler handler = (o, a) =>
+            {
+                Assert.IsTrue(proxyInvoked);
+                handlerInvoked = true;
+            };
+            proxy.EventEmptyArgs += handler;
+
+            mock.Raise(m => m.EventEmptyArgs += null, EventArgs.Empty);
+
+            Assert.IsTrue(proxyInvoked);
+            Assert.IsTrue(handlerInvoked);
+        }
+
+        [TestMethod]
+        public void TriggerEventOnTarget_IEventProxyWithProxyDelegateNotCallingHandler_ProxyInvokedAndHandlerNotInvoked()
+        {
+            var mock = new Mock<IEvent>();
+            var proxy = CreateProxyInstance(mock.Object);
+            bool proxyInvoked = false;
+            Action<Action<object, EventArgs>, object, EventArgs> proxyDelegate = (h, o, a) =>
+            {
+                proxyInvoked = true;
+            };
+            SetProxy(proxy, "EventEmptyArgsEventProxy0", proxyDelegate);
+            bool handlerInvoked = false;
+            EventHandler handler = (o, a) =>
+            {
+                handlerInvoked = true;
+            };
+            proxy.EventEmptyArgs += handler;
+
+            mock.Raise(m => m.EventEmptyArgs += null, EventArgs.Empty);
+
+            Assert.IsTrue(proxyInvoked);
+            Assert.IsFalse(handlerInvoked);
+        }
+
+        [TestMethod]
+        public void TriggerEventOnTarget_IEventProxyWithAfterDecorator_DecoratorInvoked()
+        {
+            var mock = new Mock<IEvent>();
+            var proxy = CreateProxyInstance(mock.Object);
+            bool decoratorInvoked = false;
+            Action<object, EventArgs> beforeDecorator = (o, a) =>
+            {
+                decoratorInvoked = true;
+            };
+            AddAfterDecorator(proxy, "EventEmptyArgsEventDecorators0", beforeDecorator);
+            EventHandler handler = (o, a) =>
+            {
+                Assert.IsFalse(decoratorInvoked);
+            };
+            proxy.EventEmptyArgs += handler;
+
+            mock.Raise(m => m.EventEmptyArgs += null, EventArgs.Empty);
+
+            Assert.IsTrue(decoratorInvoked);
+        }
+
+        #endregion
+
+
         internal static T CreateProxyInstance<T>(T target)
         {
             return (T)Activator.CreateInstance(CreateTargetType(typeof(T)), target);
