@@ -43,10 +43,7 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy
 
             DefineTargetInterfaceMemebers();
 
-#warning Has not been finished
-            var type = typeBuilder.CreateType();
-
-            return type;
+            return typeBuilder.CreateType();
         }
 
         private void InitializeInfo()
@@ -134,7 +131,9 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy
                 memberInfo.DecoratorsLinkedListInstanceFieldInfo =
                     typeBuilder.DefineField(GetEventDecoratorsFieldName(eventInfo), GetEventDecoratorsFieldType(eventInfo), FieldAttributes.Private);
 
-                memberInfo.SubscribersListFieldInfo =
+                memberInfo.EventDisplayType = GetEventDisplayType(eventInfo);
+
+                memberInfo.SubscribersMapFieldInfo =
                     typeBuilder.DefineField(GetEventSubscribersFieldName(eventInfo), GetEventSubscribersFieldType(eventInfo), FieldAttributes.Private);
             }
         }
@@ -152,6 +151,56 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy
         private string GetEventSubscribersFieldName(EventInfo eventInfo)
         {
             return GetUnreservedMemberName($"{eventInfo.Name}EventSubscribers");
+        }
+
+        private Type GetEventDisplayType(EventInfo eventInfo)
+        {
+            var eventInvokeMethod = eventInfo.EventHandlerType.GetMethod("Invoke");
+            var eventInvokeMethodArguments = eventInvokeMethod.GetMethodArgumentsTypes();
+            var eventInvokeDelegateType = eventInvokeMethod.MakeGenericDelegateType();
+            var wrapperMethodDelegateType = eventInvokeDelegateType.ToEnumerable().Concat(eventInvokeMethodArguments).MakeGenericDelegateAction();
+
+            var displayType =
+                moduleBuilder.DefineType(
+                    GetEventDisplayTypeName(eventInfo),
+                   TypeAttributes.Class | TypeAttributes.Public,
+                   typeof(object));
+
+            var targetDelegateField = displayType.DefineField("target", eventInvokeDelegateType, FieldAttributes.Private);
+            var wrapperMethodField = displayType.DefineField("wrapper", wrapperMethodDelegateType, FieldAttributes.Private);
+
+            var constructor = displayType.DefineConstructor(MethodAttributes.Public, CallingConventions.Standard, new Type[] { eventInvokeDelegateType, wrapperMethodDelegateType });
+            var constructorILGenerator = constructor.GetILGenerator();
+            constructorILGenerator.Emit(OpCodes.Ldarg_0);
+            constructorILGenerator.Emit(OpCodes.Call, typeof(object).GetConstructor(new Type[0]));
+            constructorILGenerator.Emit(OpCodes.Ldarg_0);
+            constructorILGenerator.Emit(OpCodes.Ldarg_1);
+            constructorILGenerator.Emit(OpCodes.Stfld, targetDelegateField);
+            constructorILGenerator.Emit(OpCodes.Ldarg_0);
+            constructorILGenerator.Emit(OpCodes.Ldarg_2);
+            constructorILGenerator.Emit(OpCodes.Stfld, wrapperMethodField);
+            constructorILGenerator.Emit(OpCodes.Ret);
+
+            var invokeMethod =
+                displayType.DefineMethod(
+                    "Invoke",
+                    MethodAttributes.Public,
+                    typeof(void),
+                    eventInvokeMethodArguments);
+
+            var invokeMethodILGenerator = invokeMethod.GetILGenerator();
+            invokeMethodILGenerator.Emit(OpCodes.Ldfld, wrapperMethodField);
+            invokeMethodILGenerator.Emit(OpCodes.Ldfld, targetDelegateField);
+            invokeMethodILGenerator.EmitLoadArgumentsRange(0, eventInvokeMethodArguments.Length);
+            invokeMethodILGenerator.Emit(OpCodes.Callvirt, wrapperMethodDelegateType.GetMethod("Invoke"));
+            invokeMethodILGenerator.Emit(OpCodes.Ret);
+
+            return displayType.CreateType();
+        }
+
+        private string GetEventDisplayTypeName(EventInfo eventInfo)
+        {
+            return $"{GetTypeName()}__{eventInfo.Name}DisplayClass";
         }
 
         private void DefinePropertiesGettersInstanceFields()
@@ -250,8 +299,8 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy
             foreach (var ei in eventInfos)
             {
                 ILGenerator.Emit(OpCodes.Ldarg_0);
-                ILGenerator.Emit(OpCodes.Newobj, ei.SubscribersListFieldInfo.FieldType.GetConstructor(new Type[] { }));
-                ILGenerator.Emit(OpCodes.Stfld, ei.SubscribersListFieldInfo);
+                ILGenerator.Emit(OpCodes.Newobj, ei.SubscribersMapFieldInfo.FieldType.GetConstructor(new Type[] { }));
+                ILGenerator.Emit(OpCodes.Stfld, ei.SubscribersMapFieldInfo);
             }
 
             // Return
@@ -283,7 +332,88 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy
         {
             foreach (var kvp in eventsInfoToMemberInfoMap)
             {
-#warning Not implemented
+                var eventInfo = kvp.Key;
+                var memberInfo = kvp.Value;
+
+                var eventInvokeMethod = eventInfo.EventHandlerType.GetMethod("Invoke");
+                var eventInvokeMethodArguments = eventInvokeMethod.GetMethodArgumentsTypes();
+                var eventInvokeDelegateType = eventInvokeMethod.MakeGenericDelegateType();
+                var wrapperMethodDelegateType = eventInvokeDelegateType.ToEnumerable().Concat(eventInvokeMethodArguments).MakeGenericDelegateAction();
+
+                var wrapperMethod = DefineWrapperMethod(eventInfo.EventHandlerType.GetMethod("Invoke"), memberInfo, GetEventWrapperMethodName(eventInfo));
+
+                var addMethod = eventInfo.AddMethod;
+                var addMethodOverriden =
+                    typeBuilder.DefineMethod(
+                        addMethod.Name,
+                        MethodAttributes.Public | MethodAttributes.Virtual,
+                        addMethod.ReturnType,
+                        addMethod.GetMethodArgumentsTypes());
+
+                var addMethodILGenerator = addMethodOverriden.GetILGenerator();
+
+                addMethodILGenerator.DeclareLocal(eventInvokeDelegateType);
+
+                addMethodILGenerator.Emit(OpCodes.Ldarg_1);
+                addMethodILGenerator.Emit(OpCodes.Ldarg_0);
+                addMethodILGenerator.Emit(OpCodes.Ldvirtftn, wrapperMethod);
+                addMethodILGenerator.Emit(OpCodes.Newobj, wrapperMethodDelegateType.GetConstructor(new Type[] { typeof(Object), typeof(IntPtr) }));
+                addMethodILGenerator.Emit(OpCodes.Newobj, memberInfo.EventDisplayType.GetConstructor(new Type[] { eventInvokeDelegateType, wrapperMethodDelegateType }));
+
+                addMethodILGenerator.Emit(OpCodes.Ldvirtftn, memberInfo.EventDisplayType.GetMethod("Invoke"));
+                addMethodILGenerator.Emit(OpCodes.Newobj, eventInvokeDelegateType.GetConstructor(new Type[] { typeof(Object), typeof(IntPtr) }));
+                addMethodILGenerator.Emit(OpCodes.Stloc_0);
+
+                addMethodILGenerator.Emit(OpCodes.Ldarg_0);
+                addMethodILGenerator.Emit(OpCodes.Ldfld, memberInfo.SubscribersMapFieldInfo);
+                addMethodILGenerator.Emit(OpCodes.Ldarg_1);
+                addMethodILGenerator.Emit(OpCodes.Ldloc_0);
+                addMethodILGenerator.Emit(OpCodes.Callvirt, memberInfo.SubscribersMapFieldInfo.FieldType.GetMethod("Add"));
+
+                addMethodILGenerator.Emit(OpCodes.Ldarg_0);
+                addMethodILGenerator.Emit(OpCodes.Ldfld, targetFieldInfo);
+                addMethodILGenerator.Emit(OpCodes.Ldloc_0);
+                addMethodILGenerator.Emit(OpCodes.Callvirt, addMethod);
+
+                addMethodILGenerator.Emit(OpCodes.Ret);
+
+                typeBuilder.DefineMethodOverride(addMethodOverriden, addMethod);
+
+                var removeMethod = eventInfo.RemoveMethod;
+                var removeMethodOverriden =
+                    typeBuilder.DefineMethod(
+                        removeMethod.Name,
+                        MethodAttributes.Public | MethodAttributes.Virtual,
+                        removeMethod.ReturnType,
+                        removeMethod.GetMethodArgumentsTypes());
+
+                var removeMethodILGenerator = removeMethodOverriden.GetILGenerator();
+
+                var removeMethodReturnLabel = removeMethodILGenerator.DefineLabel();
+
+                removeMethodILGenerator.Emit(OpCodes.Ldarg_0);
+                removeMethodILGenerator.Emit(OpCodes.Ldfld, memberInfo.SubscribersMapFieldInfo);
+                removeMethodILGenerator.Emit(OpCodes.Ldarg_1);
+                removeMethodILGenerator.Emit(OpCodes.Callvirt, memberInfo.SubscribersMapFieldInfo.FieldType.GetMethod("ContainsKey"));
+                removeMethodILGenerator.Emit(OpCodes.Brfalse_S, removeMethodReturnLabel);
+
+                removeMethodILGenerator.Emit(OpCodes.Ldarg_0);
+                removeMethodILGenerator.Emit(OpCodes.Ldfld, targetFieldInfo);
+                removeMethodILGenerator.Emit(OpCodes.Ldarg_0);
+                removeMethodILGenerator.Emit(OpCodes.Ldfld, memberInfo.SubscribersMapFieldInfo);
+                removeMethodILGenerator.Emit(OpCodes.Ldarg_1);
+                removeMethodILGenerator.Emit(OpCodes.Callvirt, memberInfo.SubscribersMapFieldInfo.FieldType.GetProperty("Item").GetGetMethod());
+                removeMethodILGenerator.Emit(OpCodes.Callvirt, removeMethod);
+
+                removeMethodILGenerator.Emit(OpCodes.Ldarg_0);
+                removeMethodILGenerator.Emit(OpCodes.Ldfld, memberInfo.SubscribersMapFieldInfo);
+                removeMethodILGenerator.Emit(OpCodes.Ldarg_1);
+                removeMethodILGenerator.Emit(OpCodes.Callvirt, memberInfo.SubscribersMapFieldInfo.FieldType.GetMethod("Remove", new Type[] { eventInvokeDelegateType }));
+
+                removeMethodILGenerator.MarkLabel(removeMethodReturnLabel);
+                removeMethodILGenerator.Emit(OpCodes.Ret);
+
+                typeBuilder.DefineMethodOverride(removeMethodOverriden, removeMethod);
             }
         }
 
@@ -689,7 +819,8 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy
 
         private class EventMemberInfo : MemberInfo
         {
-            public FieldInfo SubscribersListFieldInfo { get; set; }
+            public Type EventDisplayType { get; set; }
+            public FieldInfo SubscribersMapFieldInfo { get; set; }
         }
     }
 }

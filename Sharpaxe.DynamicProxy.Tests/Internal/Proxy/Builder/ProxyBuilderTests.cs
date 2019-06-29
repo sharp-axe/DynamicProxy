@@ -78,6 +78,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
             var expectedFields =
                 ExpectedIEventProxyFields
                 .Concat(ExpectedIEventDecoratorsFields)
+                .Concat(ExpectedIEventSubscribersFields)
                 .Concat(new KeyValuePair<string, Type>("target", typeof(IEvent)))
                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
@@ -132,6 +133,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
             var expectedFields =
                 ExpectedIEventProxyFields
                 .Concat(ExpectedIEventDecoratorsFields)
+                .Concat(ExpectedIEventSubscribersFields)
                 .Concat(ExpectedIMethodProxyFields)
                 .Concat(ExpectedIMethodDecoratorsFields)
                 .Concat(ExpectedIPropertyGetterProxyFields)
