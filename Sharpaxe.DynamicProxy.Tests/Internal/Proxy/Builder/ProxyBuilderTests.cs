@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Collections.Concurrent;
+using Sharpaxe.DynamicProxy.Internal.Proxy.NameProvider;
 
 namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
 {
@@ -3341,7 +3342,7 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
 
         internal static Type CreateTargetType(Type targetType)
         {
-            return TypeRepository.GetOrAdd(targetType, t => new ProxyBuilder(t, Static.ModuleBinder.Value).CreateProxyType());
+            return TypeRepository.GetOrAdd(targetType, t => new ProxyBuilder(t, Static.ModuleBinder.Value, new MemberNameProviderCore()).CreateProxyType());
         }
 
         internal static ConcurrentDictionary<Type, Type> TypeRepository { get; } = new ConcurrentDictionary<Type, Type>();

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Sharpaxe.DynamicProxy.Internal.Proxy.NameProvider;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -12,6 +13,7 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy
         private readonly Type targetType;
         private readonly ModuleBuilder moduleBuilder;
         private readonly HashSet<string> reservedMembersNames;
+        private readonly IMemberNameProvider memberNameProvider;
 
         private TypeBuilder typeBuilder;
 
@@ -21,11 +23,12 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy
         private ReadOnlyDictionary<PropertyInfo, MemberInfo> propertyInfoToSetterMemberInfoMap;
         private ReadOnlyDictionary<EventInfo, EventMemberInfo> eventsInfoToMemberInfoMap;
 
-        public ProxyBuilder(Type targetType, ModuleBuilder moduleBuilder)
+        public ProxyBuilder(Type targetType, ModuleBuilder moduleBuilder, IMemberNameProvider memberNameProvider)
             : this()
         {
             this.targetType = targetType ?? throw new ArgumentNullException(nameof(targetType));
             this.moduleBuilder = moduleBuilder ?? throw new ArgumentNullException(nameof(moduleBuilder));
+            this.memberNameProvider = memberNameProvider ?? throw new ArgumentNullException(nameof(memberNameProvider));
         }
 
         private ProxyBuilder()
@@ -79,6 +82,11 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy
             return $"{targetType.Name}``_DynamicProxy";
         }
 
+        private string GetEventDisplayTypeName(EventInfo eventInfo)
+        {
+            return $"{GetTypeName()}__{eventInfo.Name}DisplayClass";
+        }
+
         private void DefineInstanceFields()
         {
             DefineTargetTypeInstanceField();
@@ -101,21 +109,17 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy
                 var memberInfo = kvp.Value;
 
                 memberInfo.ProxyInstanceFieldInfo =
-                    typeBuilder.DefineField(GetMethodProxyFieldName(methodInfo), GetMethodProxyType(methodInfo), FieldAttributes.Private);
+                    typeBuilder.DefineField(
+                        memberNameProvider.GetMethodProxyFieldName(methodInfo), 
+                        GetMethodProxyType(methodInfo), 
+                        FieldAttributes.Private);
 
                 memberInfo.DecoratorsLinkedListInstanceFieldInfo =
-                    typeBuilder.DefineField(GetMethodDecoratorsFieldName(methodInfo), GetMethodDecoratorsListType(methodInfo), FieldAttributes.Private);
+                    typeBuilder.DefineField(
+                        memberNameProvider.GetMethodDecoratorsFieldName(methodInfo), 
+                        GetMethodDecoratorsListType(methodInfo), 
+                        FieldAttributes.Private);
             }
-        }
-
-        private string GetMethodProxyFieldName(MethodInfo methodInfo)
-        {
-            return GetUnreservedMemberName($"{methodInfo.Name}MethodProxy");
-        }
-
-        private string GetMethodDecoratorsFieldName(MethodInfo methodInfo)
-        {
-            return GetUnreservedMemberName($"{methodInfo.Name}MethodDecorators");
         }
 
         private void DefineEventsInstanceFields()
@@ -126,31 +130,24 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy
                 var memberInfo = kvp.Value;
 
                 memberInfo.ProxyInstanceFieldInfo =
-                    typeBuilder.DefineField(GetEventProxyFieldName(eventInfo), GetEventProxyFieldType(eventInfo), FieldAttributes.Private);
+                    typeBuilder.DefineField(
+                        memberNameProvider.GetEventProxyFieldName(eventInfo), 
+                        GetEventProxyFieldType(eventInfo), 
+                        FieldAttributes.Private);
 
                 memberInfo.DecoratorsLinkedListInstanceFieldInfo =
-                    typeBuilder.DefineField(GetEventDecoratorsFieldName(eventInfo), GetEventDecoratorsFieldType(eventInfo), FieldAttributes.Private);
+                    typeBuilder.DefineField(memberNameProvider.GetEventDecoratorsFieldName(eventInfo), 
+                    GetEventDecoratorsFieldType(eventInfo), 
+                    FieldAttributes.Private);
 
                 memberInfo.EventDisplayType = GetEventDisplayType(eventInfo);
 
                 memberInfo.SubscribersMapFieldInfo =
-                    typeBuilder.DefineField(GetEventSubscribersFieldName(eventInfo), GetEventSubscribersFieldType(eventInfo), FieldAttributes.Private);
+                    typeBuilder.DefineField(
+                        memberNameProvider.GetEventSubscribersFieldName(eventInfo), 
+                        GetEventSubscribersFieldType(eventInfo), 
+                        FieldAttributes.Private);
             }
-        }
-
-        private string GetEventProxyFieldName(EventInfo eventInfo)
-        {
-            return GetUnreservedMemberName($"{eventInfo.Name}EventProxy");
-        }
-
-        private string GetEventDecoratorsFieldName(EventInfo eventInfo)
-        {
-            return GetUnreservedMemberName($"{eventInfo.Name}EventDecorators");
-        }
-
-        private string GetEventSubscribersFieldName(EventInfo eventInfo)
-        {
-            return GetUnreservedMemberName($"{eventInfo.Name}EventSubscribers");
         }
 
         private Type GetEventDisplayType(EventInfo eventInfo)
@@ -200,11 +197,6 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy
             return displayType.CreateType();
         }
 
-        private string GetEventDisplayTypeName(EventInfo eventInfo)
-        {
-            return $"{GetTypeName()}__{eventInfo.Name}DisplayClass";
-        }
-
         private void DefinePropertiesGettersInstanceFields()
         {
             foreach (var kvp in propertyInfoToGetterMemberInfoMap)
@@ -213,21 +205,17 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy
                 var memberInfo = kvp.Value;
 
                 memberInfo.ProxyInstanceFieldInfo =
-                    typeBuilder.DefineField(GetPropertyGetterProxyFieldName(propertyInfo), GetPropertyGetterProxyFieldType(propertyInfo), FieldAttributes.Private);
+                    typeBuilder.DefineField(
+                        memberNameProvider.GetPropertyGetterProxyFieldName(propertyInfo), 
+                        GetPropertyGetterProxyFieldType(propertyInfo), 
+                        FieldAttributes.Private);
 
                 memberInfo.DecoratorsLinkedListInstanceFieldInfo =
-                    typeBuilder.DefineField(GetPropertyGetterDecoratorsFieldName(propertyInfo), GetPropertyGetterDecoratorsFieldType(propertyInfo), FieldAttributes.Private);
+                    typeBuilder.DefineField(
+                        memberNameProvider.GetPropertyGetterDecoratorsFieldName(propertyInfo), 
+                        GetPropertyGetterDecoratorsFieldType(propertyInfo), 
+                        FieldAttributes.Private);
             }
-        }
-
-        private string GetPropertyGetterProxyFieldName(PropertyInfo propertyInfo)
-        {
-            return GetUnreservedMemberName($"{propertyInfo.Name}GetterProxy");
-        }
-
-        private string GetPropertyGetterDecoratorsFieldName(PropertyInfo propertyInfo)
-        {
-            return GetUnreservedMemberName($"{propertyInfo.Name}GetterDecorators");
         }
 
         private void DefinePropertiesSettersInstanceFields()
@@ -238,35 +226,17 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy
                 var memberInfo = kvp.Value;
 
                 memberInfo.ProxyInstanceFieldInfo =
-                    typeBuilder.DefineField(GetPropertySetterProxyFieldName(propertyInfo), GetPropertySetterProxyFieldType(propertyInfo), FieldAttributes.Private);
+                    typeBuilder.DefineField(
+                        memberNameProvider.GetPropertySetterProxyFieldName(propertyInfo), 
+                        GetPropertySetterProxyFieldType(propertyInfo), 
+                        FieldAttributes.Private);
 
                 memberInfo.DecoratorsLinkedListInstanceFieldInfo =
-                    typeBuilder.DefineField(GetPropertySetterDecoratorsFieldName(propertyInfo), GetPropertySetterDecoratorsFieldType(propertyInfo), FieldAttributes.Private);
+                    typeBuilder.DefineField(
+                        memberNameProvider.GetPropertySetterDecoratorsFieldName(propertyInfo), 
+                        GetPropertySetterDecoratorsFieldType(propertyInfo), 
+                        FieldAttributes.Private);
             }
-        }
-
-        private string GetPropertySetterProxyFieldName(PropertyInfo propertyInfo)
-        {
-            return GetUnreservedMemberName($"{propertyInfo.Name}SetterProxy");
-        }
-
-        private string GetPropertySetterDecoratorsFieldName(PropertyInfo propertyInfo)
-        {
-            return GetUnreservedMemberName($"{propertyInfo.Name}SetterDecorators");
-        }
-
-        private string GetUnreservedMemberName(string memberNamePattern)
-        {
-            string memberName;
-            int memberIndex = 0;
-            do
-            {
-                memberName = $"{memberNamePattern}{memberIndex++}";
-            }
-            while (reservedMembersNames.Contains(memberName));
-
-            reservedMembersNames.Add(memberName);
-            return memberName;
         }
 
         private void DefineConstructor()
@@ -321,13 +291,8 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy
         {
             foreach (var kvp in methodInfoToMemberInfoMap)
             {
-                DefineMethodOverride(kvp.Key, kvp.Value, GetMethodWrapperMethodName(kvp.Key));
+                DefineMethodOverride(kvp.Key, kvp.Value, memberNameProvider.GetMethodWrapperMethodName(kvp.Key));
             }
-        }
-
-        private string GetMethodWrapperMethodName(MethodInfo methodInfo)
-        {
-            return GetUnreservedMemberName($"{methodInfo.Name}MethodWrapper");
         }
 
         private void DefineInterfaceEvents()
@@ -342,7 +307,7 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy
                 var eventInvokeDelegateType = eventInvokeMethod.MakeGenericDelegateType();
                 var wrapperMethodDelegateType = eventInvokeDelegateType.ToEnumerable().Concat(eventInvokeMethodArguments).MakeGenericDelegateAction();
 
-                var wrapperMethod = DefineWrapperMethod(eventInvokeMethod, memberInfo, GetEventWrapperMethodName(eventInfo));
+                var wrapperMethod = DefineWrapperMethod(eventInvokeMethod, memberInfo, memberNameProvider.GetEventWrapperMethodName(eventInfo));
 
                 var addMethod = eventInfo.AddMethod;
                 var addMethodOverriden =
@@ -421,35 +386,20 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy
             }
         }
 
-        private string GetEventWrapperMethodName(EventInfo eventInfo)
-        {
-            return GetUnreservedMemberName($"{eventInfo.Name}EventWrapper");
-        }
-
         private void DefineInterfacePropertiesGetters()
         {
             foreach (var kvp in propertyInfoToGetterMemberInfoMap)
             {
-                DefineMethodOverride(kvp.Key.GetGetMethod(), kvp.Value, GetPropertyGetterWrapperMethodName(kvp.Key));
+                DefineMethodOverride(kvp.Key.GetGetMethod(), kvp.Value, memberNameProvider.GetPropertyGetterWrapperMethodName(kvp.Key));
             }
-        }
-
-        private string GetPropertyGetterWrapperMethodName(PropertyInfo propertyInfo)
-        {
-            return GetUnreservedMemberName($"{propertyInfo.Name}GetterWrapper");
         }
 
         private void DefineInterfacePropertiesSetters()
         {
             foreach (var kvp in propertyInfoToSetterMemberInfoMap)
             {
-                DefineMethodOverride(kvp.Key.GetSetMethod(), kvp.Value, GetPropertySetterWrapperMethodName(kvp.Key));
+                DefineMethodOverride(kvp.Key.GetSetMethod(), kvp.Value, memberNameProvider.GetPropertySetterWrapperMethodName(kvp.Key));
             }
-        }
-
-        private string GetPropertySetterWrapperMethodName(PropertyInfo propertyInfo)
-        {
-            return GetUnreservedMemberName($"{propertyInfo.Name}SetterWrapper");
         }
 
         private void DefineMethodOverride(MethodInfo methodInfo, MemberInfo memberInfo, string methodName)
