@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Reflection;
+using System.Reflection.Emit;
+using System.Threading;
 
 namespace Sharpaxe.DynamicProxy
 {
@@ -12,7 +14,6 @@ namespace Sharpaxe.DynamicProxy
         where T : class
     {
         private readonly Type type;
-        private readonly ITypeRepository typeRepository;
         private readonly Lazy<TypeConfiguration> configuration;
 
         public ReflectionProxyBuilder()
@@ -23,7 +24,7 @@ namespace Sharpaxe.DynamicProxy
 
         public T Build(T instance)
         {
-            (object proxy, IProxyConfigurator proxyConfigurator) = typeRepository.CreateConfigurableProxy(type, instance);
+            (object proxy, IProxyConfigurator proxyConfigurator) = TypeRepository.Value.CreateConfigurableProxy(type, instance);
 
             ConfigurePropertiesGetter(proxyConfigurator);
             ConfigurePropertiesSetter(proxyConfigurator);
@@ -113,7 +114,7 @@ namespace Sharpaxe.DynamicProxy
             AddPairPropertyGetterDecorators(ResolvePropertyGetterPattern(pattern), beforeDecorator, afterDecorator);
         }
 
-        public void SetPropertyGetterProxy<TValue>(Func<T, TValue> pattern, Func<T, TValue> proxy)
+        public void SetPropertyGetterProxy<TValue>(Func<T, TValue> pattern, Func<Func<TValue>, TValue> proxy)
         {
             SetPropertyGetterProxy(ResolvePropertyGetterPattern(pattern), proxy);
         }
@@ -133,7 +134,7 @@ namespace Sharpaxe.DynamicProxy
             AddPairPropertySetterDecorator(ResolvePropertySetterPattern(pattern), beforeDecorator, afterDecorator);
         }
 
-        public void SetPropertySetterProxy<TValue>(Action<T, TValue> pattern, Action<T, TValue> proxy)
+        public void SetPropertySetterProxy<TValue>(Action<T, TValue> pattern, Action<Action<TValue>, TValue> proxy)
         {
             SetPropertySetterProxy(ResolvePropertySetterPattern(pattern), proxy);
         }
@@ -153,7 +154,7 @@ namespace Sharpaxe.DynamicProxy
             AddPairPropertyGetterDecorators(ResolveIndexerGetterPattern(pattern), beforeDecorator, afterDecorator);
         }
 
-        public void SetIndexerGetterProxy<TIndex, TValue>(Func<T, TIndex, TValue> pattern, Func<T, TIndex, TValue> proxy)
+        public void SetIndexerGetterProxy<TIndex, TValue>(Func<T, TIndex, TValue> pattern, Func<Func<TIndex, TValue>, TIndex, TValue> proxy)
         {
             SetPropertyGetterProxy(ResolveIndexerGetterPattern(pattern), proxy);
         }
@@ -173,7 +174,7 @@ namespace Sharpaxe.DynamicProxy
             AddPairPropertySetterDecorator(ResolveIndexerSetterPattern(pattern), beforeDecorator, afterDecorator);
         }
 
-        public void SetIndexerSetterProxy<TIndex, TValue>(Action<T, TIndex, TValue> pattern, Action<T, TIndex, TValue> proxy)
+        public void SetIndexerSetterProxy<TIndex, TValue>(Action<T, TIndex, TValue> pattern, Action<Action<TIndex, TValue>, TIndex, TValue> proxy)
         {
             SetPropertySetterProxy(ResolveIndexerSetterPattern(pattern), proxy);
         }
@@ -198,404 +199,404 @@ namespace Sharpaxe.DynamicProxy
             SetEventProxy(ResolveEventPattern(pattern), decorator);
         }
 
-        public void AddAfterMethodDecorator(Func<T, Action> pattern, Action decorator)
+        public void AddAfterActionDecorator(Func<T, Action> pattern, Action decorator)
         {
             AddAfterMethodDecorator(ResolveMethodPattern(pattern), decorator);
         }
 
-        public void AddAfterMethodDecorator<TArg1>(Func<T, Action<TArg1>> pattern, Action<TArg1> decorator)
+        public void AddAfterActionDecorator<TArg1>(Func<T, Action<TArg1>> pattern, Action<TArg1> decorator)
         {
             AddAfterMethodDecorator(ResolveMethodPattern(pattern), decorator);
         }
 
-        public void AddAfterMethodDecorator<TArg1, TArg2>(Func<T, Action<TArg1, TArg2>> pattern, Action<TArg1, TArg2> decorator)
+        public void AddAfterActionDecorator<TArg1, TArg2>(Func<T, Action<TArg1, TArg2>> pattern, Action<TArg1, TArg2> decorator)
         {
             AddAfterMethodDecorator(ResolveMethodPattern(pattern), decorator);
         }
 
-        public void AddAfterMethodDecorator<TArg1, TArg2, TArg3>(Func<T, Action<TArg1, TArg2, TArg3>> pattern, Action<TArg1, TArg2, TArg3> decorator)
+        public void AddAfterActionDecorator<TArg1, TArg2, TArg3>(Func<T, Action<TArg1, TArg2, TArg3>> pattern, Action<TArg1, TArg2, TArg3> decorator)
         {
             AddAfterMethodDecorator(ResolveMethodPattern(pattern), decorator);
         }
 
-        public void AddAfterMethodDecorator<TArg1, TArg2, TArg3, TArg4>(Func<T, Action<TArg1, TArg2, TArg3, TArg4>> pattern, Action<TArg1, TArg2, TArg3, TArg4> decorator)
+        public void AddAfterActionDecorator<TArg1, TArg2, TArg3, TArg4>(Func<T, Action<TArg1, TArg2, TArg3, TArg4>> pattern, Action<TArg1, TArg2, TArg3, TArg4> decorator)
         {
             AddAfterMethodDecorator(ResolveMethodPattern(pattern), decorator);
         }
 
-        public void AddAfterMethodDecorator<TArg1, TArg2, TArg3, TArg4, TArg5>(Func<T, Action<TArg1, TArg2, TArg3, TArg4, TArg5>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5> decorator)
+        public void AddAfterActionDecorator<TArg1, TArg2, TArg3, TArg4, TArg5>(Func<T, Action<TArg1, TArg2, TArg3, TArg4, TArg5>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5> decorator)
         {
             AddAfterMethodDecorator(ResolveMethodPattern(pattern), decorator);
         }
 
-        public void AddAfterMethodDecorator<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6>(Func<T, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6> decorator)
+        public void AddAfterActionDecorator<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6>(Func<T, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6> decorator)
         {
             AddAfterMethodDecorator(ResolveMethodPattern(pattern), decorator);
         }
 
-        public void AddAfterMethodDecorator<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7>(Func<T, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7> decorator)
+        public void AddAfterActionDecorator<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7>(Func<T, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7> decorator)
         {
             AddAfterMethodDecorator(ResolveMethodPattern(pattern), decorator);
         }
 
-        public void AddAfterMethodDecorator<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8>(Func<T, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8> decorator)
+        public void AddAfterActionDecorator<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8>(Func<T, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8> decorator)
         {
             AddAfterMethodDecorator(ResolveMethodPattern(pattern), decorator);
         }
 
-        public void AddAfterMethodDecorator<TReturn>(Func<T, Func<TReturn>> pattern, Action<TReturn> decorator)
+        public void AddAfterFunctionDecorator<TReturn>(Func<T, Func<TReturn>> pattern, Action<TReturn> decorator)
         {
             AddAfterMethodDecorator(ResolveMethodPattern(pattern), decorator);
         }
 
-        public void AddAfterMethodDecorator<TArg1, TReturn>(Func<T, Func<TArg1, TReturn>> pattern, Action<TArg1, TReturn> decorator)
+        public void AddAfterFunctionDecorator<TArg1, TReturn>(Func<T, Func<TArg1, TReturn>> pattern, Action<TArg1, TReturn> decorator)
         {
             AddAfterMethodDecorator(ResolveMethodPattern(pattern), decorator);
         }
 
-        public void AddAfterMethodDecorator<TArg1, TArg2, TReturn>(Func<T, Func<TArg1, TArg2, TReturn>> pattern, Action<TArg1, TArg2, TReturn> decorator)
+        public void AddAfterFunctionDecorator<TArg1, TArg2, TReturn>(Func<T, Func<TArg1, TArg2, TReturn>> pattern, Action<TArg1, TArg2, TReturn> decorator)
         {
             AddAfterMethodDecorator(ResolveMethodPattern(pattern), decorator);
         }
 
-        public void AddAfterMethodDecorator<TArg1, TArg2, TArg3, TReturn>(Func<T, Func<TArg1, TArg2, TArg3, TReturn>> pattern, Action<TArg1, TArg2, TArg3, TReturn> decorator)
+        public void AddAfterFunctionDecorator<TArg1, TArg2, TArg3, TReturn>(Func<T, Func<TArg1, TArg2, TArg3, TReturn>> pattern, Action<TArg1, TArg2, TArg3, TReturn> decorator)
         {
             AddAfterMethodDecorator(ResolveMethodPattern(pattern), decorator);
         }
 
-        public void AddAfterMethodDecorator<TArg1, TArg2, TArg3, TArg4, TReturn>(Func<T, Func<TArg1, TArg2, TArg3, TArg4, TReturn>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TReturn> decorator)
+        public void AddAfterFunctionDecorator<TArg1, TArg2, TArg3, TArg4, TReturn>(Func<T, Func<TArg1, TArg2, TArg3, TArg4, TReturn>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TReturn> decorator)
         {
             AddAfterMethodDecorator(ResolveMethodPattern(pattern), decorator);
         }
 
-        public void AddAfterMethodDecorator<TArg1, TArg2, TArg3, TArg4, TArg5, TReturn>(Func<T, Func<TArg1, TArg2, TArg3, TArg4, TArg5, TReturn>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TReturn> decorator)
+        public void AddAfterFunctionDecorator<TArg1, TArg2, TArg3, TArg4, TArg5, TReturn>(Func<T, Func<TArg1, TArg2, TArg3, TArg4, TArg5, TReturn>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TReturn> decorator)
         {
             AddAfterMethodDecorator(ResolveMethodPattern(pattern), decorator);
         }
 
-        public void AddAfterMethodDecorator<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TReturn>(Func<T, Func<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TReturn>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TReturn> decorator)
+        public void AddAfterFunctionDecorator<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TReturn>(Func<T, Func<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TReturn>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TReturn> decorator)
         {
             AddAfterMethodDecorator(ResolveMethodPattern(pattern), decorator);
         }
 
-        public void AddAfterMethodDecorator<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TReturn>(Func<T, Func<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TReturn>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TReturn> decorator)
+        public void AddAfterFunctionDecorator<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TReturn>(Func<T, Func<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TReturn>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TReturn> decorator)
         {
             AddAfterMethodDecorator(ResolveMethodPattern(pattern), decorator);
         }
 
-        public void AddAfterMethodDecorator<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8, TReturn>(Func<T, Func<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8, TReturn>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8, TReturn> decorator)
+        public void AddAfterFunctionDecorator<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8, TReturn>(Func<T, Func<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8, TReturn>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8, TReturn> decorator)
         {
             AddAfterMethodDecorator(ResolveMethodPattern(pattern), decorator);
         }
 
-        public void AddBeforeMethodDecorator(Func<T, Action> pattern, Action decorator)
+        public void AddBeforeActionDecorator(Func<T, Action> pattern, Action decorator)
         {
             AddBeforeMethodDecorator(ResolveMethodPattern(pattern), decorator);
         }
 
-        public void AddBeforeMethodDecorator<TArg1>(Func<T, Action<TArg1>> pattern, Action<TArg1> decorator)
+        public void AddBeforeActionDecorator<TArg1>(Func<T, Action<TArg1>> pattern, Action<TArg1> decorator)
         {
             AddBeforeMethodDecorator(ResolveMethodPattern(pattern), decorator);
         }
 
-        public void AddBeforeMethodDecorator<TArg1, TArg2>(Func<T, Action<TArg1, TArg2>> pattern, Action<TArg1, TArg2> decorator)
+        public void AddBeforeActionDecorator<TArg1, TArg2>(Func<T, Action<TArg1, TArg2>> pattern, Action<TArg1, TArg2> decorator)
         {
             AddBeforeMethodDecorator(ResolveMethodPattern(pattern), decorator);
         }
 
-        public void AddBeforeMethodDecorator<TArg1, TArg2, TArg3>(Func<T, Action<TArg1, TArg2, TArg3>> pattern, Action<TArg1, TArg2, TArg3> decorator)
+        public void AddBeforeActionDecorator<TArg1, TArg2, TArg3>(Func<T, Action<TArg1, TArg2, TArg3>> pattern, Action<TArg1, TArg2, TArg3> decorator)
         {
             AddBeforeMethodDecorator(ResolveMethodPattern(pattern), decorator);
         }
 
-        public void AddBeforeMethodDecorator<TArg1, TArg2, TArg3, TArg4>(Func<T, Action<TArg1, TArg2, TArg3, TArg4>> pattern, Action<TArg1, TArg2, TArg3, TArg4> decorator)
+        public void AddBeforeActionDecorator<TArg1, TArg2, TArg3, TArg4>(Func<T, Action<TArg1, TArg2, TArg3, TArg4>> pattern, Action<TArg1, TArg2, TArg3, TArg4> decorator)
         {
             AddBeforeMethodDecorator(ResolveMethodPattern(pattern), decorator);
         }
 
-        public void AddBeforeMethodDecorator<TArg1, TArg2, TArg3, TArg4, TArg5>(Func<T, Action<TArg1, TArg2, TArg3, TArg4, TArg5>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5> decorator)
+        public void AddBeforeActionDecorator<TArg1, TArg2, TArg3, TArg4, TArg5>(Func<T, Action<TArg1, TArg2, TArg3, TArg4, TArg5>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5> decorator)
         {
             AddBeforeMethodDecorator(ResolveMethodPattern(pattern), decorator);
         }
 
-        public void AddBeforeMethodDecorator<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6>(Func<T, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6> decorator)
+        public void AddBeforeActionDecorator<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6>(Func<T, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6> decorator)
         {
             AddBeforeMethodDecorator(ResolveMethodPattern(pattern), decorator);
         }
 
-        public void AddBeforeMethodDecorator<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7>(Func<T, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7> decorator)
+        public void AddBeforeActionDecorator<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7>(Func<T, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7> decorator)
         {
             AddBeforeMethodDecorator(ResolveMethodPattern(pattern), decorator);
         }
 
-        public void AddBeforeMethodDecorator<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8>(Func<T, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8> decorator)
+        public void AddBeforeActionDecorator<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8>(Func<T, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8> decorator)
         {
             AddBeforeMethodDecorator(ResolveMethodPattern(pattern), decorator);
         }
 
-        public void AddBeforeMethodDecorator<TReturn>(Func<T, Func<TReturn>> pattern, Action decorator)
+        public void AddBeforeFunctionDecorator<TReturn>(Func<T, Func<TReturn>> pattern, Action decorator)
         {
             AddBeforeMethodDecorator(ResolveMethodPattern(pattern), decorator);
         }
 
-        public void AddBeforeMethodDecorator<TArg1, TReturn>(Func<T, Func<TArg1, TReturn>> pattern, Action<TArg1> decorator)
+        public void AddBeforeFunctionDecorator<TArg1, TReturn>(Func<T, Func<TArg1, TReturn>> pattern, Action<TArg1> decorator)
         {
             AddBeforeMethodDecorator(ResolveMethodPattern(pattern), decorator);
         }
 
-        public void AddBeforeMethodDecorator<TArg1, TArg2, TReturn>(Func<T, Func<TArg1, TArg2, TReturn>> pattern, Action<TArg1, TArg2> decorator)
+        public void AddBeforeFunctionDecorator<TArg1, TArg2, TReturn>(Func<T, Func<TArg1, TArg2, TReturn>> pattern, Action<TArg1, TArg2> decorator)
         {
             AddBeforeMethodDecorator(ResolveMethodPattern(pattern), decorator);
         }
 
-        public void AddBeforeMethodDecorator<TArg1, TArg2, TArg3, TReturn>(Func<T, Func<TArg1, TArg2, TArg3, TReturn>> pattern, Action<TArg1, TArg2, TArg3> decorator)
+        public void AddBeforeFunctionDecorator<TArg1, TArg2, TArg3, TReturn>(Func<T, Func<TArg1, TArg2, TArg3, TReturn>> pattern, Action<TArg1, TArg2, TArg3> decorator)
         {
             AddBeforeMethodDecorator(ResolveMethodPattern(pattern), decorator);
         }
 
-        public void AddBeforeMethodDecorator<TArg1, TArg2, TArg3, TArg4, TReturn>(Func<T, Func<TArg1, TArg2, TArg3, TArg4, TReturn>> pattern, Action<TArg1, TArg2, TArg3, TArg4> decorator)
+        public void AddBeforeFunctionDecorator<TArg1, TArg2, TArg3, TArg4, TReturn>(Func<T, Func<TArg1, TArg2, TArg3, TArg4, TReturn>> pattern, Action<TArg1, TArg2, TArg3, TArg4> decorator)
         {
             AddBeforeMethodDecorator(ResolveMethodPattern(pattern), decorator);
         }
 
-        public void AddBeforeMethodDecorator<TArg1, TArg2, TArg3, TArg4, TArg5, TReturn>(Func<T, Func<TArg1, TArg2, TArg3, TArg4, TArg5, TReturn>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5> decorator)
+        public void AddBeforeFunctionDecorator<TArg1, TArg2, TArg3, TArg4, TArg5, TReturn>(Func<T, Func<TArg1, TArg2, TArg3, TArg4, TArg5, TReturn>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5> decorator)
         {
             AddBeforeMethodDecorator(ResolveMethodPattern(pattern), decorator);
         }
 
-        public void AddBeforeMethodDecorator<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TReturn>(Func<T, Func<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TReturn>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6> decorator)
+        public void AddBeforeFunctionDecorator<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TReturn>(Func<T, Func<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TReturn>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6> decorator)
         {
             AddBeforeMethodDecorator(ResolveMethodPattern(pattern), decorator);
         }
 
-        public void AddBeforeMethodDecorator<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TReturn>(Func<T, Func<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TReturn>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7> decorator)
+        public void AddBeforeFunctionDecorator<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TReturn>(Func<T, Func<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TReturn>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7> decorator)
         {
             AddBeforeMethodDecorator(ResolveMethodPattern(pattern), decorator);
         }
 
-        public void AddBeforeMethodDecorator<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8, TReturn>(Func<T, Func<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8, TReturn>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8> decorator)
+        public void AddBeforeFunctionDecorator<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8, TReturn>(Func<T, Func<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8, TReturn>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8> decorator)
         {
             AddBeforeMethodDecorator(ResolveMethodPattern(pattern), decorator);
         }
 
-        public void AddPairMethodDecorators(Func<T, Action> pattern, Action beforeDecorator, Action afterDecorator)
+        public void AddPairActionDecorators(Func<T, Action> pattern, Action beforeDecorator, Action afterDecorator)
         {
             AddPairMethodDecorators(ResolveMethodPattern(pattern), beforeDecorator, afterDecorator);
         }
 
-        public void AddPairMethodDecorators<TArg1>(Func<T, Action<TArg1>> pattern, Action<TArg1> beforeDecorator, Action<TArg1> afterDecorator)
+        public void AddPairActionDecorators<TArg1>(Func<T, Action<TArg1>> pattern, Action<TArg1> beforeDecorator, Action<TArg1> afterDecorator)
         {
             AddPairMethodDecorators(ResolveMethodPattern(pattern), beforeDecorator, afterDecorator);
         }
 
-        public void AddPairMethodDecorators<TArg1, TArg2>(Func<T, Action<TArg1, TArg2>> pattern, Action<TArg1, TArg2> beforeDecorator, Action<TArg1, TArg2> afterDecorator)
+        public void AddPairActionDecorators<TArg1, TArg2>(Func<T, Action<TArg1, TArg2>> pattern, Action<TArg1, TArg2> beforeDecorator, Action<TArg1, TArg2> afterDecorator)
         {
             AddPairMethodDecorators(ResolveMethodPattern(pattern), beforeDecorator, afterDecorator);
         }
 
-        public void AddPairMethodDecorators<TArg1, TArg2, TArg3>(Func<T, Action<TArg1, TArg2, TArg3>> pattern, Action<TArg1, TArg2, TArg3> beforeDecorator, Action<TArg1, TArg2, TArg3> afterDecorator)
+        public void AddPairActionDecorators<TArg1, TArg2, TArg3>(Func<T, Action<TArg1, TArg2, TArg3>> pattern, Action<TArg1, TArg2, TArg3> beforeDecorator, Action<TArg1, TArg2, TArg3> afterDecorator)
         {
             AddPairMethodDecorators(ResolveMethodPattern(pattern), beforeDecorator, afterDecorator);
         }
 
-        public void AddPairMethodDecorators<TArg1, TArg2, TArg3, TArg4>(Func<T, Action<TArg1, TArg2, TArg3, TArg4>> pattern, Action<TArg1, TArg2, TArg3, TArg4> beforeDecorator, Action<TArg1, TArg2, TArg3, TArg4> afterDecorator)
+        public void AddPairActionDecorators<TArg1, TArg2, TArg3, TArg4>(Func<T, Action<TArg1, TArg2, TArg3, TArg4>> pattern, Action<TArg1, TArg2, TArg3, TArg4> beforeDecorator, Action<TArg1, TArg2, TArg3, TArg4> afterDecorator)
         {
             AddPairMethodDecorators(ResolveMethodPattern(pattern), beforeDecorator, afterDecorator);
         }
 
-        public void AddPairMethodDecorators<TArg1, TArg2, TArg3, TArg4, TArg5>(Func<T, Action<TArg1, TArg2, TArg3, TArg4, TArg5>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5> beforeDecorator, Action<TArg1, TArg2, TArg3, TArg4, TArg5> afterDecorator)
+        public void AddPairActionDecorators<TArg1, TArg2, TArg3, TArg4, TArg5>(Func<T, Action<TArg1, TArg2, TArg3, TArg4, TArg5>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5> beforeDecorator, Action<TArg1, TArg2, TArg3, TArg4, TArg5> afterDecorator)
         {
             AddPairMethodDecorators(ResolveMethodPattern(pattern), beforeDecorator, afterDecorator);
         }
 
-        public void AddPairMethodDecorators<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6>(Func<T, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6> beforeDecorator, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6> afterDecorator)
+        public void AddPairActionDecorators<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6>(Func<T, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6> beforeDecorator, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6> afterDecorator)
         {
             AddPairMethodDecorators(ResolveMethodPattern(pattern), beforeDecorator, afterDecorator);
         }
 
-        public void AddPairMethodDecorators<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7>(Func<T, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7> beforeDecorator, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7> afterDecorator)
+        public void AddPairActionDecorators<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7>(Func<T, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7> beforeDecorator, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7> afterDecorator)
         {
             AddPairMethodDecorators(ResolveMethodPattern(pattern), beforeDecorator, afterDecorator);
         }
 
-        public void AddPairMethodDecorators<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8>(Func<T, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8> beforeDecorator, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8> afterDecorator)
+        public void AddPairActionDecorators<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8>(Func<T, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8> beforeDecorator, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8> afterDecorator)
         {
             AddPairMethodDecorators(ResolveMethodPattern(pattern), beforeDecorator, afterDecorator);
         }
 
-        public void AddPairMethodDecorators<TReturn>(Func<T, Func<TReturn>> pattern, Action beforeDecorator, Action<TReturn> afterDecorator)
+        public void AddPairFunctionDecorators<TReturn>(Func<T, Func<TReturn>> pattern, Action beforeDecorator, Action<TReturn> afterDecorator)
         {
             AddPairMethodDecorators(ResolveMethodPattern(pattern), beforeDecorator, afterDecorator);
         }
 
-        public void AddPairMethodDecorators<TArg1, TReturn>(Func<T, Func<TArg1, TReturn>> pattern, Action<TArg1> beforeDecorator, Action<TArg1, TReturn> afterDecorator)
+        public void AddPairFunctionDecorators<TArg1, TReturn>(Func<T, Func<TArg1, TReturn>> pattern, Action<TArg1> beforeDecorator, Action<TArg1, TReturn> afterDecorator)
         {
             AddPairMethodDecorators(ResolveMethodPattern(pattern), beforeDecorator, afterDecorator);
         }
 
-        public void AddPairMethodDecorators<TArg1, TArg2, TReturn>(Func<T, Func<TArg1, TArg2, TReturn>> pattern, Action<TArg1, TArg2> beforeDecorator, Action<TArg1, TArg2, TReturn> afterDecorator)
+        public void AddPairFunctionDecorators<TArg1, TArg2, TReturn>(Func<T, Func<TArg1, TArg2, TReturn>> pattern, Action<TArg1, TArg2> beforeDecorator, Action<TArg1, TArg2, TReturn> afterDecorator)
         {
             AddPairMethodDecorators(ResolveMethodPattern(pattern), beforeDecorator, afterDecorator);
         }
 
-        public void AddPairMethodDecorators<TArg1, TArg2, TArg3, TReturn>(Func<T, Func<TArg1, TArg2, TArg3, TReturn>> pattern, Action<TArg1, TArg2, TArg3> beforeDecorator, Action<TArg1, TArg2, TArg3, TReturn> afterDecorator)
+        public void AddPairFunctionDecorators<TArg1, TArg2, TArg3, TReturn>(Func<T, Func<TArg1, TArg2, TArg3, TReturn>> pattern, Action<TArg1, TArg2, TArg3> beforeDecorator, Action<TArg1, TArg2, TArg3, TReturn> afterDecorator)
         {
             AddPairMethodDecorators(ResolveMethodPattern(pattern), beforeDecorator, afterDecorator);
         }
 
-        public void AddPairMethodDecorators<TArg1, TArg2, TArg3, TArg4, TReturn>(Func<T, Func<TArg1, TArg2, TArg3, TArg4, TReturn>> pattern, Action<TArg1, TArg2, TArg3, TArg4> beforeDecorator, Action<TArg1, TArg2, TArg3, TArg4, TReturn> afterDecorator)
+        public void AddPairFunctionDecorators<TArg1, TArg2, TArg3, TArg4, TReturn>(Func<T, Func<TArg1, TArg2, TArg3, TArg4, TReturn>> pattern, Action<TArg1, TArg2, TArg3, TArg4> beforeDecorator, Action<TArg1, TArg2, TArg3, TArg4, TReturn> afterDecorator)
         {
             AddPairMethodDecorators(ResolveMethodPattern(pattern), beforeDecorator, afterDecorator);
         }
 
-        public void AddPairMethodDecorators<TArg1, TArg2, TArg3, TArg4, TArg5, TReturn>(Func<T, Func<TArg1, TArg2, TArg3, TArg4, TArg5, TReturn>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5> beforeDecorator, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TReturn> afterDecorator)
+        public void AddPairFunctionDecorators<TArg1, TArg2, TArg3, TArg4, TArg5, TReturn>(Func<T, Func<TArg1, TArg2, TArg3, TArg4, TArg5, TReturn>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5> beforeDecorator, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TReturn> afterDecorator)
         {
             AddPairMethodDecorators(ResolveMethodPattern(pattern), beforeDecorator, afterDecorator);
         }
 
-        public void AddPairMethodDecorators<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TReturn>(Func<T, Func<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TReturn>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6> beforeDecorator, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TReturn> afterDecorator)
+        public void AddPairFunctionDecorators<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TReturn>(Func<T, Func<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TReturn>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6> beforeDecorator, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TReturn> afterDecorator)
         {
             AddPairMethodDecorators(ResolveMethodPattern(pattern), beforeDecorator, afterDecorator);
         }
 
-        public void AddPairMethodDecorators<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TReturn>(Func<T, Func<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TReturn>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7> beforeDecorator, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TReturn> afterDecorator)
+        public void AddPairFunctionDecorators<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TReturn>(Func<T, Func<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TReturn>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7> beforeDecorator, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TReturn> afterDecorator)
         {
             AddPairMethodDecorators(ResolveMethodPattern(pattern), beforeDecorator, afterDecorator);
         }
 
-        public void AddPairMethodDecorators<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8, TReturn>(Func<T, Func<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8, TReturn>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8> beforeDecorator, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8, TReturn> afterDecorator)
+        public void AddPairFunctionDecorators<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8, TReturn>(Func<T, Func<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8, TReturn>> pattern, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8> beforeDecorator, Action<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8, TReturn> afterDecorator)
         {
             AddPairMethodDecorators(ResolveMethodPattern(pattern), beforeDecorator, afterDecorator);
         }
 
-        public void SetMethodProxy(Func<T, Action> pattern, Action<T> proxy)
+        public void SetActionProxy(Func<T, Action> pattern, Action<Action> proxy)
         {
             SetMethodProxy(ResolveMethodPattern(pattern), proxy);
         }
 
-        public void SetMethodProxy<Arg1>(Func<T, Action<Arg1>> pattern, Action<T, Arg1> proxy)
+        public void SetActionProxy<Arg1>(Func<T, Action<Arg1>> pattern, Action<Action<Arg1>, Arg1> proxy)
         {
             SetMethodProxy(ResolveMethodPattern(pattern), proxy);
         }
 
-        public void SetMethodProxy<Arg1, Arg2>(Func<T, Action<Arg1, Arg2>> pattern, Action<T, Arg1, Arg2> proxy)
+        public void SetActionProxy<Arg1, Arg2>(Func<T, Action<Arg1, Arg2>> pattern, Action<Action<Arg1, Arg2>, Arg1, Arg2> proxy)
         {
             SetMethodProxy(ResolveMethodPattern(pattern), proxy);
         }
 
-        public void SetMethodProxy<Arg1, Arg2, Arg3>(Func<T, Action<Arg1, Arg2, Arg3>> pattern, Action<T, Arg1, Arg2, Arg3> proxy)
+        public void SetActionProxy<Arg1, Arg2, Arg3>(Func<T, Action<Arg1, Arg2, Arg3>> pattern, Action<Action<Arg1, Arg2, Arg3>, Arg1, Arg2, Arg3> proxy)
         {
             SetMethodProxy(ResolveMethodPattern(pattern), proxy);
         }
 
-        public void SetMethodProxy<Arg1, Arg2, Arg3, Arg4>(Func<T, Action<Arg1, Arg2, Arg3, Arg4>> pattern, Action<T, Arg1, Arg2, Arg3, Arg4> proxy)
+        public void SetActionProxy<Arg1, Arg2, Arg3, Arg4>(Func<T, Action<Arg1, Arg2, Arg3, Arg4>> pattern, Action<Action<Arg1, Arg2, Arg3, Arg4>, Arg1, Arg2, Arg3, Arg4> proxy)
         {
             SetMethodProxy(ResolveMethodPattern(pattern), proxy);
         }
 
-        public void SetMethodProxy<Arg1, Arg2, Arg3, Arg4, Arg5>(Func<T, Action<Arg1, Arg2, Arg3, Arg4, Arg5>> pattern, Action<T, Arg1, Arg2, Arg3, Arg4, Arg5> proxy)
+        public void SetActionProxy<Arg1, Arg2, Arg3, Arg4, Arg5>(Func<T, Action<Arg1, Arg2, Arg3, Arg4, Arg5>> pattern, Action<Action<Arg1, Arg2, Arg3, Arg4, Arg5>, Arg1, Arg2, Arg3, Arg4, Arg5> proxy)
         {
             SetMethodProxy(ResolveMethodPattern(pattern), proxy);
         }
 
-        public void SetMethodProxy<Arg1, Arg2, Arg3, Arg4, Arg5, Arg6>(Func<T, Action<Arg1, Arg2, Arg3, Arg4, Arg5, Arg6>> pattern, Action<T, Arg1, Arg2, Arg3, Arg4, Arg5, Arg6> proxy)
+        public void SetActionProxy<Arg1, Arg2, Arg3, Arg4, Arg5, Arg6>(Func<T, Action<Arg1, Arg2, Arg3, Arg4, Arg5, Arg6>> pattern, Action<Action<Arg1, Arg2, Arg3, Arg4, Arg5, Arg6>, Arg1, Arg2, Arg3, Arg4, Arg5, Arg6> proxy)
         {
             SetMethodProxy(ResolveMethodPattern(pattern), proxy);
         }
 
-        public void SetMethodProxy<Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, Arg7>(Func<T, Action<Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, Arg7>> pattern, Action<T, Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, Arg7> proxy)
+        public void SetActionProxy<Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, Arg7>(Func<T, Action<Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, Arg7>> pattern, Action<Action<Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, Arg7>, Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, Arg7> proxy)
         {
             SetMethodProxy(ResolveMethodPattern(pattern), proxy);
         }
 
-        public void SetMethodProxy<Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, Arg7, Arg8>(Func<T, Action<Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, Arg7, Arg8>> pattern, Action<T, Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, Arg7, Arg8> proxy)
+        public void SetActionProxy<Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, Arg7, Arg8>(Func<T, Action<Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, Arg7, Arg8>> pattern, Action<Action<Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, Arg7, Arg8>, Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, Arg7, Arg8> proxy)
         {
             SetMethodProxy(ResolveMethodPattern(pattern), proxy);
         }
 
-        public void SetMethodProxy<TReturn>(Func<T, Func<TReturn>> pattern, Func<T, TReturn> proxy)
+        public void SetFunctionProxy<TReturn>(Func<T, Func<TReturn>> pattern, Func<Func<TReturn>, TReturn> proxy)
         {
             SetMethodProxy(ResolveMethodPattern(pattern), proxy);
         }
 
-        public void SetMethodProxy<Arg1, TReturn>(Func<T, Func<Arg1, TReturn>> pattern, Func<T, Arg1, TReturn> proxy)
+        public void SetFunctionProxy<Arg1, TReturn>(Func<T, Func<Arg1, TReturn>> pattern, Func<Func<Arg1, TReturn>, Arg1, TReturn> proxy)
         {
             SetMethodProxy(ResolveMethodPattern(pattern), proxy);
         }
 
-        public void SetMethodProxy<Arg1, Arg2, TReturn>(Func<T, Func<Arg1, Arg2, TReturn>> pattern, Func<T, Arg1, Arg2, TReturn> proxy)
+        public void SetFunctionProxy<Arg1, Arg2, TReturn>(Func<T, Func<Arg1, Arg2, TReturn>> pattern, Func<Func<Arg1, Arg2, TReturn>, Arg1, Arg2, TReturn> proxy)
         {
             SetMethodProxy(ResolveMethodPattern(pattern), proxy);
         }
 
-        public void SetMethodProxy<Arg1, Arg2, Arg3, TReturn>(Func<T, Func<Arg1, Arg2, Arg3, TReturn>> pattern, Func<T, Arg1, Arg2, Arg3, TReturn> proxy)
+        public void SetFunctionProxy<Arg1, Arg2, Arg3, TReturn>(Func<T, Func<Arg1, Arg2, Arg3, TReturn>> pattern, Func<Func<Arg1, Arg2, Arg3, TReturn>, Arg1, Arg2, Arg3, TReturn> proxy)
         {
             SetMethodProxy(ResolveMethodPattern(pattern), proxy);
         }
 
-        public void SetMethodProxy<Arg1, Arg2, Arg3, Arg4, TReturn>(Func<T, Func<Arg1, Arg2, Arg3, Arg4, TReturn>> pattern, Func<T, Arg1, Arg2, Arg3, Arg4, TReturn> proxy)
+        public void SetFunctionProxy<Arg1, Arg2, Arg3, Arg4, TReturn>(Func<T, Func<Arg1, Arg2, Arg3, Arg4, TReturn>> pattern, Func<Func<Arg1, Arg2, Arg3, Arg4, TReturn>, Arg1, Arg2, Arg3, Arg4, TReturn> proxy)
         {
             SetMethodProxy(ResolveMethodPattern(pattern), proxy);
         }
 
-        public void SetMethodProxy<Arg1, Arg2, Arg3, Arg4, Arg5, TReturn>(Func<T, Func<Arg1, Arg2, Arg3, Arg4, Arg5, TReturn>> pattern, Func<T, Arg1, Arg2, Arg3, Arg4, Arg5, TReturn> proxy)
+        public void SetFunctionProxy<Arg1, Arg2, Arg3, Arg4, Arg5, TReturn>(Func<T, Func<Arg1, Arg2, Arg3, Arg4, Arg5, TReturn>> pattern, Func<Func<Arg1, Arg2, Arg3, Arg4, Arg5, TReturn>, Arg1, Arg2, Arg3, Arg4, Arg5, TReturn> proxy)
         {
             SetMethodProxy(ResolveMethodPattern(pattern), proxy);
         }
 
-        public void SetMethodProxy<Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, TReturn>(Func<T, Func<Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, TReturn>> pattern, Func<T, Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, TReturn> proxy)
+        public void SetFunctionProxy<Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, TReturn>(Func<T, Func<Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, TReturn>> pattern, Func<Func<Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, TReturn>, Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, TReturn> proxy)
         {
             SetMethodProxy(ResolveMethodPattern(pattern), proxy);
         }
 
-        public void SetMethodProxy<Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, Arg7, TReturn>(Func<T, Func<Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, Arg7, TReturn>> pattern, Func<T, Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, Arg7, TReturn> proxy)
+        public void SetFunctionProxy<Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, Arg7, TReturn>(Func<T, Func<Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, Arg7, TReturn>> pattern, Func<Func<Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, Arg7, TReturn>, Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, Arg7, TReturn> proxy)
         {
             SetMethodProxy(ResolveMethodPattern(pattern), proxy);
         }
 
-        public void SetMethodProxy<Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, Arg7, Arg8, TReturn>(Func<T, Func<Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, Arg7, Arg8, TReturn>> pattern, Func<T, Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, Arg7, Arg8, TReturn> proxy)
+        public void SetFunctionProxy<Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, Arg7, Arg8, TReturn>(Func<T, Func<Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, Arg7, Arg8, TReturn>> pattern, Func<Func<Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, Arg7, Arg8, TReturn>, Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, Arg7, Arg8, TReturn> proxy)
         {
             SetMethodProxy(ResolveMethodPattern(pattern), proxy);
         }
         
         private PropertyInfo ResolvePropertyGetterPattern<TValue>(Func<T, TValue> pattern)
         {
-            (object instance, IPropertyGetterDetector detector) = typeRepository.CreatePropertyGetterDetector(type);
+            (object instance, IPropertyGetterDetector detector) = TypeRepository.Value.CreatePropertyGetterDetector(type);
             pattern.Invoke((T)instance);
             return detector.GetDetectedProperty();
         }
 
         private PropertyInfo ResolvePropertySetterPattern<TValue>(Action<T, TValue> pattern)
         {
-            (object instance, IPropertySetterDetector detector) = typeRepository.CreatePropertySetterDetector(type);
+            (object instance, IPropertySetterDetector detector) = TypeRepository.Value.CreatePropertySetterDetector(type);
             pattern.Invoke((T)instance, default);
             return detector.GetDetectedProperty();
         }
 
         private PropertyInfo ResolveIndexerGetterPattern<TIndex, TValue>(Func<T, TIndex, TValue> pattern)
         {
-            (object instance, IPropertyGetterDetector detector) = typeRepository.CreatePropertyGetterDetector(type);
+            (object instance, IPropertyGetterDetector detector) = TypeRepository.Value.CreatePropertyGetterDetector(type);
             pattern.Invoke((T)instance, default);
             return detector.GetDetectedProperty();
         }
 
         private PropertyInfo ResolveIndexerSetterPattern<TIndex, TValue>(Action<T, TIndex, TValue> pattern)
         {
-            (object instance, IPropertySetterDetector detector) = typeRepository.CreatePropertySetterDetector(type);
+            (object instance, IPropertySetterDetector detector) = TypeRepository.Value.CreatePropertySetterDetector(type);
             pattern.Invoke((T)instance, default, default);
             return detector.GetDetectedProperty();
         }
 
         private EventInfo ResolveEventPattern<TArgs>(Action<T, Action<object, TArgs>> pattern) where TArgs : EventArgs
         {
-            (object instance, IEventDetector detector) = typeRepository.CreateEventDetector(type);
+            (object instance, IEventDetector detector) = TypeRepository.Value.CreateEventDetector(type);
             pattern.Invoke((T)instance, (o, a) => { });
             return detector.GetDetectedEvent();
         }
 
         private MethodInfo ResolveMethodPattern(Func<T, Delegate> pattern)
         {
-            (object instance, IMethodDetector detector) = typeRepository.CreateMethodDetector(type);
+            (object instance, IMethodDetector detector) = TypeRepository.Value.CreateMethodDetector(type);
             var token = pattern.Invoke((T)instance);
             return detector.GetDetectedMethod(token);
         }
@@ -728,5 +729,19 @@ namespace Sharpaxe.DynamicProxy
             public object Proxy { get; set; }
             public List<ValueTuple<object, object>> Decorators { get; }
         }
+
+
+        private static ModuleBuilder CreateModuleBuilder()
+        {
+            var dynamicAssemblyName = string.Format(DynamicAssemblyFormat, Assembly.GetExecutingAssembly().GetName().Name);
+            var dynamicAssembly = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(dynamicAssemblyName), AssemblyBuilderAccess.Run);
+            return dynamicAssembly.DefineDynamicModule(DynamicModuleName);
+        }
+
+        private const string DynamicAssemblyFormat = "{0}__Sharpaxe.Dynamic";
+        private const string DynamicModuleName = "DynamicModule";
+
+        public static Lazy<ModuleBuilder> ModuleBinder = new Lazy<ModuleBuilder>(CreateModuleBuilder, LazyThreadSafetyMode.ExecutionAndPublication);
+        private static Lazy<ITypeRepository> TypeRepository { get; } = new Lazy<ITypeRepository>(() => new TypeRepository(ModuleBinder.Value), LazyThreadSafetyMode.PublicationOnly);
     }
 }

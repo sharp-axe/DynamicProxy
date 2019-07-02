@@ -39,7 +39,7 @@ namespace Sharpaxe.DynamicProxy.Internal
         {
             (var proxyType, var configuratorType) = typeToProxyTypeAndConfiguratorTypeMap.GetOrAdd(type, t => CreateProxyTypeAndConfiguratorType(t));
 
-            var proxyInstance = Activator.CreateInstance(proxyType);
+            var proxyInstance = Activator.CreateInstance(proxyType, core);
             var configuratorInstance = Activator.CreateInstance(configuratorType, proxyInstance);
 
             return (proxyInstance, (IProxyConfigurator)configuratorInstance);
@@ -49,13 +49,13 @@ namespace Sharpaxe.DynamicProxy.Internal
         {
             var detectorType = typeToEventPropertyDetectorTypeMap.GetOrAdd(type, t => new EventDetectorBuilder(t, moduleBuilder).CreateDetectorType());
             var detectorInstance = Activator.CreateInstance(detectorType);
-            return (detectorInstance, (IEventDetector)type);
+            return (detectorInstance, (IEventDetector)detectorInstance);
         }
 
         public (object, IMethodDetector) CreateMethodDetector(Type type)
         {
             var detectorInstance = typeToMethodDetectorInstanceMap.GetOrAdd(type, t => (IMethodDetector)Activator.CreateInstance(new MethodDetectorBuilder(type, moduleBuilder).CreateDetectorType()));
-            return (detectorInstance, (IMethodDetector)type);
+            return (detectorInstance, (IMethodDetector)detectorInstance);
         }
 
         public (object, IPropertyGetterDetector) CreatePropertyGetterDetector(Type type)
