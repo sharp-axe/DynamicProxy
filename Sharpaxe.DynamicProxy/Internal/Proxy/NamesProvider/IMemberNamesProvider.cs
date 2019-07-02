@@ -1,8 +1,9 @@
-﻿using System.Reflection;
+﻿using System.Collections.Generic;
+using System.Reflection;
 
 namespace Sharpaxe.DynamicProxy.Internal.Proxy.NameProvider
 {
-    internal interface IMemberNameProvider
+    internal interface IMemberNamesProvider
     {
         string GetMethodProxyFieldName(MethodInfo methodInfo);
         string GetMethodWrapperMethodName(MethodInfo methodInfo);
@@ -20,5 +21,7 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy.NameProvider
         string GetPropertyGetterProxyFieldName(PropertyInfo propertyInfo);
         string GetPropertyGetterWrapperMethodName(PropertyInfo propertyInfo);
         string GetPropertyGetterDecoratorsFieldName(PropertyInfo propertyInfo);
+
+        void ReserveNames(IEnumerable<string> namesToReserve);
     }
 }

@@ -4,11 +4,11 @@ using System.Reflection;
 
 namespace Sharpaxe.DynamicProxy.Internal.Proxy.NameProvider
 {
-    internal class MemberNameProviderCore : IMemberNameProvider
+    internal class MemberNamesProviderCore : IMemberNamesProvider
     {
         private readonly HashSet<string> reservedNames;
 
-        public MemberNameProviderCore()
+        public MemberNamesProviderCore()
         {
             reservedNames = new HashSet<string>();
         }
@@ -76,6 +76,11 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy.NameProvider
         public string GetPropertySetterWrapperMethodName(PropertyInfo propertyInfo)
         {
             return GetUnreservedMemberName($"{propertyInfo.Name}SetterWrapper");
+        }
+
+        public void ReserveNames(IEnumerable<string> namesToReserve)
+        {
+            reservedNames.IntersectWith(namesToReserve);
         }
 
         private string GetUnreservedMemberName(string memberNamePattern)

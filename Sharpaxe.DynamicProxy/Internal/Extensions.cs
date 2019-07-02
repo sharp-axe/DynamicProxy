@@ -7,7 +7,7 @@ using System.Reflection.Emit;
 
 namespace Sharpaxe.DynamicProxy.Internal
 {
-    public static class Extensions
+    internal static class Extensions
     {
         public static bool IsEmpty<T>(this ICollection<T> source)
         {
@@ -44,14 +44,43 @@ namespace Sharpaxe.DynamicProxy.Internal
             yield return instance;
         }
 
-        public static ReadOnlyDictionary<TKey, TElement> ToReadOnlyDictionary<TSource, TKey, TElement>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TElement> valueSelector)
+        public static ReadOnlyDictionary<TKey, TValue> ToReadOnlyDictionary<TKey, TValue>(this IEnumerable<TKey> source, Func<TKey, TValue> valueSelector)
+        {
+            if (source == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            return new ReadOnlyDictionary<TKey, TValue>(source.ToDictionary(s => s, valueSelector));
+        }
+
+        public static ReadOnlyDictionary<TKey, TValue> ToReadOnlyDictionary<TSource, TKey, TValue>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TValue> valueSelector)
         {
             if (source == null)
             {
                 throw new ArgumentNullException(nameof(source));
             }
 
-            return new ReadOnlyDictionary<TKey, TElement>(source.ToDictionary(keySelector, valueSelector));
+            return new ReadOnlyDictionary<TKey, TValue>(source.ToDictionary(keySelector, valueSelector));
+        }
+
+        public static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, Func<TKey, TValue> valueCreator)
+        {
+            if (dictionary == null)
+            {
+                throw new ArgumentNullException(nameof(dictionary));
+            }
+
+            if (valueCreator == null)
+            {
+                throw new ArgumentNullException(nameof(valueCreator));
+            }
+
+            if (!dictionary.TryGetValue(key, out TValue value))
+            {
+                dictionary.Add(key, value = valueCreator.Invoke(key));
+            }
+            return value;
         }
 
         public static Type[] GetMethodArgumentsTypes(this MethodInfo methodInfo)

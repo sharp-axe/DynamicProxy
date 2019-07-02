@@ -39,7 +39,7 @@ namespace Sharpaxe.DynamicProxy
             {
                 if (!pgc.Value.Decorators.IsEmpty())
                 {
-                    proxyConfigurator.AddPropertyGetterDecorators(pgc.Key, pgc.Value.Decorators);
+                    proxyConfigurator.SetPropertyGetterDecorators(pgc.Key, pgc.Value.Decorators);
                 }
 
                 if (pgc.Value.Proxy != null)
@@ -55,7 +55,7 @@ namespace Sharpaxe.DynamicProxy
             {
                 if (!psc.Value.Decorators.IsEmpty())
                 {
-                    proxyConfigurator.AddPropertySetterDecorators(psc.Key, psc.Value.Decorators);
+                    proxyConfigurator.SetPropertySetterDecorators(psc.Key, psc.Value.Decorators);
                 }
 
                 if (psc.Value.Proxy != null)
@@ -71,7 +71,7 @@ namespace Sharpaxe.DynamicProxy
             {
                 if (!es.Value.Decorators.IsEmpty())
                 {
-                    proxyConfigurator.AddEventDecorators(es.Key, es.Value.Decorators);
+                    proxyConfigurator.SetEventDecorators(es.Key, es.Value.Decorators);
                 }
 
                 if (es.Value.Proxy != null)
@@ -87,7 +87,7 @@ namespace Sharpaxe.DynamicProxy
             {
                 if (!mc.Value.Decorators.IsEmpty())
                 {
-                    proxyConfigurator.AddMethodDecorators(mc.Key, mc.Value.Decorators);
+                    proxyConfigurator.SetMethodDecorators(mc.Key, mc.Value.Decorators);
                 }
 
                 if (mc.Value.Proxy != null)

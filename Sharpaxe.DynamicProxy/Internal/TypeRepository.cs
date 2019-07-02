@@ -1,5 +1,8 @@
 ﻿using Sharpaxe.DynamicProxy.Internal.Detector;
+using Sharpaxe.DynamicProxy.Internal.Detector.Builder;
 using Sharpaxe.DynamicProxy.Internal.Proxy;
+using Sharpaxe.DynamicProxy.Internal.Proxy.Builder;
+using Sharpaxe.DynamicProxy.Internal.Proxy.NameProvider;
 using System;
 using System.Collections.Concurrent;
 using System.Reflection.Emit;
@@ -10,57 +13,33 @@ namespace Sharpaxe.DynamicProxy.Internal
     {
         private readonly ModuleBuilder moduleBuilder;
 
-        private readonly Func<Type, ModuleBuilder, Type> proxyTypeCreator;
-        private readonly Func<Type, ModuleBuilder, Type> configuratorTypeCreator;
-        private readonly Func<Type, ModuleBuilder, Type> eventDetectorTypeCreator;
-        private readonly Func<Type, ModuleBuilder, Type> methodDetectorTypeCreator;
-        private readonly Func<Type, ModuleBuilder, Type> propertyGetterDetectorTypeCreator;
-        private readonly Func<Type, ModuleBuilder, Type> propertySetterDetectorTypeCreator;
-
-
-        private readonly ConcurrentDictionary<Type, Type> typeToProxyTypeMap;
-        private readonly ConcurrentDictionary<Type, Type> typeToConfiguratorTypeMap;
         private readonly ConcurrentDictionary<Type, Type> typeToEventPropertyDetectorTypeMap;
         private readonly ConcurrentDictionary<Type, Type> typeToPropertyGetterDetectorTypeMap;
         private readonly ConcurrentDictionary<Type, Type> typeToPropertySetterDetectorTypeMap;
         private readonly ConcurrentDictionary<Type, IMethodDetector> typeToMethodDetectorInstanceMap;
+        private readonly ConcurrentDictionary<Type, ValueTuple<Type, Type>> typeToProxyTypeAndConfiguratorTypeMap;
 
 
-        public TypeRepository(
-            ModuleBuilder moduleBuilder,
-            Func<Type, ModuleBuilder, Type> proxyTypeCreator,
-            Func<Type, ModuleBuilder, Type> configuratorTypeCreator,
-            Func<Type, ModuleBuilder, Type> eventDetectorTypeCreator,
-            Func<Type, ModuleBuilder, Type> methodDetectorTypeCreator,
-            Func<Type, ModuleBuilder, Type> propertyGetterDetectorTypeCreator,
-            Func<Type, ModuleBuilder, Type> propertySetterDetectorTypeCreator)
+        public TypeRepository(ModuleBuilder moduleBuilder)
             : this()
         {
             this.moduleBuilder = moduleBuilder ?? throw new ArgumentNullException(nameof(moduleBuilder));
-            this.proxyTypeCreator = proxyTypeCreator ?? throw new ArgumentNullException(nameof(proxyTypeCreator));
-            this.configuratorTypeCreator = configuratorTypeCreator ?? throw new ArgumentNullException(nameof(configuratorTypeCreator));
-            this.eventDetectorTypeCreator = eventDetectorTypeCreator ?? throw new ArgumentNullException(nameof(eventDetectorTypeCreator));
-            this.methodDetectorTypeCreator = methodDetectorTypeCreator ?? throw new ArgumentNullException(nameof(methodDetectorTypeCreator));
-            this.propertyGetterDetectorTypeCreator = propertyGetterDetectorTypeCreator ?? throw new ArgumentNullException(nameof(propertyGetterDetectorTypeCreator));
-            this.propertySetterDetectorTypeCreator = propertySetterDetectorTypeCreator ?? throw new ArgumentNullException(nameof(propertySetterDetectorTypeCreator));
         }
 
         private TypeRepository()
         {
-            typeToProxyTypeMap = new ConcurrentDictionary<Type, Type>();
-            typeToConfiguratorTypeMap = new ConcurrentDictionary<Type, Type>();
+            typeToMethodDetectorInstanceMap = new ConcurrentDictionary<Type, IMethodDetector>();
             typeToEventPropertyDetectorTypeMap = new ConcurrentDictionary<Type, Type>();
             typeToPropertyGetterDetectorTypeMap = new ConcurrentDictionary<Type, Type>();
             typeToPropertySetterDetectorTypeMap = new ConcurrentDictionary<Type, Type>();
-            typeToMethodDetectorInstanceMap = new ConcurrentDictionary<Type, IMethodDetector>();
+            typeToProxyTypeAndConfiguratorTypeMap = new ConcurrentDictionary<Type, ValueTuple<Type, Type>>();
         }
 
         public (object, IProxyConfigurator) CreateConfigurableProxy(Type type, object core)
         {
-            var proxyType = typeToProxyTypeMap.GetOrAdd(type, CreateProxyType);
-            var proxyInstance = Activator.CreateInstance(proxyType, core);
+            (var proxyType, var configuratorType) = typeToProxyTypeAndConfiguratorTypeMap.GetOrAdd(type, t => CreateProxyTypeAndConfiguratorType(t));
 
-            var configuratorType = typeToConfiguratorTypeMap.GetOrAdd(type, CreateConfiguratorType);
+            var proxyInstance = Activator.CreateInstance(proxyType);
             var configuratorInstance = Activator.CreateInstance(configuratorType, proxyInstance);
 
             return (proxyInstance, (IProxyConfigurator)configuratorInstance);
@@ -68,20 +47,20 @@ namespace Sharpaxe.DynamicProxy.Internal
 
         public (object, IEventDetector) CreateEventDetector(Type type)
         {
-            var detectorType = typeToEventPropertyDetectorTypeMap.GetOrAdd(type, CreateEventDetectorType);
+            var detectorType = typeToEventPropertyDetectorTypeMap.GetOrAdd(type, t => new EventDetectorBuilder(t, moduleBuilder).CreateDetectorType());
             var detectorInstance = Activator.CreateInstance(detectorType);
             return (detectorInstance, (IEventDetector)type);
         }
 
         public (object, IMethodDetector) CreateMethodDetector(Type type)
         {
-            var detectorInstance = typeToMethodDetectorInstanceMap.GetOrAdd(type, CreateMethodDetectorInstance);
+            var detectorInstance = typeToMethodDetectorInstanceMap.GetOrAdd(type, t => (IMethodDetector)Activator.CreateInstance(new MethodDetectorBuilder(type, moduleBuilder).CreateDetectorType()));
             return (detectorInstance, (IMethodDetector)type);
         }
 
         public (object, IPropertyGetterDetector) CreatePropertyGetterDetector(Type type)
         {
-            var detectorType = typeToPropertyGetterDetectorTypeMap.GetOrAdd(type, CreatePropertyGetterDetectorType);
+            var detectorType = typeToPropertyGetterDetectorTypeMap.GetOrAdd(type, t => new PropertyGetterDetectorBuilder(t, moduleBuilder).CreateDetectorType());
             var detectorInstance = Activator.CreateInstance(detectorType);
             return (detectorInstance, (IPropertyGetterDetector)detectorInstance);
         }
@@ -89,39 +68,19 @@ namespace Sharpaxe.DynamicProxy.Internal
         public (object, IPropertySetterDetector) CreatePropertySetterDetector(Type type)
         {
 
-            var detectorType = typeToPropertySetterDetectorTypeMap.GetOrAdd(type, CreatePropertySetterDetectorType);
+            var detectorType = typeToPropertySetterDetectorTypeMap.GetOrAdd(type, t => new PropertySetterDetectorBuilder(t, moduleBuilder).CreateDetectorType());
             var detectorInstance = Activator.CreateInstance(detectorType);
             return (detectorInstance, (IPropertySetterDetector)detectorInstance);
         }
 
-        private Type CreateProxyType(Type type)
+        private (Type, Type) CreateProxyTypeAndConfiguratorType(Type type)
         {
-            return proxyTypeCreator.Invoke(type, moduleBuilder);
-        }
+            var memberNamesProvider = new MemberNamesProviderCacheProxy(new MemberNamesProviderCore());
 
-        private Type CreateConfiguratorType(Type type)
-        {
-            return configuratorTypeCreator.Invoke(type, moduleBuilder);
-        }
+            var proxyType = new ProxyBuilder(type, memberNamesProvider, moduleBuilder).CreateProxyType();
+            var configuratorType = new ConfiguratorBuilder(type, proxyType, memberNamesProvider, moduleBuilder).CreateConfiguratorType();
 
-        private Type CreateEventDetectorType(Type type)
-        {
-            return eventDetectorTypeCreator.Invoke(type, moduleBuilder);
-        }
-        
-        private IMethodDetector CreateMethodDetectorInstance(Type type)
-        {
-            return (IMethodDetector)Activator.CreateInstance(methodDetectorTypeCreator.Invoke(type, moduleBuilder));
-        }
-
-        private Type CreatePropertyGetterDetectorType(Type type)
-        {
-            return propertyGetterDetectorTypeCreator.Invoke(type, moduleBuilder);
-        }
-
-        private Type CreatePropertySetterDetectorType(Type type)
-        {
-            return propertySetterDetectorTypeCreator.Invoke(type, moduleBuilder);
+            return (proxyType, configuratorType);
         }
     }
 }

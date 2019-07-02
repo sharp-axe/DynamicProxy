@@ -6,14 +6,13 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace Sharpaxe.DynamicProxy.Internal.Proxy
+namespace Sharpaxe.DynamicProxy.Internal.Proxy.Builder
 {
     internal class ProxyBuilder
     {
         private readonly Type targetType;
         private readonly ModuleBuilder moduleBuilder;
-        private readonly HashSet<string> reservedMembersNames;
-        private readonly IMemberNameProvider memberNameProvider;
+        private readonly IMemberNamesProvider memberNamesProvider;
 
         private TypeBuilder typeBuilder;
 
@@ -23,17 +22,11 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy
         private ReadOnlyDictionary<PropertyInfo, MemberInfo> propertyInfoToSetterMemberInfoMap;
         private ReadOnlyDictionary<EventInfo, EventMemberInfo> eventsInfoToMemberInfoMap;
 
-        public ProxyBuilder(Type targetType, ModuleBuilder moduleBuilder, IMemberNameProvider memberNameProvider)
-            : this()
+        public ProxyBuilder(Type targetType, IMemberNamesProvider memberNamesProvider, ModuleBuilder moduleBuilder)
         {
             this.targetType = targetType ?? throw new ArgumentNullException(nameof(targetType));
+            this.memberNamesProvider = memberNamesProvider ?? throw new ArgumentNullException(nameof(memberNamesProvider));
             this.moduleBuilder = moduleBuilder ?? throw new ArgumentNullException(nameof(moduleBuilder));
-            this.memberNameProvider = memberNameProvider ?? throw new ArgumentNullException(nameof(memberNameProvider));
-        }
-
-        private ProxyBuilder()
-        {
-            reservedMembersNames = new HashSet<string>();
         }
 
         public Type CreateProxyType()
@@ -61,7 +54,7 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy
             propertyInfoToSetterMemberInfoMap = propertiesWithSetter.ToReadOnlyDictionary(pi => pi, pi => new MemberInfo());
             eventsInfoToMemberInfoMap = eventsInfo.ToReadOnlyDictionary(ei => ei, ei => new EventMemberInfo());
 
-            reservedMembersNames.IntersectWith(
+            memberNamesProvider.ReserveNames(
                 eventsInfo.Select(ei => ei.Name)
                 .Concat(methodsInfo.Select(mi => mi.Name))
                 .Concat(propertiesInfo.Select(pi => pi.Name)));
@@ -71,20 +64,20 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy
         {
             typeBuilder =
                 moduleBuilder.DefineType(
-                    GetTypeName(),
+                    GetProxyTypeName(),
                     TypeAttributes.Class | TypeAttributes.Public,
                     typeof(object),
                     new Type[] { targetType });
         }
 
-        private string GetTypeName()
+        private string GetProxyTypeName()
         {
-            return $"{targetType.Name}``_DynamicProxy";
+            return $"{targetType.Name}``_Proxy";
         }
 
         private string GetEventDisplayTypeName(EventInfo eventInfo)
         {
-            return $"{GetTypeName()}__{eventInfo.Name}DisplayClass";
+            return $"{GetProxyTypeName()}__{eventInfo.Name}DisplayClass";
         }
 
         private void DefineInstanceFields()
@@ -110,13 +103,13 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy
 
                 memberInfo.ProxyInstanceFieldInfo =
                     typeBuilder.DefineField(
-                        memberNameProvider.GetMethodProxyFieldName(methodInfo), 
+                        memberNamesProvider.GetMethodProxyFieldName(methodInfo), 
                         GetMethodProxyType(methodInfo), 
                         FieldAttributes.Private);
 
                 memberInfo.DecoratorsLinkedListInstanceFieldInfo =
                     typeBuilder.DefineField(
-                        memberNameProvider.GetMethodDecoratorsFieldName(methodInfo), 
+                        memberNamesProvider.GetMethodDecoratorsFieldName(methodInfo), 
                         GetMethodDecoratorsListType(methodInfo), 
                         FieldAttributes.Private);
             }
@@ -131,12 +124,12 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy
 
                 memberInfo.ProxyInstanceFieldInfo =
                     typeBuilder.DefineField(
-                        memberNameProvider.GetEventProxyFieldName(eventInfo), 
+                        memberNamesProvider.GetEventProxyFieldName(eventInfo), 
                         GetEventProxyFieldType(eventInfo), 
                         FieldAttributes.Private);
 
                 memberInfo.DecoratorsLinkedListInstanceFieldInfo =
-                    typeBuilder.DefineField(memberNameProvider.GetEventDecoratorsFieldName(eventInfo), 
+                    typeBuilder.DefineField(memberNamesProvider.GetEventDecoratorsFieldName(eventInfo), 
                     GetEventDecoratorsFieldType(eventInfo), 
                     FieldAttributes.Private);
 
@@ -144,7 +137,7 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy
 
                 memberInfo.SubscribersMapFieldInfo =
                     typeBuilder.DefineField(
-                        memberNameProvider.GetEventSubscribersFieldName(eventInfo), 
+                        memberNamesProvider.GetEventSubscribersFieldName(eventInfo), 
                         GetEventSubscribersFieldType(eventInfo), 
                         FieldAttributes.Private);
             }
@@ -206,13 +199,13 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy
 
                 memberInfo.ProxyInstanceFieldInfo =
                     typeBuilder.DefineField(
-                        memberNameProvider.GetPropertyGetterProxyFieldName(propertyInfo), 
+                        memberNamesProvider.GetPropertyGetterProxyFieldName(propertyInfo), 
                         GetPropertyGetterProxyFieldType(propertyInfo), 
                         FieldAttributes.Private);
 
                 memberInfo.DecoratorsLinkedListInstanceFieldInfo =
                     typeBuilder.DefineField(
-                        memberNameProvider.GetPropertyGetterDecoratorsFieldName(propertyInfo), 
+                        memberNamesProvider.GetPropertyGetterDecoratorsFieldName(propertyInfo), 
                         GetPropertyGetterDecoratorsFieldType(propertyInfo), 
                         FieldAttributes.Private);
             }
@@ -227,13 +220,13 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy
 
                 memberInfo.ProxyInstanceFieldInfo =
                     typeBuilder.DefineField(
-                        memberNameProvider.GetPropertySetterProxyFieldName(propertyInfo), 
+                        memberNamesProvider.GetPropertySetterProxyFieldName(propertyInfo), 
                         GetPropertySetterProxyFieldType(propertyInfo), 
                         FieldAttributes.Private);
 
                 memberInfo.DecoratorsLinkedListInstanceFieldInfo =
                     typeBuilder.DefineField(
-                        memberNameProvider.GetPropertySetterDecoratorsFieldName(propertyInfo), 
+                        memberNamesProvider.GetPropertySetterDecoratorsFieldName(propertyInfo), 
                         GetPropertySetterDecoratorsFieldType(propertyInfo), 
                         FieldAttributes.Private);
             }
@@ -291,7 +284,7 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy
         {
             foreach (var kvp in methodInfoToMemberInfoMap)
             {
-                DefineMethodOverride(kvp.Key, kvp.Value, memberNameProvider.GetMethodWrapperMethodName(kvp.Key));
+                DefineMethodOverride(kvp.Key, kvp.Value, memberNamesProvider.GetMethodWrapperMethodName(kvp.Key));
             }
         }
 
@@ -307,7 +300,7 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy
                 var eventInvokeDelegateType = eventInvokeMethod.MakeGenericDelegateType();
                 var wrapperMethodDelegateType = eventInvokeDelegateType.ToEnumerable().Concat(eventInvokeMethodArguments).MakeGenericDelegateAction();
 
-                var wrapperMethod = DefineWrapperMethod(eventInvokeMethod, memberInfo, memberNameProvider.GetEventWrapperMethodName(eventInfo));
+                var wrapperMethod = DefineWrapperMethod(eventInvokeMethod, memberInfo, memberNamesProvider.GetEventWrapperMethodName(eventInfo));
 
                 var addMethod = eventInfo.AddMethod;
                 var addMethodOverriden =
@@ -390,7 +383,7 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy
         {
             foreach (var kvp in propertyInfoToGetterMemberInfoMap)
             {
-                DefineMethodOverride(kvp.Key.GetGetMethod(), kvp.Value, memberNameProvider.GetPropertyGetterWrapperMethodName(kvp.Key));
+                DefineMethodOverride(kvp.Key.GetGetMethod(), kvp.Value, memberNamesProvider.GetPropertyGetterWrapperMethodName(kvp.Key));
             }
         }
 
@@ -398,7 +391,7 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy
         {
             foreach (var kvp in propertyInfoToSetterMemberInfoMap)
             {
-                DefineMethodOverride(kvp.Key.GetSetMethod(), kvp.Value, memberNameProvider.GetPropertySetterWrapperMethodName(kvp.Key));
+                DefineMethodOverride(kvp.Key.GetSetMethod(), kvp.Value, memberNamesProvider.GetPropertySetterWrapperMethodName(kvp.Key));
             }
         }
 

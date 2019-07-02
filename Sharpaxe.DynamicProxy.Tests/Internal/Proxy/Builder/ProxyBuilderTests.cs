@@ -1,6 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Sharpaxe.DynamicProxy.Internal.Proxy;
+using Sharpaxe.DynamicProxy.Internal.Proxy.Builder;
 using Sharpaxe.DynamicProxy.Tests.TestHelper;
 using Sharpaxe.DynamicProxy.Internal;
 using System;
@@ -3342,10 +3342,16 @@ namespace Sharpaxe.DynamicProxy.Tests.Internal.Proxy.Builder
 
         internal static Type CreateTargetType(Type targetType)
         {
-            return TypeRepository.GetOrAdd(targetType, t => new ProxyBuilder(t, Static.ModuleBinder.Value, new MemberNameProviderCore()).CreateProxyType());
+            return TypeRepository.GetOrAdd(targetType, t => new ProxyBuilder(t, GetMemberNamesProvider(t), Static.ModuleBinder.Value).CreateProxyType());
+        }
+
+        internal static IMemberNamesProvider GetMemberNamesProvider(Type targetType)
+        {
+            return MemberNamesProvidersRepository.GetOrAdd(targetType, t => new MemberNamesProviderCacheProxy(new MemberNamesProviderCore()));
         }
 
         internal static ConcurrentDictionary<Type, Type> TypeRepository { get; } = new ConcurrentDictionary<Type, Type>();
+        internal static ConcurrentDictionary<Type, IMemberNamesProvider> MemberNamesProvidersRepository { get; } = new ConcurrentDictionary<Type, IMemberNamesProvider>();
 
         internal static void AssertTypeHasPassedPrivateInstanceFields(Type type, Dictionary<string, Type> expectedFields)
         {
