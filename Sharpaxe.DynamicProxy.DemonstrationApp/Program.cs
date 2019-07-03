@@ -18,6 +18,9 @@ namespace Sharpaxe.DynamicProxy.DemonstrationApp
             {
                 Console.WriteLine($"{nameof(Main)} exception has occured:{Environment.NewLine}{ex}");
             }
+
+            Console.WriteLine("Press any key...");
+            Console.ReadKey();
         }
 
         private static void MainCore(string[] args)
