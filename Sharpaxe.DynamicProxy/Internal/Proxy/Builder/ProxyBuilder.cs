@@ -96,7 +96,7 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy.Builder
 
         private void DefineMethodsInstanceFields()
         {
-            foreach (var kvp in methodInfoToMemberInfoMap)
+            foreach (var kvp in methodInfoToMemberInfoMap.Where(kvp => !kvp.Key.HasOutParameters()))
             {
                 var methodInfo = kvp.Key;
                 var memberInfo = kvp.Value;
@@ -183,7 +183,7 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy.Builder
             invokeMethodILGenerator.Emit(OpCodes.Ldfld, wrapperMethodField);
             invokeMethodILGenerator.Emit(OpCodes.Ldarg_0);
             invokeMethodILGenerator.Emit(OpCodes.Ldfld, targetDelegateField);
-            invokeMethodILGenerator.EmitLoadArgumentsRange(0, eventInvokeMethodArguments.Length);
+            invokeMethodILGenerator.EmitLoadArgumentsRange(1, eventInvokeMethodArguments.Length);
             invokeMethodILGenerator.Emit(OpCodes.Callvirt, wrapperMethodDelegateType.GetMethod("Invoke"));
             invokeMethodILGenerator.Emit(OpCodes.Ret);
 
@@ -247,7 +247,7 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy.Builder
             ILGenerator.Emit(OpCodes.Stfld, targetFieldInfo);
 
             var memberInfos =
-                methodInfoToMemberInfoMap.Values
+                methodInfoToMemberInfoMap.Where(kvp => !kvp.Key.HasOutParameters()).Select(kvp => kvp.Value)
                 .Concat(eventsInfoToMemberInfoMap.Values)
                 .Concat(propertyInfoToGetterMemberInfoMap.Values)
                 .Concat(propertyInfoToSetterMemberInfoMap.Values);
@@ -284,7 +284,14 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy.Builder
         {
             foreach (var kvp in methodInfoToMemberInfoMap)
             {
-                DefineMethodOverride(kvp.Key, kvp.Value, memberNamesProvider.GetMethodWrapperMethodName(kvp.Key));
+                if (!kvp.Key.HasOutParameters())
+                {
+                    DefineMethodOverride(kvp.Key, kvp.Value, memberNamesProvider.GetMethodWrapperMethodName(kvp.Key));
+                }
+                else
+                {
+                    DefineMethodNotSupportedDueOutParameterOverride(kvp.Key);
+                }
             }
         }
 
@@ -312,7 +319,7 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy.Builder
 
                 var addMethodILGenerator = addMethodOverriden.GetILGenerator();
 
-                addMethodILGenerator.DeclareLocal(eventInvokeDelegateType);
+                addMethodILGenerator.DeclareLocal(eventInfo.EventHandlerType);
 
                 addMethodILGenerator.Emit(OpCodes.Ldarg_1);
                 addMethodILGenerator.Emit(OpCodes.Ldarg_0);
@@ -322,7 +329,7 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy.Builder
                 addMethodILGenerator.Emit(OpCodes.Newobj, memberInfo.EventDisplayType.GetConstructor(new Type[] { eventInvokeDelegateType, wrapperMethodDelegateType }));
                 addMethodILGenerator.Emit(OpCodes.Dup);
                 addMethodILGenerator.Emit(OpCodes.Ldvirtftn, memberInfo.EventDisplayType.GetMethod("Invoke"));
-                addMethodILGenerator.Emit(OpCodes.Newobj, eventInvokeDelegateType.GetConstructor(new Type[] { typeof(Object), typeof(IntPtr) }));
+                addMethodILGenerator.Emit(OpCodes.Newobj, eventInfo.EventHandlerType.GetConstructor(new Type[] { typeof(Object), typeof(IntPtr) }));
                 addMethodILGenerator.Emit(OpCodes.Stloc_0);
 
                 addMethodILGenerator.Emit(OpCodes.Ldarg_0);
@@ -419,6 +426,21 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy.Builder
             ILGenerator.Emit(OpCodes.Ret);
 
             typeBuilder.DefineMethodOverride(method, methodInfo);
+        }
+
+        private void DefineMethodNotSupportedDueOutParameterOverride(MethodInfo methodInfo)
+        {
+            var method =
+                typeBuilder.DefineMethod(
+                    methodInfo.Name,
+                    MethodAttributes.Public | MethodAttributes.Virtual,
+                    methodInfo.ReturnType,
+                    methodInfo.GetMethodArgumentsTypes());
+
+            method.GetILGenerator().EmitThrowNotSupportedException("Method has out parameter");
+
+            typeBuilder.DefineMethodOverride(method, methodInfo);
+
         }
 
         private MethodInfo DefineWrapperMethod(MethodInfo methodInfo, MemberInfo memberInfo, string methodName)

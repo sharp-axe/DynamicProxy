@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
@@ -17,8 +18,6 @@ namespace Sharpaxe.DynamicProxy.DemonstrationApp
             {
                 Console.WriteLine($"{nameof(Main)} exception has occured:{Environment.NewLine}{ex}");
             }
-
-            Console.ReadKey();
         }
 
         private static void MainCore(string[] args)
@@ -30,6 +29,10 @@ namespace Sharpaxe.DynamicProxy.DemonstrationApp
 
             ProxyDemonstrationNullGuard();
             ProxyDemonstrationArgumentLimiter();
+
+            IndexerProxySelfFillingMap();
+
+            EventProxyDemonstration();
         }
 
         private static void BeforeDecoratorDemonstration()
@@ -172,9 +175,70 @@ namespace Sharpaxe.DynamicProxy.DemonstrationApp
 
             Console.WriteLine();
         }
+
+        private static void IndexerProxySelfFillingMap()
+        {
+            Console.WriteLine(nameof(IndexerProxySelfFillingMap));
+
+            var index = 0;
+            var dictionary = new Dictionary<char, int>();
+            var proxyBuilder = new ReflectionProxyBuilder<IDictionary<char, int>>();
+            proxyBuilder.SetIndexerGetterProxy<char, int>((d, c) => d[c],
+                (d, c) =>
+                {
+                    if (!dictionary.ContainsKey(c))
+                    {
+                        dictionary[c] = index++;
+                    }
+
+                    return d.Invoke(c);
+                });
+
+            var proxiedInstance = proxyBuilder.Build(dictionary);
+
+            Console.WriteLine($"Context A value {proxiedInstance['A']}");
+            Console.WriteLine($"Context B value {proxiedInstance['B']}");
+            Console.WriteLine($"Context C value {proxiedInstance['C']}");
+            Console.WriteLine($"Context B value {proxiedInstance['B']}");
+            Console.WriteLine($"Context D value {proxiedInstance['D']}");
+            Console.WriteLine($"Context A value {proxiedInstance['A']}");
+            Console.WriteLine($"Context E value {proxiedInstance['E']}");
+
+            Console.WriteLine();
+        }
+
+        private static void EventProxyDemonstration()
+        {
+            Console.WriteLine(nameof(EventProxyDemonstration));
+
+            var proxyBuilder = new ReflectionProxyBuilder<IInputDetector>();
+            proxyBuilder.SetEventProxy<UserInputEventArgs>((id, h) => id.OnInputAvailable += new EventHandler<UserInputEventArgs>(h),
+                (h, o, a) =>
+                {
+                    if (a.Input.Length >= 5)
+                    {
+                        h.Invoke(o, a);
+                    }
+                });
+            var inputDetector = new InputDetector();
+            var proxiedInstance = proxyBuilder.Build(inputDetector);
+            proxiedInstance.OnInputAvailable += (o, a) => Console.WriteLine($"Input from user: {a.Input}");
+
+            inputDetector.RaiseInputAvailable("U");
+            inputDetector.RaiseInputAvailable("US");
+            inputDetector.RaiseInputAvailable("USER");
+            inputDetector.RaiseInputAvailable("USER ");
+            inputDetector.RaiseInputAvailable("USER I");
+            inputDetector.RaiseInputAvailable("USER IN");
+            inputDetector.RaiseInputAvailable("USER INP");
+            inputDetector.RaiseInputAvailable("USER INPU");
+            inputDetector.RaiseInputAvailable("USER INPUT");
+
+            Console.WriteLine();
+        }
     }
 
-    #region DbRepository
+    #region IDbRepository
 
     public interface IDbRepository
     {
@@ -207,9 +271,9 @@ namespace Sharpaxe.DynamicProxy.DemonstrationApp
         }
     }
 
-    #endregion DbRepository
+    #endregion IDbRepository
 
-    #region 
+    #region IConnection
 
     public interface IConnection
     {
@@ -224,5 +288,34 @@ namespace Sharpaxe.DynamicProxy.DemonstrationApp
         }
     }
 
-    #endregion
+    #endregion IConnection
+
+    #region IInputDetector
+
+    public class UserInputEventArgs : EventArgs
+    {
+        public UserInputEventArgs(string input)
+        {
+            Input = input;
+        }
+
+        public string Input { get; }
+    }
+
+    public interface IInputDetector
+    {
+        event EventHandler<UserInputEventArgs> OnInputAvailable;
+    }
+
+    public class InputDetector : IInputDetector
+    {
+        public event EventHandler<UserInputEventArgs> OnInputAvailable;
+
+        public void RaiseInputAvailable(string input)
+        {
+            OnInputAvailable.Invoke(this, new UserInputEventArgs(input));
+        }
+    }
+
+    #endregion IInputDetector
 }

@@ -192,6 +192,16 @@ namespace Sharpaxe.DynamicProxy.Internal
             return (eventsInfo.ToArray(), methodsInfo.ToArray(), propertyInfo.ToArray());
         }
 
+        public static bool HasOutParameters(this MethodInfo methodInfo)
+        {
+            if (methodInfo == null)
+            {
+                throw new ArgumentNullException(nameof(methodInfo));
+            }
+
+            return methodInfo.GetParameters().Any(p => p.IsOut);
+        }
+
         public static Type MakeGenericDelegateType(this MethodInfo methodInfo)
         {
             if (methodInfo == null)

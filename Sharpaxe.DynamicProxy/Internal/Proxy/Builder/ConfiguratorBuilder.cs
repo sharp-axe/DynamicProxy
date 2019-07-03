@@ -388,61 +388,61 @@ namespace Sharpaxe.DynamicProxy.Internal.Proxy.Builder
 
             ILGenerator.MarkLabel(mainBodyLabel);
 
-            foreach (var kvp in methodInfoToIndexMap)
+            foreach (var kvp in methodInfoToIndexMap.Where(kvp => !kvp.Key.HasOutParameters()))
             {
-              var beforeDecoratorType = kvp.Key.GetMethodArgumentsTypes().MakeGenericDelegateAction();
-              var afterDecoratorType = kvp.Key.ReturnType == typeof(void)
-                    ? kvp.Key.GetMethodArgumentsTypes().MakeGenericDelegateAction()
-                    : kvp.Key.GetMethodArgumentsTypes().Concat(kvp.Key.ReturnType).MakeGenericDelegateAction();
+                var beforeDecoratorType = kvp.Key.GetMethodArgumentsTypes().MakeGenericDelegateAction();
+                var afterDecoratorType = kvp.Key.ReturnType == typeof(void)
+                      ? kvp.Key.GetMethodArgumentsTypes().MakeGenericDelegateAction()
+                      : kvp.Key.GetMethodArgumentsTypes().Concat(kvp.Key.ReturnType).MakeGenericDelegateAction();
 
-              var decoratorsPairType = typeof(ValueTuple<,>).MakeGenericType(beforeDecoratorType, afterDecoratorType);
+                var decoratorsPairType = typeof(ValueTuple<,>).MakeGenericType(beforeDecoratorType, afterDecoratorType);
 
 
-              var jumpOverLabel = ILGenerator.DefineLabel();
-              var foreachBodyLabel = ILGenerator.DefineLabel();
-              var foreachStatementLabel = ILGenerator.DefineLabel();
+                var jumpOverLabel = ILGenerator.DefineLabel();
+                var foreachBodyLabel = ILGenerator.DefineLabel();
+                var foreachStatementLabel = ILGenerator.DefineLabel();
 
-              ILGenerator.Emit(OpCodes.Ldloc_0);
-              ILGenerator.Emit(OpCodes.Ldc_I4, kvp.Value);
-              ILGenerator.Emit(OpCodes.Bne_Un, jumpOverLabel);
+                ILGenerator.Emit(OpCodes.Ldloc_0);
+                ILGenerator.Emit(OpCodes.Ldc_I4, kvp.Value);
+                ILGenerator.Emit(OpCodes.Bne_Un, jumpOverLabel);
 
-              ILGenerator.BeginExceptionBlock();
+                ILGenerator.BeginExceptionBlock();
 
-              ILGenerator.Emit(OpCodes.Ldarg_2);
-              ILGenerator.Emit(OpCodes.Callvirt, typeof(IEnumerable<ValueTuple<object, object>>).GetMethod("GetEnumerator"));
-              ILGenerator.Emit(OpCodes.Stloc_2);
-              ILGenerator.Emit(OpCodes.Br, foreachStatementLabel);
+                ILGenerator.Emit(OpCodes.Ldarg_2);
+                ILGenerator.Emit(OpCodes.Callvirt, typeof(IEnumerable<ValueTuple<object, object>>).GetMethod("GetEnumerator"));
+                ILGenerator.Emit(OpCodes.Stloc_2);
+                ILGenerator.Emit(OpCodes.Br, foreachStatementLabel);
 
-              ILGenerator.MarkLabel(foreachBodyLabel);
-              ILGenerator.Emit(OpCodes.Ldloc_1);
-              ILGenerator.Emit(OpCodes.Ldarg_0);
-              ILGenerator.Emit(OpCodes.Ldfld, targetInstanceFieldInfo);
-              ILGenerator.Emit(OpCodes.Callvirt, typeof(FieldInfo).GetMethod("GetValue"));
-              ILGenerator.Emit(OpCodes.Ldloc_2);
-              ILGenerator.Emit(OpCodes.Callvirt, typeof(IEnumerator<ValueTuple<object, object>>).GetProperty("Current").GetGetMethod());
-              ILGenerator.Emit(OpCodes.Stloc_3);
-              ILGenerator.Emit(OpCodes.Ldloc_3);
-              ILGenerator.Emit(OpCodes.Ldfld, typeof(ValueTuple<object, object>).GetField("Item1"));
-              ILGenerator.Emit(OpCodes.Ldloc_3);
-              ILGenerator.Emit(OpCodes.Ldfld, typeof(ValueTuple<object, object>).GetField("Item2"));
-              ILGenerator.Emit(OpCodes.Newobj, decoratorsPairType.GetConstructor(new Type[] { beforeDecoratorType, afterDecoratorType }));
-              ILGenerator.Emit(OpCodes.Callvirt, methodInfoToDecoratorsFieldInfoMap[kvp.Key].FieldType.GetMethod("AddLast", new Type[] { decoratorsPairType }));
-              ILGenerator.Emit(OpCodes.Pop);
+                ILGenerator.MarkLabel(foreachBodyLabel);
+                ILGenerator.Emit(OpCodes.Ldloc_1);
+                ILGenerator.Emit(OpCodes.Ldarg_0);
+                ILGenerator.Emit(OpCodes.Ldfld, targetInstanceFieldInfo);
+                ILGenerator.Emit(OpCodes.Callvirt, typeof(FieldInfo).GetMethod("GetValue"));
+                ILGenerator.Emit(OpCodes.Ldloc_2);
+                ILGenerator.Emit(OpCodes.Callvirt, typeof(IEnumerator<ValueTuple<object, object>>).GetProperty("Current").GetGetMethod());
+                ILGenerator.Emit(OpCodes.Stloc_3);
+                ILGenerator.Emit(OpCodes.Ldloc_3);
+                ILGenerator.Emit(OpCodes.Ldfld, typeof(ValueTuple<object, object>).GetField("Item1"));
+                ILGenerator.Emit(OpCodes.Ldloc_3);
+                ILGenerator.Emit(OpCodes.Ldfld, typeof(ValueTuple<object, object>).GetField("Item2"));
+                ILGenerator.Emit(OpCodes.Newobj, decoratorsPairType.GetConstructor(new Type[] { beforeDecoratorType, afterDecoratorType }));
+                ILGenerator.Emit(OpCodes.Callvirt, methodInfoToDecoratorsFieldInfoMap[kvp.Key].FieldType.GetMethod("AddLast", new Type[] { decoratorsPairType }));
+                ILGenerator.Emit(OpCodes.Pop);
 
-              ILGenerator.MarkLabel(foreachStatementLabel);
-              ILGenerator.Emit(OpCodes.Ldloc_2);
-              ILGenerator.Emit(OpCodes.Callvirt, typeof(IEnumerator).GetMethod("MoveNext"));
-              ILGenerator.Emit(OpCodes.Brtrue, foreachBodyLabel);
-              ILGenerator.Emit(OpCodes.Leave, jumpOverLabel);
+                ILGenerator.MarkLabel(foreachStatementLabel);
+                ILGenerator.Emit(OpCodes.Ldloc_2);
+                ILGenerator.Emit(OpCodes.Callvirt, typeof(IEnumerator).GetMethod("MoveNext"));
+                ILGenerator.Emit(OpCodes.Brtrue, foreachBodyLabel);
+                ILGenerator.Emit(OpCodes.Leave, jumpOverLabel);
 
-              ILGenerator.BeginFinallyBlock();
-              ILGenerator.Emit(OpCodes.Ldloc_2);
-              ILGenerator.Emit(OpCodes.Callvirt, typeof(IDisposable).GetMethod("Dispose"));
-              ILGenerator.Emit(OpCodes.Endfinally);
+                ILGenerator.BeginFinallyBlock();
+                ILGenerator.Emit(OpCodes.Ldloc_2);
+                ILGenerator.Emit(OpCodes.Callvirt, typeof(IDisposable).GetMethod("Dispose"));
+                ILGenerator.Emit(OpCodes.Endfinally);
 
-              ILGenerator.EndExceptionBlock();
+                ILGenerator.EndExceptionBlock();
 
-              ILGenerator.MarkLabel(jumpOverLabel);
+                ILGenerator.MarkLabel(jumpOverLabel);
             }
 
             ILGenerator.Emit(OpCodes.Ret);
