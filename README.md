@@ -44,5 +44,5 @@ builder.AddPairFunctionDecorators<int>(t => t.Function, beforeDecorator, afterDe
 - Makes it possible to use Aspect-Oriented Programming paradigms
 
 #### Limitations:
-- Does not support functions with arguments passed by reference
+- Does not support functions with arguments passed by reference (`out` and `ref`)
 - Does not support internal interfaces (to be added)
